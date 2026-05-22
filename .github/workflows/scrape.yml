@@ -1,0 +1,56 @@
+name: Daily RSS Scrape
+
+# When this workflow runs:
+#  - On a daily schedule (cron in UTC — edit below to change)
+#  - On-demand via "Run workflow" button in the Actions tab (workflow_dispatch)
+#
+# Cron is always UTC on GitHub Actions. 12:00 UTC corresponds to:
+#   - 8:00 am EDT / 7:00 am EST  (US Eastern)
+#   - 7:00 am CDT / 6:00 am CST  (US Central)
+#   - 5:00 am PDT / 4:00 am PST  (US Pacific)
+# Pick your time and adjust the cron string. Reference: https://crontab.guru/
+on:
+  schedule:
+    - cron: '0 12 * * *'
+  workflow_dispatch:
+
+# The job needs write access to the repo so it can commit the updated
+# data/intel.db back. Default GITHUB_TOKEN permissions are read-only.
+permissions:
+  contents: write
+
+# Prevent overlapping runs (e.g., a manual trigger during a scheduled run).
+concurrency:
+  group: scrape
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+
+      - name: Install scraper dependencies
+        run: pip install feedparser PyYAML certifi
+
+      - name: Run RSS scraper
+        run: python scraper/rss_scraper.py
+
+      - name: Commit updated database
+        run: |
+          if git diff --quiet data/intel.db; then
+            echo "No changes to data/intel.db — nothing to commit."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/intel.db
+          git commit -m "chore(scrape): refresh intel.db ($(date -u +%Y-%m-%d))"
+          git push
