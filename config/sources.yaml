@@ -1,0 +1,15 @@
+sources:
+  - name: Energy Storage News
+    url: https://www.energy-storage.news/feed
+  - name: Canary Media
+    url: https://www.canarymedia.com/feed
+  - name: Utility Dive
+    url: https://www.utilitydive.com/feeds/news
+  - name: PV Magazine USA
+    url: https://pv-magazine-usa.com/feed
+  - name: Electrek
+    url: https://electrek.co/feed
+  - name: ESS News
+    url: https://www.ess-news.com/feed
+  - name: Renewable Energy World
+    url: https://www.renewableenergyworld.com/feed

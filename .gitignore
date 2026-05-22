@@ -1,0 +1,29 @@
+# Secrets — NEVER commit. Real env vars live here; only .env.example is tracked.
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+
+# macOS
+.DS_Store
+
+# Large or regenerable data files (LBNL workbooks, run logs)
+# Note: data/intel.db IS committed so the scraper's dedup state persists in CI.
+data/*.xlsx
+data/*.log
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
