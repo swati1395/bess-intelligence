@@ -13,3 +13,13 @@ sources:
     url: https://www.ess-news.com/feed
   - name: Renewable Energy World
     url: https://www.renewableenergyworld.com/feed
+  - name: Fluence IR
+    url: https://ir.fluenceenergy.com/rss
+  - name: Recharge News
+    url: https://www.rechargenews.com/feed
+  - name: Latitude Media
+    url: https://latitudemedia.com/feed
+  - name: PV Tech
+    url: https://www.pv-tech.org/feed
+  - name: Reuters Energy
+    url: https://www.reuters.com/business/energy/rss

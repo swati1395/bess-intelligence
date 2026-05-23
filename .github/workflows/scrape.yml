@@ -38,10 +38,15 @@ jobs:
           cache: 'pip'
 
       - name: Install scraper dependencies
-        run: pip install feedparser PyYAML certifi
+        run: pip install feedparser PyYAML certifi requests beautifulsoup4
 
       - name: Run RSS scraper
         run: python scraper/rss_scraper.py
+
+      - name: Run company newsroom scrapers
+        # Individual sites may be unreachable (Tesla Cloudflare, dead domains,
+        # JS-only pages) — the script catches per-source exceptions and exits 0.
+        run: python scraper/company_scraper.py
 
       - name: Commit updated database
         run: |
