@@ -51,6 +51,30 @@ jobs:
         # JS-only pages) — the script catches per-source exceptions and exits 0.
         run: python scraper/company_scraper.py
 
+      - name: Diagnose ANTHROPIC_API_KEY (temporary — safe metadata only)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python3 -c "
+          import os
+          k = os.environ.get('ANTHROPIC_API_KEY', '')
+          print(f'len={len(k)}')
+          print(f'prefix={k[:15]!r}')
+          print(f'suffix={k[-4:]!r}')
+          print(f'has_trailing_newline={k.endswith(chr(10))}')
+          print(f'has_trailing_whitespace={k != k.rstrip()}')
+          print(f'has_internal_whitespace={any(c.isspace() for c in k.strip())}')"
+          python3 -c "
+          import anthropic
+          try:
+              r = anthropic.Anthropic().messages.create(model='claude-opus-4-7', max_tokens=10,
+                  messages=[{'role':'user','content':'ping'}])
+              print(f'API_PING: ok, {r.usage.input_tokens} in / {r.usage.output_tokens} out')
+          except Exception as e:
+              print(f'API_PING: FAIL — {type(e).__name__}: {e}')
+              if e.__cause__:
+                  print(f'  underlying: {type(e.__cause__).__name__}: {e.__cause__}')"
+
       - name: Extract structured intelligence (Claude API)
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
