@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BESS Market Intelligence Dashboard</title>
+<style>
+:root {
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --muted: #64748b;
+  --accent: #2563eb;
+  --warning: #ea580c;
+  --critical: #dc2626;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.5;
+}
+.container { max-width: 1100px; margin: 0 auto; padding: 32px 24px 64px; }
+
+header { margin-bottom: 32px; padding-bottom: 16px; border-bottom: 2px solid var(--text); }
+header h1 { margin: 0; font-size: 24px; letter-spacing: -0.01em; }
+header .tagline { color: var(--muted); font-size: 14px; margin-top: 6px; }
+header .updated { color: var(--muted); font-size: 12px; margin-top: 8px; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+
+h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em;
+     color: var(--muted); margin: 36px 0 12px; font-weight: 600; }
+
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+        padding: 16px 20px; margin-bottom: 12px; }
+
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.stat { background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+        padding: 16px 18px; }
+.stat .label { font-size: 11px; text-transform: uppercase; color: var(--muted); letter-spacing: 0.06em; }
+.stat .value { font-size: 28px; font-weight: 700; margin-top: 4px; letter-spacing: -0.02em; }
+.stat .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+.article { border-left: 3px solid var(--accent); }
+.article.score-3 { border-left-color: #ca8a04; }
+.article.score-4 { border-left-color: var(--warning); background: #fffbeb; }
+.article.score-5 { border-left-color: var(--critical); background: #fef2f2; }
+.article-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+.article-title { font-weight: 600; font-size: 15px; color: var(--text); text-decoration: none; line-height: 1.35; }
+.article-title:hover { text-decoration: underline; }
+.article-meta { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.article-reason { margin: 0; font-size: 13px; color: var(--muted); font-style: italic; }
+
+.badge { display: inline-block; padding: 1px 7px; border-radius: 4px;
+         font-size: 10px; font-weight: 700; color: white; vertical-align: middle; }
+.badge-3 { background: #ca8a04; }
+.badge-4 { background: var(--warning); }
+.badge-5 { background: var(--critical); }
+
+.pipeline-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.pipeline-iso h3 { margin: 0 0 12px; font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--muted); font-weight: 600; font-size: 11px;
+     text-transform: uppercase; letter-spacing: 0.04em; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+tfoot th { border-bottom: none; border-top: 2px solid var(--text); color: var(--text); }
+
+.developers tbody tr td:nth-child(1) { color: var(--muted); width: 28px; }
+.developers tbody tr td:nth-child(2) { font-weight: 500; }
+
+footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border);
+         font-size: 11px; color: var(--muted); text-align: center; }
+footer code { font-family: ui-monospace, Menlo, monospace; }
+
+@media (max-width: 720px) {
+  .stats { grid-template-columns: 1fr 1fr; }
+  .pipeline-grid { grid-template-columns: 1fr; }
+  header h1 { font-size: 20px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>BESS Market Intelligence</h1>
+    <div class="tagline">ERCOT &amp; CAISO competitive intelligence — battery energy storage systems</div>
+    <div class="updated">Last refreshed: 2026-05-22 23:56 UTC</div>
+  </header>
+
+  <h2>At a glance</h2>
+  <section class="stats">
+    <div class="stat"><div class="label">Articles tracked</div>
+      <div class="value">332</div>
+      <div class="sub">across 7 RSS sources</div></div>
+    <div class="stat"><div class="label">Structured extractions</div>
+      <div class="value">332</div>
+      <div class="sub">via Claude Opus 4.7</div></div>
+    <div class="stat"><div class="label">High-significance (4+)</div>
+      <div class="value">16</div>
+      <div class="sub">market-relevant signals</div></div>
+    <div class="stat"><div class="label">Active pipeline</div>
+      <div class="value">290.03</div>
+      <div class="sub">GW — ERCOT + CAISO, active &amp; operational</div></div>
+  </section>
+
+  <h2>Recent high-significance articles</h2>
+  <section>
+    <article class="card article score-4">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span>
+        <a class="article-title" href="https://www.canarymedia.com/articles/batteries/nations-largest-urban-battery-san-francisco" target="_blank" rel="noopener">Nation&#x27;s largest urban battery to take center stage near San Francisco</a>
+      </div>
+      <div class="article-meta">
+        <span>Canary Media</span> ·
+        <span>No company</span> ·
+        <span>deployment</span> ·
+        <span>CAISO</span> ·
+        <span>—</span>
+      </div>
+      <p class="article-reason">Large urban BESS deployment in the CAISO Bay Area footprint is a meaningful competitive signal, though the summary lacks specific capacity or developer details.</p>
+    </article>
+    
+    <article class="card article score-4">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span>
+        <a class="article-title" href="https://www.canarymedia.com/articles/batteries/aes-san-diego-area-battery-opposition" target="_blank" rel="noopener">AES pulls out of San Diego area battery project after local opposition</a>
+      </div>
+      <div class="article-meta">
+        <span>Canary Media</span> ·
+        <span>AES</span> ·
+        <span>other</span> ·
+        <span>CAISO</span> ·
+        <span>—</span>
+      </div>
+      <p class="article-reason">A major IPP withdrawing a CAISO-area BESS project due to community opposition signals growing siting risk in California, materially relevant to BESS developers.</p>
+    </article>
+    
+    <article class="card article score-4">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span>
+        <a class="article-title" href="https://pv-magazine-usa.com/2026/05/18/ford-and-edf-sign-gigawatt-scale-bess-agreement-for-north-american-market/" target="_blank" rel="noopener">Ford and EDF sign gigawatt-scale BESS agreement for North American market</a>
+      </div>
+      <div class="article-meta">
+        <span>PV Magazine USA</span> ·
+        <span>Ford</span> ·
+        <span>partnership</span> ·
+        <span>No ISO</span> ·
+        <span>—</span>
+      </div>
+      <p class="article-reason">Ford&#x27;s entry into utility-scale BESS via a gigawatt-scale framework with EDF signals a new OEM competitor in the North American market, relevant to ERCOT/CAISO procurement dynamics.</p>
+    </article>
+    
+    <article class="card article score-4">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span>
+        <a class="article-title" href="https://www.energy-storage.news/ford-energy-makes-20gwh-five-year-north-america-supply-deal-with-edf/" target="_blank" rel="noopener">Ford Energy makes 20GWh, five-year North America supply deal with EDF</a>
+      </div>
+      <div class="article-meta">
+        <span>Energy Storage News</span> ·
+        <span>Ford Energy</span> ·
+        <span>contract_announcement</span> ·
+        <span>No ISO</span> ·
+        <span>20000 MWh</span>
+      </div>
+      <p class="article-reason">A 20 GWh five-year BESS supply deal between a new OEM entrant (Ford) and a major developer (EDF) is a significant competitive signal for North American battery supply, including potential ERCOT/CAISO deployments.</p>
+    </article>
+    
+    <article class="card article score-4">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span>
+        <a class="article-title" href="https://www.ess-news.com/2026/05/21/batteries-on-the-move-gridstor-buys-796-mwh-birdseye-bess-hull-street-to-buy-firstlights-1-4-gw-portfolio/" target="_blank" rel="noopener">Batteries on the move: Gridstor buys 796 MWh Birdseye BESS, Hull Street to buy FirstLight’s 1.4 GW portfolio</a>
+      </div>
+      <div class="article-meta">
+        <span>ESS News</span> ·
+        <span>Gridstor</span> ·
+        <span>merger_acquisition</span> ·
+        <span>No ISO</span> ·
+        <span>796 MWh</span>
+      </div>
+      <p class="article-reason">Sizable BESS asset acquisitions (796 MWh Birdseye plus 1.4 GW FirstLight portfolio) signal active secondary-market consolidation relevant to competitive positioning among storage developers.</p>
+    </article>
+    
+    <article class="card article score-4">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span>
+        <a class="article-title" href="https://pv-magazine-usa.com/2026/05/21/u-s-deploys-quarterly-record-10-gwh-of-energy-storage-amid-energy-security-push/" target="_blank" rel="noopener">U.S. deploys quarterly record 10 GWh of energy storage amid energy security push</a>
+      </div>
+      <div class="article-meta">
+        <span>PV Magazine USA</span> ·
+        <span>No company</span> ·
+        <span>analysis_commentary</span> ·
+        <span>No ISO</span> ·
+        <span>10000 MWh</span>
+      </div>
+      <p class="article-reason">Record-setting US quarterly storage deployment with upward five-year pipeline revision is a meaningful macro signal for BESS competitive positioning, though not a single-market ERCOT/CAISO event.</p>
+    </article>
+    
+    <article class="card article score-4">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span>
+        <a class="article-title" href="https://www.ess-news.com/2026/05/22/us-deploys-quarterly-record-10-gwh-of-energy-storage-amid-energy-security-push/" target="_blank" rel="noopener">US deploys quarterly record 10 GWh of energy storage amid energy security push</a>
+      </div>
+      <div class="article-meta">
+        <span>ESS News</span> ·
+        <span>No company</span> ·
+        <span>analysis_commentary</span> ·
+        <span>No ISO</span> ·
+        <span>10000 MWh</span>
+      </div>
+      <p class="article-reason">Record quarterly US storage deployment with upward five-year pipeline revision is a meaningful market-wide signal for BESS competitors in ERCOT/CAISO.</p>
+    </article>
+    
+    <article class="card article score-4">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span>
+        <a class="article-title" href="https://www.energy-storage.news/chinas-gotion-and-richardson-electronics-partner-for-us-made-bess/" target="_blank" rel="noopener">China’s Gotion and Richardson Electronics partner for US-made BESS</a>
+      </div>
+      <div class="article-meta">
+        <span>Energy Storage News</span> ·
+        <span>Gotion</span> ·
+        <span>partnership</span> ·
+        <span>No ISO</span> ·
+        <span>—</span>
+      </div>
+      <p class="article-reason">Chinese OEM partnering with a US manufacturer to navigate FEOC restrictions is a meaningful competitive signal for domestic BESS supply chains relevant to ERCOT/CAISO procurement.</p>
+    </article>
+    
+    <article class="card article score-4">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span>
+        <a class="article-title" href="https://www.energy-storage.news/masdar-picks-sungrow-as-supplier-for-worlds-largest-24-7-renewable-energy-project-in-uae/" target="_blank" rel="noopener">Masdar picks Sungrow as supplier for world’s largest 24/7 renewable energy project in UAE</a>
+      </div>
+      <div class="article-meta">
+        <span>Energy Storage News</span> ·
+        <span>Sungrow</span> ·
+        <span>contract_announcement</span> ·
+        <span>No ISO</span> ·
+        <span>—</span>
+      </div>
+      <p class="article-reason">Sungrow, a top competitor BESS OEM, winning supply for the world&#x27;s first gigawatt-scale 24/7 dispatchable renewables project is a meaningful competitive signal even though it&#x27;s outside ERCOT/CAISO.</p>
+    </article>
+    
+    <article class="card article score-4">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span>
+        <a class="article-title" href="https://www.ess-news.com/2026/05/22/sungrow-wins-7-5-gwh-masdar-order-for-abu-dhabi-24-7-solar-storage-project/" target="_blank" rel="noopener">Sungrow wins 7.5 GWh Masdar order for Abu Dhabi 24/7 solar-storage project</a>
+      </div>
+      <div class="article-meta">
+        <span>ESS News</span> ·
+        <span>Sungrow</span> ·
+        <span>contract_announcement</span> ·
+        <span>No ISO</span> ·
+        <span>7500 MWh</span>
+      </div>
+      <p class="article-reason">Massive 7.5 GWh order for a major Tesla/Fluence competitor signals Sungrow&#x27;s growing global scale and validates PowerTitan 3.0, relevant read-across for ERCOT/CAISO procurement competition.</p>
+    </article>
+    
+    <article class="card article score-4">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span>
+        <a class="article-title" href="https://pv-magazine-usa.com/2026/05/15/sunraycer-renewables-closes-901-million-financing-for-473-mwh-bess-portfolio-in-texas/" target="_blank" rel="noopener">Sunraycer Renewables closes $901 million financing for 473 MWh BESS portfolio in Texas</a>
+      </div>
+      <div class="article-meta">
+        <span>PV Magazine USA</span> ·
+        <span>Sunraycer Renewables</span> ·
+        <span>contract_announcement</span> ·
+        <span>ERCOT</span> ·
+        <span>473 MWh</span>
+      </div>
+      <p class="article-reason">Sizable ERCOT solar-plus-storage portfolio with hyperscaler PPA and major financing close signals continued capital flow and Google&#x27;s growing role as BESS offtaker in Texas.</p>
+    </article>
+    
+    <article class="card article score-4">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span>
+        <a class="article-title" href="https://electrek.co/2026/05/19/tesla-tsla-solar-panel-factory-houston-brookshire-100-gw/" target="_blank" rel="noopener">Exclusive: Tesla (TSLA) is building its giant solar panel factory in Houston</a>
+      </div>
+      <div class="article-meta">
+        <span>Electrek</span> ·
+        <span>Tesla</span> ·
+        <span>deployment</span> ·
+        <span>ERCOT</span> ·
+        <span>—</span>
+      </div>
+      <p class="article-reason">Tesla&#x27;s solar factory is co-located with the Brookshire Megapack Megafactory in ERCOT territory, reinforcing Tesla&#x27;s Texas manufacturing footprint that directly supplies the BESS market, though the article itself focuses on solar.</p>
+    </article>
+    
+    <article class="card article score-4">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span>
+        <a class="article-title" href="https://pv-magazine-usa.com/2026/05/21/integration-and-commissioning-support-helps-complete-220-mw-bess-project-in-texas/" target="_blank" rel="noopener">Integration and commissioning support helps complete 220 MW BESS project in Texas</a>
+      </div>
+      <div class="article-meta">
+        <span>PV Magazine USA</span> ·
+        <span>GridStor</span> ·
+        <span>deployment</span> ·
+        <span>ERCOT</span> ·
+        <span>—</span>
+      </div>
+      <p class="article-reason">A 220 MW BESS commissioning in ERCOT is a meaningful competitive datapoint, though missing duration limits MWh sizing and GridStor is a mid-tier developer.</p>
+    </article>
+    
+    <article class="card article score-4">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span>
+        <a class="article-title" href="https://www.ess-news.com/2026/05/22/bess-financing-spearmint-closes-450-million-for-600-mwh-ercot-project-powerbank-leases-60-mwh-across-new-york/" target="_blank" rel="noopener">BESS financing: Spearmint closes $450 million for 600 MWh ERCOT project, PowerBank leases 60 MWh across New York</a>
+      </div>
+      <div class="article-meta">
+        <span>ESS News</span> ·
+        <span>Spearmint Energy</span> ·
+        <span>deployment</span> ·
+        <span>ERCOT</span> ·
+        <span>600 MWh</span>
+      </div>
+      <p class="article-reason">A $450M financing close for a 600 MWh standalone ERCOT BESS project is a meaningful competitive signal showing continued capital flow into Texas storage.</p>
+    </article>
+    
+    <article class="card article score-4">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span>
+        <a class="article-title" href="https://www.energy-storage.news/ldes-investor-frontier-power-acquires-480mwh-texas-bess-portfolio-from-bimergen/" target="_blank" rel="noopener">LDES investor Frontier Power acquires 480MWh Texas BESS portfolio from Bimergen</a>
+      </div>
+      <div class="article-meta">
+        <span>Energy Storage News</span> ·
+        <span>Frontier Power</span> ·
+        <span>merger_acquisition</span> ·
+        <span>ERCOT</span> ·
+        <span>480 MWh</span>
+      </div>
+      <p class="article-reason">Mid-sized 480MWh ERCOT BESS portfolio changing hands signals continued M&amp;A activity and capital flows into Texas storage assets, relevant to competitive positioning.</p>
+    </article>
+    </section>
+
+  <h2>Interconnection queue — by ISO &amp; status</h2>
+  <section class="pipeline-grid">
+        <div class="card pipeline-iso">
+          <h3>ERCOT</h3>
+          <table>
+            <thead><tr><th>Status</th><th class='num'>Projects</th><th class='num'>Capacity</th></tr></thead>
+            <tbody><tr><td>active</td><td class='num'>1,199</td><td class='num'>165.32 GW</td></tr>
+<tr><td>withdrawn</td><td class='num'>142</td><td class='num'>24.38 GW</td></tr>
+<tr><td>suspended</td><td class='num'>64</td><td class='num'>12.49 GW</td></tr>
+<tr><td>operational</td><td class='num'>64</td><td class='num'>4.17 GW</td></tr></tbody>
+            <tfoot><tr><th>Total</th>
+              <th class='num'>1,469</th>
+              <th class='num'>206.36 GW</th></tr></tfoot>
+          </table>
+        </div>
+        
+        <div class="card pipeline-iso">
+          <h3>CAISO</h3>
+          <table>
+            <thead><tr><th>Status</th><th class='num'>Projects</th><th class='num'>Capacity</th></tr></thead>
+            <tbody><tr><td>withdrawn</td><td class='num'>1,046</td><td class='num'>209.17 GW</td></tr>
+<tr><td>active</td><td class='num'>389</td><td class='num'>110.95 GW</td></tr>
+<tr><td>operational</td><td class='num'>68</td><td class='num'>9.60 GW</td></tr>
+<tr><td>suspended</td><td class='num'>1</td><td class='num'>0.06 GW</td></tr></tbody>
+            <tfoot><tr><th>Total</th>
+              <th class='num'>1,504</th>
+              <th class='num'>329.78 GW</th></tr></tfoot>
+          </table>
+        </div>
+        </section>
+  <p style="font-size:11px; color: var(--muted); margin: 8px 0 0 4px;">
+    Source: LBNL Queued Up 2026. GW = nameplate power capacity (no duration in dataset).</p>
+
+  <h2>Top 10 named developers by queue capacity</h2>
+  
+    <div class="card">
+      <table class="developers">
+        <thead><tr><th>#</th><th>Developer</th><th class='num'>Projects</th><th class='num'>GW</th><th class='num'>ERCOT / CAISO</th></tr></thead>
+        <tbody><tr><td>1</td><td>Kickstart Infrastructure LLC</td><td class='num'>6</td><td class='num'>2.03 GW</td><td class='num'>6/0</td></tr>
+<tr><td>2</td><td>Cobisa</td><td class='num'>1</td><td class='num'>2.02 GW</td><td class='num'>1/0</td></tr>
+<tr><td>3</td><td>Tempus Power management LLC</td><td class='num'>14</td><td class='num'>1.69 GW</td><td class='num'>14/0</td></tr>
+<tr><td>4</td><td>Nabla Park LLC</td><td class='num'>2</td><td class='num'>1.50 GW</td><td class='num'>2/0</td></tr>
+<tr><td>5</td><td>Horizon Energy Storage Greenfield Project Holdings LLC</td><td class='num'>7</td><td class='num'>1.39 GW</td><td class='num'>7/0</td></tr>
+<tr><td>6</td><td>CED Development Inc.</td><td class='num'>10</td><td class='num'>1.32 GW</td><td class='num'>10/0</td></tr>
+<tr><td>7</td><td>Black Mountain Energy Storage II</td><td class='num'>6</td><td class='num'>1.31 GW</td><td class='num'>6/0</td></tr>
+<tr><td>8</td><td>Tempus power management LLC</td><td class='num'>12</td><td class='num'>1.23 GW</td><td class='num'>12/0</td></tr>
+<tr><td>9</td><td>ENGIE IR Holdings LLC</td><td class='num'>3</td><td class='num'>1.21 GW</td><td class='num'>3/0</td></tr>
+<tr><td>10</td><td>Nova Clean Energy LLC</td><td class='num'>6</td><td class='num'>1.19 GW</td><td class='num'>6/0</td></tr></tbody>
+      </table>
+    </div>
+    
+
+  <footer>
+    Generated from <code>data/intel.db</code> by <code>dashboard/build.py</code> ·
+    Updated via GitHub Actions ·
+    <a href="https://github.com/swati1395/bess-intelligence">source</a>
+  </footer>
+</div>
+</body>
+</html>
