@@ -1,8 +1,12 @@
-name: Daily RSS Scrape
+name: Daily BESS Intelligence Pipeline
 
 # When this workflow runs:
 #  - On a daily schedule (cron in UTC — edit below to change)
 #  - On-demand via "Run workflow" button in the Actions tab (workflow_dispatch)
+#
+# Pipeline order: scrape → extract → email digest → rebuild dashboard → commit.
+# Each Claude API + Gmail step reads secrets from the repo's Actions secrets;
+# names must match GitHub Secret names exactly (case-sensitive).
 #
 # Cron is always UTC on GitHub Actions. 12:00 UTC corresponds to:
 #   - 8:00 am EDT / 7:00 am EST  (US Eastern)
@@ -14,18 +18,17 @@ on:
     - cron: '0 12 * * *'
   workflow_dispatch:
 
-# The job needs write access to the repo so it can commit the updated
-# data/intel.db back. Default GITHUB_TOKEN permissions are read-only.
+# Needs write access to commit the updated DB and dashboard back.
 permissions:
   contents: write
 
-# Prevent overlapping runs (e.g., a manual trigger during a scheduled run).
+# Prevent overlapping runs (e.g., manual trigger during a scheduled run).
 concurrency:
-  group: scrape
+  group: pipeline
   cancel-in-progress: false
 
 jobs:
-  scrape:
+  pipeline:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -37,8 +40,8 @@ jobs:
           python-version: '3.13'
           cache: 'pip'
 
-      - name: Install scraper dependencies
-        run: pip install feedparser PyYAML certifi requests beautifulsoup4
+      - name: Install dependencies
+        run: pip install feedparser PyYAML certifi requests beautifulsoup4 anthropic pydantic python-dotenv
 
       - name: Run RSS scraper
         run: python scraper/rss_scraper.py
@@ -48,14 +51,29 @@ jobs:
         # JS-only pages) — the script catches per-source exceptions and exits 0.
         run: python scraper/company_scraper.py
 
-      - name: Commit updated database
+      - name: Extract structured intelligence (Claude API)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python extractor/intel_extractor.py --prioritize-tags
+
+      - name: Send daily digest email
+        env:
+          GMAIL_SENDER: ${{ secrets.GMAIL_SENDER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          ALERT_RECIPIENT: ${{ secrets.ALERT_RECIPIENT }}
+        run: python alerts/email_digest.py --daily
+
+      - name: Rebuild dashboard
+        run: python dashboard/build.py
+
+      - name: Commit updated database and dashboard
         run: |
-          if git diff --quiet data/intel.db; then
-            echo "No changes to data/intel.db — nothing to commit."
+          if git diff --quiet data/intel.db docs/index.html; then
+            echo "No changes — nothing to commit."
             exit 0
           fi
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/intel.db
-          git commit -m "chore(scrape): refresh intel.db ($(date -u +%Y-%m-%d))"
+          git add data/intel.db docs/index.html
+          git commit -m "chore: refresh intel.db + dashboard ($(date -u +%Y-%m-%d))"
           git push
