@@ -23,6 +23,7 @@ import argparse
 import os
 import re
 import sys
+from datetime import datetime, timezone
 from urllib.parse import urljoin
 
 import requests
@@ -69,6 +70,56 @@ def article_dict(title: str, url: str, summary: str = "", date_raw: str = "",
         "summary": summary,
         "tags": auto_tag(title, summary),
     }
+
+
+_TZ_SUFFIX_RE = re.compile(r"\s+\b(ET|EDT|EST|GMT|UTC|PST|PDT|CT|CST|CDT|PT)\b\s*$", re.I)
+
+
+def parse_loose_date(s: str) -> str:
+    """Parse common human-readable date formats into ISO 8601 UTC.
+    Examples handled: 'August 11, 2025 16:01 ET', '2022.08.16', 'Aug 11, 2025'.
+    Returns '' if unparseable; caller can fall back to raw string."""
+    if not s:
+        return ""
+    s_clean = _TZ_SUFFIX_RE.sub("", s.strip())
+    for fmt in ("%B %d, %Y %H:%M", "%B %d, %Y", "%b %d, %Y",
+                "%Y-%m-%d", "%Y.%m.%d", "%d %B %Y", "%m/%d/%Y"):
+        try:
+            dt = datetime.strptime(s_clean, fmt)
+            return dt.replace(tzinfo=timezone.utc).isoformat()
+        except ValueError:
+            continue
+    return to_iso_utc(raw_string=s)
+
+
+def scrape_globenewswire_list(url: str) -> list:
+    """Shared scraper for GlobeNewswire search results (.newsLink pattern).
+    Used by both Fluence (tag search) and Tesla (organization search)."""
+    soup = BeautifulSoup(fetch_html(url), "html.parser")
+    items, seen = [], set()
+    for nl in soup.find_all(class_="newsLink"):
+        main = nl.find(class_="mainLink")
+        if not main:
+            continue
+        link = main.find("a", href=True)
+        if not link:
+            continue
+        href = urljoin(url, link["href"])
+        if href in seen:
+            continue
+        seen.add(href)
+        title = link.get_text(" ", strip=True)
+        if not title or len(title) < 8:
+            continue
+        date_raw = ""
+        ds = nl.find(class_="date-source")
+        if ds:
+            first_span = ds.find("span")
+            if first_span:
+                date_raw = first_span.get_text(" ", strip=True)
+        items.append(article_dict(title, href, date_raw=date_raw,
+                                  date_iso=parse_loose_date(date_raw)))
+    return items
 
 
 # === Per-company scrapers ===========================================
@@ -143,52 +194,143 @@ def scrape_sungrow() -> list:
 
 
 def scrape_tesla() -> list:
-    raise RuntimeError(
-        "Tesla blog (tesla.com/blog) returns HTTP 403 to plain requests — "
-        "Cloudflare bot challenge. Bypassing requires a headless browser "
-        "(Playwright/Selenium) which adds heavy CI deps. Recommend pulling "
-        "Tesla news via Reuters/Electrek RSS feeds (already in sources.yaml)."
+    """Tesla news via GlobeNewswire tag search. Cloudflare blocks tesla.com/blog
+    directly. Note: /search/organization/Tesla returns 0 results — Tesla doesn't
+    have an org profile on GNW under that name. /search/tag/tesla works (includes
+    third-party press releases mentioning Tesla). Results are then filtered
+    downstream to TESLA_KEYWORDS (Megapack/Powerwall/energy storage/Autobidder/Lathrop)."""
+    return scrape_globenewswire_list(
+        "https://www.globenewswire.com/search/tag/tesla"
     )
 
 
 def scrape_fluence() -> list:
-    raise RuntimeError(
-        "Fluence newsroom URLs (fluenceenergy.com/news, /news-events, "
-        "/press-releases) all return 404. Fluence IR RSS "
-        "(ir.fluenceenergy.com/rss) was added to sources.yaml in Part 1."
+    """Fluence press releases via GlobeNewswire tag search. The
+    fluenceenergy.com/news URL no longer exists; GlobeNewswire aggregates
+    their wire releases plus a few third-party releases mentioning Fluence
+    (analyst notes, class-action filings) that get filtered by keyword
+    tagging downstream."""
+    return scrape_globenewswire_list(
+        "https://www.globenewswire.com/search/tag/fluence"
     )
 
 
 def scrape_hithium() -> list:
-    raise RuntimeError(
-        "Hithium news pages (hithium.com/news, /en/news) return empty bodies "
-        "or 404 — the site appears to be entirely JS-rendered. Would need "
-        "Playwright or an undocumented API endpoint."
-    )
+    """Hithium newsroom — uses /newsroom/LatestUpdates.html as the article listing.
+    Articles are <h1> tags nested inside parent <a> wrappers, each linking to
+    /newsroom/latest/details/<id>.html."""
+    url = "https://www.hithium.com/newsroom/LatestUpdates.html"
+    soup = BeautifulSoup(fetch_html(url), "html.parser")
+    items, seen = [], set()
+    for h1 in soup.find_all("h1"):
+        link = h1.find_parent("a", href=True) or h1.find("a", href=True)
+        if not link:
+            continue
+        href = urljoin(url, link["href"])
+        if "/details/" not in href:
+            continue
+        if href in seen:
+            continue
+        seen.add(href)
+        title = h1.get_text(" ", strip=True)
+        if not title or len(title) < 8:
+            continue
+        items.append(article_dict(title, href))
+    return items
 
 
 def scrape_trina() -> list:
-    raise RuntimeError(
-        "trinastorage.com is dead — domain returns 'Squarespace - Website "
-        "Expired'. Trina Storage may have rebranded under the parent Trina "
-        "Solar site (trinasolar.com); use that if BESS coverage is needed."
-    )
+    """Trina parent-company press release page. Original trinastorage.com is
+    a dead domain; trinasolar.com is the parent. Note: the press-releases page
+    loads its actual list via JavaScript — this scraper picks up whatever
+    article links are present in the initial HTML (often 0)."""
+    url = "https://www.trinasolar.com/eu/press-releases/"
+    soup = BeautifulSoup(fetch_html(url), "html.parser")
+    items, seen = [], set()
+    # Press release URLs are long slugged paths under trinasolar.com (not nav)
+    for a in soup.find_all("a", href=True):
+        href = a["href"]
+        if href.startswith("#") or href.startswith("javascript:"):
+            continue
+        # Heuristic: a press release URL has a long kebab-case slug as last segment
+        last = href.rstrip("/").split("/")[-1]
+        slug_len = len(last.replace("-", ""))
+        if slug_len < 25 or " " in last:
+            continue
+        # Must be on trinasolar.com domain or relative
+        if href.startswith("http") and "trinasolar.com" not in href:
+            continue
+        full = urljoin(url, href)
+        if full in seen:
+            continue
+        title = a.get_text(" ", strip=True)
+        if not title or len(title) < 15:
+            continue
+        seen.add(full)
+        items.append(article_dict(title, full))
+    return items
 
 
 def scrape_lg_es() -> list:
-    raise RuntimeError(
-        "LG Energy Solution (lgenergysolution.com) refuses connection from "
-        "this client — likely IP-based or anti-bot blocking. Their news is "
-        "syndicated by Korean industry press and trade outlets."
-    )
+    """LG Energy Solution newsroom on the lgensol.com domain. Note: the news
+    list (<ul class='news-list'>) is populated by JavaScript at runtime —
+    plain HTTP returns an empty <ul>. We scan all anchors as a best effort;
+    expect 0 articles unless LG ES adds SSR or a JSON endpoint we can find."""
+    url = "https://www.lgensol.com/en/company/newsroom"
+    soup = BeautifulSoup(fetch_html(url), "html.parser")
+    items, seen = [], set()
+    for a in soup.find_all("a", href=True):
+        href = a["href"]
+        # Looking for individual news article URLs
+        if not re.search(r"(news|article|press|release)/\w+", href, re.I):
+            continue
+        if href.rstrip("/").endswith("newsroom"):
+            continue
+        full = urljoin(url, href)
+        if full in seen:
+            continue
+        title = a.get_text(" ", strip=True)
+        if not title or len(title) < 12:
+            continue
+        seen.add(full)
+        items.append(article_dict(title, full))
+    return items
 
 
 def scrape_samsung_sdi() -> list:
-    raise RuntimeError(
-        "Samsung SDI newsroom URL (samsung.com/global/business/sdi/news) "
-        "returns 404 at every variant tested. SDI news typically reaches "
-        "English-language readers via Reuters/Korea Times rather than direct."
-    )
+    """Samsung SDI news at /sdi-now/sdi-news/list.html, paginated via
+    ?pageIndex=1..5. Every <li> in news_list shares the same href
+    (news_view.html — they wire up onclick handlers via JS), so we synthesize
+    unique URLs from each title slug for our dedup to work."""
+    base = "https://www.samsungsdi.com/sdi-now/sdi-news/list.html"
+    items, seen = [], set()
+    for page in range(1, 6):
+        url = f"{base}?pageIndex={page}"
+        try:
+            soup = BeautifulSoup(fetch_html(url), "html.parser")
+        except requests.RequestException:
+            continue
+        news_list = soup.find(class_="news_list")
+        if not news_list:
+            continue
+        for li in news_list.find_all("li"):
+            tit_el = li.find(class_="tit")
+            date_el = li.find(class_="date")
+            if not tit_el:
+                continue
+            title = tit_el.get_text(" ", strip=True)
+            if not title or len(title) < 8:
+                continue
+            date_raw = date_el.get_text(" ", strip=True) if date_el else ""
+            slug = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")[:80]
+            synth_url = (f"https://www.samsungsdi.com/sdi-now/sdi-news/"
+                         f"news_view.html#{slug}")
+            if synth_url in seen:
+                continue
+            seen.add(synth_url)
+            items.append(article_dict(title, synth_url, date_raw=date_raw,
+                                      date_iso=parse_loose_date(date_raw)))
+    return items
 
 
 # === Source registry ================================================

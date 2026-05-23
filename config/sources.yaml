@@ -16,10 +16,16 @@ sources:
   - name: Fluence IR
     url: https://ir.fluenceenergy.com/rss
   - name: Recharge News
-    url: https://www.rechargenews.com/feed
+    url: https://services.rechargenews.com/api/feed/rss
   - name: Latitude Media
     url: https://latitudemedia.com/feed
   - name: PV Tech
     url: https://www.pv-tech.org/feed
   - name: Reuters Energy
     url: https://www.reuters.com/business/energy/rss
+  - name: GlobeNewswire Renewable Energy Equipment
+    url: https://www.globenewswire.com/RssFeed/industry/56
+  - name: BusinessWire Energy
+    url: https://www.businesswire.com/rss/home/rss_by_subject/energy
+  - name: PRNewswire
+    url: https://www.prnewswire.com/rss/news-releases-list.rss

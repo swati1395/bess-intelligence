@@ -147,7 +147,11 @@ def scrape_source(conn: sqlite3.Connection, source: dict) -> tuple:
     url = source["url"]
     print(f"  → Fetching {name} …", end=" ", flush=True)
 
-    feed = feedparser.parse(url)
+    try:
+        feed = feedparser.parse(url)
+    except Exception as e:
+        print(f"FAILED ({type(e).__name__}: {str(e)[:80]})")
+        return 0, 0
     if getattr(feed, "bozo", 0) and not feed.entries:
         print(f"FAILED ({getattr(feed, 'bozo_exception', 'unknown error')})")
         return 0, 0
