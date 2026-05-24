@@ -297,6 +297,104 @@ def scrape_lg_es() -> list:
     return items
 
 
+FLUENCE_BLOG_DATE_RE = re.compile(
+    r"(January|February|March|April|May|June|July|August|September|October|November|December)"
+    r"\s+\d+,?\s+\d{4}"
+)
+
+
+def scrape_fluence_blog() -> list:
+    """Fluence Blog at blog.fluenceenergy.com — HubSpot CMS, server-rendered.
+    Paginates /page/2..5. Each post is an <a> wrapper containing an <h3> for
+    the title and an inline span with the date in 'Month D, YYYY' format."""
+    base = "https://blog.fluenceenergy.com"
+    items, seen = [], set()
+    for page in [1, 2, 3, 4, 5]:
+        url = base if page == 1 else f"{base}/page/{page}"
+        try:
+            soup = BeautifulSoup(fetch_html(url), "html.parser")
+        except requests.RequestException:
+            continue
+        for a in soup.find_all("a", href=True):
+            href = a["href"]
+            if not href.startswith("https://blog.fluenceenergy.com/"):
+                continue
+            slug = href.rstrip("/").split("/")[-1]
+            if len(slug) < 15 or slug == "page" or slug.isdigit():
+                continue
+            h3 = a.find("h3")
+            if not h3:
+                continue
+            if href in seen:
+                continue
+            seen.add(href)
+            title = h3.get_text(" ", strip=True)
+            if not title or len(title) < 8:
+                continue
+            m = FLUENCE_BLOG_DATE_RE.search(a.get_text(" ", strip=True))
+            date_raw = m.group(0) if m else ""
+            items.append(article_dict(title, href, date_raw=date_raw,
+                                      date_iso=parse_loose_date(date_raw)))
+    return items
+
+
+TESLA_IR_KEYWORDS = ["energy storage", "gwh", "megapack", "powerwall",
+                     "autobidder", "deployment"]
+
+
+def scrape_tesla_ir() -> list:
+    """Tesla IR Press at ir.tesla.com/press — Drupal CMS, paginates ?page=0,1.
+    Filters titles to BESS-relevant content only.
+
+    Reality check: this URL returns HTTP 403 to plain Python requests due to
+    Cloudflare bot management (__cf_bm cookie requires a JS-capable client to
+    pass the challenge). The scraper attempts the request and reports clean
+    failure when blocked; if Cloudflare ever softens or the request comes from
+    a whitelisted CI runner IP, it will start yielding results automatically.
+    For reliable Tesla BESS coverage in the meantime, the GlobeNewswire-based
+    Tesla scraper (scrape_tesla) and the Electrek/Reuters RSS feeds are the
+    productive paths."""
+    base = "https://ir.tesla.com/press"
+    items, seen = [], set()
+    any_success = False
+    last_status = None
+    for page in [0, 1]:
+        url = f"{base}?page={page}"
+        try:
+            r = requests.get(url, headers=HEADERS, timeout=TIMEOUT,
+                             allow_redirects=True)
+            last_status = r.status_code
+            if r.status_code != 200:
+                continue
+        except requests.RequestException:
+            continue
+        any_success = True
+        soup = BeautifulSoup(r.text, "html.parser")
+        # Drupal views typically use h2/h3 inside views-row containers
+        for h in soup.find_all(["h2", "h3", "h4"]):
+            link = h.find("a", href=True) or h.find_parent("a", href=True)
+            if not link:
+                continue
+            href = urljoin(base, link["href"])
+            title = h.get_text(" ", strip=True)
+            if not title or len(title) < 12:
+                continue
+            tlow = title.lower()
+            if not any(kw in tlow for kw in TESLA_IR_KEYWORDS):
+                continue
+            if href in seen:
+                continue
+            seen.add(href)
+            items.append(article_dict(title, href))
+    if not any_success:
+        raise RuntimeError(
+            f"ir.tesla.com/press returned HTTP {last_status} (Cloudflare bot "
+            f"challenge). Plain Python requests cannot pass the JS-cookie "
+            f"check. Bypass requires Playwright/Selenium with a real browser."
+        )
+    return items
+
+
 def scrape_samsung_sdi() -> list:
     """Samsung SDI news at /sdi-now/sdi-news/list.html, paginated via
     ?pageIndex=1..5. Every <li> in news_list shares the same href
@@ -341,7 +439,9 @@ SOURCES = {
     "byd":           ("BYD",          scrape_byd),
     "sungrow":       ("Sungrow",      scrape_sungrow),
     "tesla":         ("Tesla",        scrape_tesla),
+    "tesla_ir":      ("Tesla IR",     scrape_tesla_ir),
     "fluence":       ("Fluence",      scrape_fluence),
+    "fluence_blog":  ("Fluence Blog", scrape_fluence_blog),
     "hithium":       ("Hithium",      scrape_hithium),
     "trina":         ("Trina",        scrape_trina),
     "lg_es":         ("LG ES",        scrape_lg_es),
