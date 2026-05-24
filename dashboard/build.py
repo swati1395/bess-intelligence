@@ -201,10 +201,13 @@ def render_developers_table(devs: list) -> str:
     return f"""
     <div class="card">
       <table class="developers">
-        <thead><tr><th>#</th><th>Developer</th><th class='num'>Projects</th><th class='num'>GW</th><th class='num'>ERCOT / CAISO</th></tr></thead>
+        <thead><tr><th>#</th><th>Developer</th><th class='num'>Projects</th><th class='num'>GW</th><th class='num'>ERCOT | CAISO</th></tr></thead>
         <tbody>{rows}</tbody>
       </table>
     </div>
+    <p style="font-size:11px; color: var(--text-secondary); margin: 6px 0 0 4px;">
+      Format: projects in ERCOT / projects in CAISO
+    </p>
     """
 
 
