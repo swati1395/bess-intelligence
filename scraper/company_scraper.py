@@ -124,26 +124,57 @@ def scrape_globenewswire_list(url: str) -> list:
 
 # === Per-company scrapers ===========================================
 
+_FORM_ENERGY_DATE_RE = re.compile(
+    r"(January|February|March|April|May|June|July|August|September|October|November|December)"
+    r"\s+\d+,?\s+\d{4}"
+)
+
+
 def scrape_form_energy() -> list:
-    """Form Energy newsroom (WordPress, posts on listing page)."""
+    """Form Energy newsroom (WordPress + Elementor). Two post types co-exist:
+      - 'post':          Form Energy's own announcements (URLs on formenergy.com)
+      - 'press_article': External coverage (URLs on Fast Company / TechCrunch / etc.)
+    Both are useful competitive signals; both stored under source_name 'Form Energy'.
+
+    Date extraction: there's no <time> tag — the date is rendered as inline text
+    in 'Month D, YYYY' format, typically immediately before the title. Regex-match
+    on the post container's full text.
+
+    URL extraction: the FIRST anchor in each post container is often an image
+    wrapper or a tag link, not the title. Find the anchor with substantive text
+    (>20 chars, not 'Read More') instead."""
     url = "https://formenergy.com/news/"
     soup = BeautifulSoup(fetch_html(url), "html.parser")
     items, seen = [], set()
+
     for post in soup.find_all(class_=re.compile(r"^post-\d+$")):
-        link = post.find("a", href=True)
-        if not link:
+        # Find the title anchor: skip empty/image links, skip "Read More" buttons,
+        # skip short tag links (Fast Company, TechCrunch, etc. appear with their
+        # publication name as link text — those are tag pages, not titles).
+        title = href = None
+        for a in post.find_all("a", href=True):
+            text = a.get_text(" ", strip=True)
+            if not text or len(text) < 20:
+                continue
+            if text.lower() in ("read more",):
+                continue
+            title, href = text, a["href"]
+            break
+        if not title or not href:
             continue
-        href = urljoin(url, link["href"])
+        # Strip Elementor-style new-tab fragments (#new_tab, # at end)
+        href = re.sub(r"#new_tab.*$", "", href).rstrip("#")
+        href = urljoin(url, href)
         if href in seen:
             continue
         seen.add(href)
-        title_el = post.find(["h1", "h2", "h3", "h4"]) or link
-        title = title_el.get_text(" ", strip=True)
-        if not title or len(title) < 8:
-            title = link.get("title", "") or link.get_text(" ", strip=True)
-        if not title or "form energy" in title.lower() and len(title) < 25:
-            continue
-        items.append(article_dict(title, href))
+
+        # Date: regex the post's full text for the first 'Month D, YYYY'
+        m = _FORM_ENERGY_DATE_RE.search(post.get_text(" ", strip=True))
+        date_raw = m.group(0) if m else ""
+
+        items.append(article_dict(title, href, date_raw=date_raw,
+                                  date_iso=parse_loose_date(date_raw)))
     return items
 
 

@@ -15,7 +15,7 @@ load_dotenv(os.path.join(PROJECT_ROOT, ".env"))
 
 from database.setup_db import DB_PATH, init_db  # noqa: E402
 
-MODEL = "claude-opus-4-7"
+MODEL = "claude-sonnet-4-6"
 BATCH_SIZE = 10
 MAX_SUMMARY_CHARS = 4000
 
