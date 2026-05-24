@@ -212,10 +212,14 @@ def main() -> None:
                         help="Process BESS-tagged articles first (ERCOT/CAISO > COMPETITOR/TESLA > POLICY/SAFETY > untagged).")
     args = parser.parse_args()
 
-    if not os.environ.get("ANTHROPIC_API_KEY"):
+    api_key = (os.environ.get("ANTHROPIC_API_KEY") or "").strip()
+    if not api_key:
         sys.exit("Error: ANTHROPIC_API_KEY environment variable is not set.")
 
-    client = anthropic.Anthropic()
+    # Pass key explicitly (stripped). Avoids 'Illegal header value' errors when
+    # the env var carries a trailing newline — common when secrets get pasted
+    # into GitHub Actions from a file or chat.
+    client = anthropic.Anthropic(api_key=api_key)
     conn = init_db()
 
     articles = fetch_unprocessed(conn, limit=args.limit, prioritize_tags=args.prioritize_tags)
