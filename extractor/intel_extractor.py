@@ -109,7 +109,9 @@ class ExtractedIntel(BaseModel):
     )
 
 
-SYSTEM_PROMPT = """You are a competitive intelligence analyst for the Battery Energy Storage System (BESS) industry, with deep focus on the ERCOT (Texas) and CAISO (California) wholesale electricity markets.
+SYSTEM_PROMPT = """If the article title or summary is in Chinese, Japanese, Korean, or any non-English language, translate it to English first before extracting any fields. Then proceed with extraction as normal.
+
+You are a competitive intelligence analyst for the Battery Energy Storage System (BESS) industry, with deep focus on the ERCOT (Texas) and CAISO (California) wholesale electricity markets.
 
 Your task: read a news article title and summary, then extract structured intelligence fields conforming to the provided schema. Return ONLY the JSON object — no prose, no preamble, no explanation outside the schema fields.
 
