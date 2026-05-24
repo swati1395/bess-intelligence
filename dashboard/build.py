@@ -12,10 +12,9 @@ import os
 import re
 import sqlite3
 import sys
-from datetime import datetime, timezone
+from datetime import datetime
 from email.utils import parsedate_to_datetime
 from html import escape
-from zoneinfo import ZoneInfo
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJECT_ROOT)
@@ -45,6 +44,30 @@ def fmt_num(value, suffix="") -> str:
 
 def label_from_snake(s: str) -> str:
     return s.replace("_", " ").capitalize() if s else "—"
+
+
+def to_iso_date(value) -> str:
+    """Parse any reasonable date string and return 'YYYY-MM-DD' (or '' if unparseable).
+    Used as data-date attribute on article cards so client-side JS can do
+    lexicographic comparisons against a cutoff."""
+    if not value:
+        return ""
+    s = str(value).strip()
+    m = re.match(r"^(\d{4})-(\d{2})-(\d{2})", s)
+    if m:
+        return f"{m.group(1)}-{m.group(2)}-{m.group(3)}"
+    for fmt in ("%B %d, %Y", "%b %d, %Y", "%Y.%m.%d", "%d %b %Y", "%m/%d/%Y"):
+        try:
+            return datetime.strptime(s, fmt).strftime("%Y-%m-%d")
+        except ValueError:
+            continue
+    try:
+        d = parsedate_to_datetime(s)
+        if d is not None:
+            return d.strftime("%Y-%m-%d")
+    except (TypeError, ValueError):
+        pass
+    return ""
 
 
 def short_date(value) -> str:
@@ -156,6 +179,7 @@ def render_article_card(a: dict) -> str:
     category = a.get("category") or NO_MARKET_SENTINEL
     title = a["title"] or "(untitled)"
     published = short_date(a["published"])
+    iso_date = to_iso_date(a["published"])
     cat_html = ""
     if category and category in CATEGORY_SLUGS:
         cat_html = f'<span class="cat-badge cat-{CATEGORY_SLUGS[category]}">{escape(category)}</span>'
@@ -166,6 +190,7 @@ def render_article_card(a: dict) -> str:
              data-company="{escape(company, quote=True)}"
              data-event="{escape(event, quote=True)}"
              data-category="{escape(category, quote=True)}"
+             data-date="{escape(iso_date, quote=True)}"
              data-title="{escape(title.lower(), quote=True)}">
       <div class="article-head">
         <span class="badge badge-{score}">{score}/5</span>{cat_html}
@@ -481,8 +506,15 @@ JS = """
   const companyEl  = document.getElementById('filter-company');
   const eventEl    = document.getElementById('filter-event');
   const categoryEl = document.getElementById('filter-category');
+  const dateEl     = document.getElementById('filter-date');
   const qEl        = document.getElementById('filter-q');
   const resetBtn   = document.getElementById('reset-filters');
+
+  function daysAgoIso(days) {
+    const d = new Date();
+    d.setDate(d.getDate() - days);
+    return d.toISOString().slice(0, 10);
+  }
   const cards     = Array.from(document.querySelectorAll('.article-card'));
   const visEl     = document.getElementById('count-visible');
   const totalEl   = document.getElementById('count-total');
@@ -502,7 +534,10 @@ JS = """
     const company  = companyEl.value;
     const event    = eventEl.value;
     const category = categoryEl.value;
+    const dateSel  = dateEl.value;
     const q        = qEl.value.trim().toLowerCase();
+
+    const cutoff = (dateSel !== 'all') ? daysAgoIso(parseInt(dateSel, 10)) : null;
 
     let visible = 0;
     for (const card of cards) {
@@ -511,6 +546,10 @@ JS = """
       if (pass && company  !== 'ALL' && card.dataset.company  !== company)  pass = false;
       if (pass && event    !== 'ALL' && card.dataset.event    !== event)    pass = false;
       if (pass && category !== 'ALL' && card.dataset.category !== category) pass = false;
+      if (pass && cutoff !== null) {
+        // Articles with no parseable date are excluded from time-bounded views
+        if (!card.dataset.date || card.dataset.date < cutoff) pass = false;
+      }
       if (pass && q        !== ''    && !card.dataset.title.includes(q))    pass = false;
       card.classList.toggle('hidden', !pass);
       if (pass) visible++;
@@ -519,7 +558,7 @@ JS = """
     if (emptyEl) emptyEl.style.display = visible === 0 ? 'block' : 'none';
   }
 
-  for (const el of [sigEl, isoEl, companyEl, eventEl, categoryEl]) {
+  for (const el of [sigEl, isoEl, companyEl, eventEl, categoryEl, dateEl]) {
     el.addEventListener('change', apply);
   }
   qEl.addEventListener('input', apply);
@@ -530,17 +569,35 @@ JS = """
     companyEl.value = 'ALL';
     eventEl.value = 'ALL';
     categoryEl.value = 'ALL';
+    dateEl.value = 'all';
     qEl.value = '';
     apply();
   });
 
   apply(); // initial pass — default 'medium' (sig >= 3)
+
+  // Client-side "Last refreshed" — Pacific time, recomputed on each page load
+  const updatedEl = document.getElementById('updated-time');
+  if (updatedEl) {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Los_Angeles',
+      year: 'numeric', month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit', hour12: false,
+      timeZoneName: 'short',
+    }).formatToParts(new Date());
+    const v = {};
+    for (const p of parts) v[p.type] = p.value;
+    updatedEl.textContent =
+      `${v.day} ${v.month} ${v.year}, ${v.hour}:${v.minute} ${v.timeZoneName}`;
+  }
 })();
 """
 
 
 def build_html(summary: dict, articles: list, pipeline: list, developers: list) -> str:
-    now = datetime.now(ZoneInfo("America/Los_Angeles")).strftime("%-d %b %Y, %H:%M %Z")
+    # "Last refreshed" is rendered client-side in JS (Intl.DateTimeFormat against
+    # America/Los_Angeles); no server-side timestamp here, so the page always
+    # shows the viewer's wall-clock Pacific time rather than the CI build time.
     filter_opts = render_filter_options(articles)
 
     iso_select      = render_dropdown("iso",      filter_opts["iso"],      "All markets")
@@ -564,7 +621,7 @@ def build_html(summary: dict, articles: list, pipeline: list, developers: list) 
   <header>
     <h1>BESS Market Intelligence</h1>
     <div class="tagline">Battery energy storage — competitive intelligence with ERCOT &amp; CAISO focus</div>
-    <div class="updated">Last refreshed: {now}</div>
+    <div class="updated">Last refreshed: <span id="updated-time">—</span></div>
   </header>
 
   <div class="coverage-note">
@@ -631,6 +688,17 @@ def build_html(summary: dict, articles: list, pipeline: list, developers: list) 
     <div class="filter-group">
       <label for="filter-category">Category</label>
       {category_select}
+    </div>
+    <div class="filter-group">
+      <label for="filter-date">Date range</label>
+      <select id="filter-date">
+        <option value="all">All time</option>
+        <option value="7">Last 7 days</option>
+        <option value="30">Last 30 days</option>
+        <option value="90">Last 3 months</option>
+        <option value="180">Last 6 months</option>
+        <option value="365">Last year</option>
+      </select>
     </div>
     <div class="filter-group">
       <label for="filter-q">Search titles</label>
