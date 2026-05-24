@@ -23,6 +23,15 @@ from database.setup_db import DB_PATH, init_db  # noqa: E402
 OUTPUT_PATH = os.path.join(PROJECT_ROOT, "docs", "index.html")
 NO_MARKET_SENTINEL = "(none)"
 
+CATEGORY_SLUGS = {
+    "Direct BESS":         "direct",
+    "Supply Chain":        "supply",
+    "Adjacent Market":     "adjacent",
+    "Policy & Regulation": "policy",
+    "Market Structure":    "market",
+    "M&A":                 "mna",
+}
+
 
 def fmt_num(value, suffix="") -> str:
     if value is None:
@@ -65,7 +74,7 @@ def fetch_articles(cur: sqlite3.Cursor) -> list:
         SELECT a.title, a.url, a.source_name,
                COALESCE(NULLIF(a.published_at, ''), a.published_date, '') AS published,
                ei.company, ei.event_type, ei.iso_market, ei.capacity_mwh,
-               ei.significance_score, ei.significance_reason
+               ei.significance_score, ei.significance_reason, ei.category
         FROM extracted_intel ei
         JOIN articles a ON a.id = ei.article_id
         WHERE ei.significance_score >= 3
@@ -74,7 +83,7 @@ def fetch_articles(cur: sqlite3.Cursor) -> list:
         """
     )
     keys = ("title", "url", "source", "published", "company", "event_type",
-            "iso_market", "capacity_mwh", "score", "reason")
+            "iso_market", "capacity_mwh", "score", "reason", "category")
     return [dict(zip(keys, r)) for r in cur.fetchall()]
 
 
@@ -117,17 +126,22 @@ def render_article_card(a: dict) -> str:
     iso = a["iso_market"] or NO_MARKET_SENTINEL
     company = a["company"] or NO_MARKET_SENTINEL
     event = a["event_type"] or NO_MARKET_SENTINEL
+    category = a.get("category") or NO_MARKET_SENTINEL
     title = a["title"] or "(untitled)"
     published = short_date(a["published"])
+    cat_html = ""
+    if category and category in CATEGORY_SLUGS:
+        cat_html = f'<span class="cat-badge cat-{CATEGORY_SLUGS[category]}">{escape(category)}</span>'
     return f"""
     <article class="article-card score-{score}"
              data-score="{score}"
              data-iso="{escape(iso, quote=True)}"
              data-company="{escape(company, quote=True)}"
              data-event="{escape(event, quote=True)}"
+             data-category="{escape(category, quote=True)}"
              data-title="{escape(title.lower(), quote=True)}">
       <div class="article-head">
-        <span class="badge badge-{score}">{score}/5</span>
+        <span class="badge badge-{score}">{score}/5</span>{cat_html}
         <a class="article-title" href="{escape(a['url'] or '#', quote=True)}" target="_blank" rel="noopener">{escape(title)}</a>
       </div>
       <div class="article-meta">
@@ -216,7 +230,16 @@ def render_filter_options(articles: list) -> dict:
     event_options = [(v, label_from_snake(v)) for v in events_in_data]
     event_options.append((NO_MARKET_SENTINEL, "(No event type)"))
 
-    return {"iso": iso_options, "company": company_options, "event": event_options}
+    # Categories: show all 6 canonical labels even if some don't appear yet in data
+    canonical_cats = list(CATEGORY_SLUGS.keys())
+    cats_in_data = {a.get("category") for a in articles if a.get("category")}
+    category_options = [(c, c) for c in canonical_cats]
+    for c in sorted(cats_in_data - set(canonical_cats)):
+        category_options.append((c, c))
+    category_options.append((NO_MARKET_SENTINEL, "(Uncategorized)"))
+
+    return {"iso": iso_options, "company": company_options,
+            "event": event_options, "category": category_options}
 
 
 def render_dropdown(name: str, options: list, all_label: str) -> str:
@@ -325,6 +348,17 @@ button.reset-btn:hover { background: var(--border); }
 .badge-4 { background: var(--warning); }
 .badge-5 { background: var(--critical); }
 
+.cat-badge { display: inline-block; padding: 1px 7px; border-radius: 4px;
+             font-size: 10px; font-weight: 600; margin-left: 6px;
+             border: 1px solid currentColor; vertical-align: middle;
+             white-space: nowrap; }
+.cat-direct   { color: #1e40af; background: #dbeafe; border-color: #93c5fd; }
+.cat-supply   { color: #5b21b6; background: #ede9fe; border-color: #c4b5fd; }
+.cat-adjacent { color: #4d7c0f; background: #ecfccb; border-color: #bef264; }
+.cat-policy   { color: #9a3412; background: #ffedd5; border-color: #fdba74; }
+.cat-market   { color: #075985; background: #e0f2fe; border-color: #7dd3fc; }
+.cat-mna      { color: #831843; background: #fce7f3; border-color: #f9a8d4; }
+
 .pipeline-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .pipeline-iso h3 { margin: 0 0 12px; font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
 
@@ -356,12 +390,13 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
 # inside JS — we keep this raw and concatenate with HTML below.
 JS = """
 (function () {
-  const sigEl     = document.getElementById('filter-sig');
-  const isoEl     = document.getElementById('filter-iso');
-  const companyEl = document.getElementById('filter-company');
-  const eventEl   = document.getElementById('filter-event');
-  const qEl       = document.getElementById('filter-q');
-  const resetBtn  = document.getElementById('reset-filters');
+  const sigEl      = document.getElementById('filter-sig');
+  const isoEl      = document.getElementById('filter-iso');
+  const companyEl  = document.getElementById('filter-company');
+  const eventEl    = document.getElementById('filter-event');
+  const categoryEl = document.getElementById('filter-category');
+  const qEl        = document.getElementById('filter-q');
+  const resetBtn   = document.getElementById('reset-filters');
   const cards     = Array.from(document.querySelectorAll('.article-card'));
   const visEl     = document.getElementById('count-visible');
   const totalEl   = document.getElementById('count-total');
@@ -377,19 +412,21 @@ JS = """
   }
 
   function apply() {
-    const sig     = sigEl.value;
-    const iso     = isoEl.value;
-    const company = companyEl.value;
-    const event   = eventEl.value;
-    const q       = qEl.value.trim().toLowerCase();
+    const sig      = sigEl.value;
+    const iso      = isoEl.value;
+    const company  = companyEl.value;
+    const event    = eventEl.value;
+    const category = categoryEl.value;
+    const q        = qEl.value.trim().toLowerCase();
 
     let visible = 0;
     for (const card of cards) {
       let pass = passSig(card, sig);
-      if (pass && iso     !== 'ALL' && card.dataset.iso     !== iso)     pass = false;
-      if (pass && company !== 'ALL' && card.dataset.company !== company) pass = false;
-      if (pass && event   !== 'ALL' && card.dataset.event   !== event)   pass = false;
-      if (pass && q       !== ''    && !card.dataset.title.includes(q))  pass = false;
+      if (pass && iso      !== 'ALL' && card.dataset.iso      !== iso)      pass = false;
+      if (pass && company  !== 'ALL' && card.dataset.company  !== company)  pass = false;
+      if (pass && event    !== 'ALL' && card.dataset.event    !== event)    pass = false;
+      if (pass && category !== 'ALL' && card.dataset.category !== category) pass = false;
+      if (pass && q        !== ''    && !card.dataset.title.includes(q))    pass = false;
       card.classList.toggle('hidden', !pass);
       if (pass) visible++;
     }
@@ -397,7 +434,7 @@ JS = """
     if (emptyEl) emptyEl.style.display = visible === 0 ? 'block' : 'none';
   }
 
-  for (const el of [sigEl, isoEl, companyEl, eventEl]) {
+  for (const el of [sigEl, isoEl, companyEl, eventEl, categoryEl]) {
     el.addEventListener('change', apply);
   }
   qEl.addEventListener('input', apply);
@@ -407,6 +444,7 @@ JS = """
     isoEl.value = 'ALL';
     companyEl.value = 'ALL';
     eventEl.value = 'ALL';
+    categoryEl.value = 'ALL';
     qEl.value = '';
     apply();
   });
@@ -420,9 +458,10 @@ def build_html(summary: dict, articles: list, pipeline: list, developers: list) 
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     filter_opts = render_filter_options(articles)
 
-    iso_select     = render_dropdown("iso",     filter_opts["iso"],     "All markets")
-    company_select = render_dropdown("company", filter_opts["company"], "All companies")
-    event_select   = render_dropdown("event",   filter_opts["event"],   "All event types")
+    iso_select      = render_dropdown("iso",      filter_opts["iso"],      "All markets")
+    company_select  = render_dropdown("company",  filter_opts["company"],  "All companies")
+    event_select    = render_dropdown("event",    filter_opts["event"],    "All event types")
+    category_select = render_dropdown("category", filter_opts["category"], "All categories")
 
     articles_html = "".join(render_article_card(a) for a in articles)
 
@@ -471,11 +510,11 @@ def build_html(summary: dict, articles: list, pipeline: list, developers: list) 
   <details class="legend">
     <summary>Significance scoring guide (click to expand)</summary>
     <div class="scale">
-      <div class="row"><span class="b badge-5">5</span><span><strong>Market-moving event</strong> — major product launch, $500M+ deal, major policy change.</span></div>
-      <div class="row"><span class="b badge-4">4</span><span><strong>High-priority competitive signal</strong> — contract wins, M&amp;A, notable competitor moves.</span></div>
-      <div class="row"><span class="b badge-3">3</span><span><strong>Relevant intelligence</strong> — smaller deals, industry analysis, technology updates.</span></div>
-      <div class="row"><span class="b" style="background:#94a3b8;">2</span><span><strong>Adjacent content</strong> — solar, grid infrastructure, indirect BESS connection.</span></div>
-      <div class="row"><span class="b" style="background:#cbd5e1;color:#475569;">1</span><span><strong>General noise</strong> — EV consumer news, unrelated energy content.</span></div>
+      <div class="row"><span class="b badge-5">5</span><span><strong>Critical</strong> — market-moving event, major product launch, $500M+ deal, policy shift.</span></div>
+      <div class="row"><span class="b badge-4">4</span><span><strong>High</strong> — contract wins, M&amp;A, notable competitor moves.</span></div>
+      <div class="row"><span class="b badge-3">3</span><span><strong>Medium</strong> — industry analysis, technology updates, smaller deals.</span></div>
+      <div class="row"><span class="b" style="background:#94a3b8;">2</span><span><strong>Low</strong> — adjacent market signals, EV supply chain, solar, grid infrastructure.</span></div>
+      <div class="row"><span class="b" style="background:#cbd5e1;color:#475569;">1</span><span><strong>Monitoring</strong> — general energy news, low BESS specificity.</span></div>
     </div>
   </details>
 
@@ -499,6 +538,10 @@ def build_html(summary: dict, articles: list, pipeline: list, developers: list) 
     <div class="filter-group">
       <label for="filter-event">Event type</label>
       {event_select}
+    </div>
+    <div class="filter-group">
+      <label for="filter-category">Category</label>
+      {category_select}
     </div>
     <div class="filter-group">
       <label for="filter-q">Search titles</label>

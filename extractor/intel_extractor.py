@@ -32,6 +32,14 @@ EventType = Literal[
     "other",
 ]
 IsoMarket = Literal["ERCOT", "CAISO", "PJM", "NYISO", "MISO", "SPP", "ISO-NE"]
+Category = Literal[
+    "Direct BESS",
+    "Supply Chain",
+    "Adjacent Market",
+    "Policy & Regulation",
+    "Market Structure",
+    "M&A",
+]
 
 
 class ExtractedIntel(BaseModel):
@@ -75,17 +83,29 @@ class ExtractedIntel(BaseModel):
         ge=1,
         le=5,
         description=(
-            "1-5 importance rating for BESS competitive intelligence in ERCOT/CAISO markets. "
-            "5=market-moving event (large ERCOT/CAISO deployment, major Tesla product, big regulatory shift, M&A). "
-            "4=meaningful competitive signal (notable non-ERCOT/CAISO deployment, competitor product, relevant policy). "
-            "3=moderately relevant (adjacent BESS news, smaller deployments). "
-            "2=tangential (solar/EV with passing storage mention). "
-            "1=barely related (pure EV/solar/grid news with no BESS relevance)."
+            "1-5 importance rating for BESS competitive intelligence. "
+            "5=Critical (market-moving event, major product launch, $500M+ deal, policy shift). "
+            "4=High (contract wins, M&A, notable competitor moves). "
+            "3=Medium (industry analysis, technology updates, smaller deals). "
+            "2=Low (adjacent market signals, EV supply chain, solar, grid infrastructure). "
+            "1=Monitoring (general energy news, low BESS specificity)."
         ),
     )
     significance_reason: str = Field(
         ...,
         description="One sentence justifying the score in BESS-competitive terms.",
+    )
+    category: Category = Field(
+        ...,
+        description=(
+            "Single best-fit intelligence category. Pick exactly one:\n"
+            "- Direct BESS: product launches, contract wins, deployments, commissioning of battery storage.\n"
+            "- Supply Chain: cell manufacturers, materials pricing, factory capacity, FEOC, cell/component industry.\n"
+            "- Adjacent Market: co-located solar+storage, long-duration alternatives (iron-air, thermal, flow, hydrogen), EV battery signals that read across to stationary storage.\n"
+            "- Policy & Regulation: IRA, FEOC, NFPA, interconnection rules, capacity-market design, tariffs.\n"
+            "- Market Structure: ISO dynamics, pricing trends, grid economics, demand forecasts, transmission planning.\n"
+            "- M&A: acquisitions, mergers, investment/funding rounds, partnerships with financial significance."
+        ),
     )
 
 
@@ -103,19 +123,30 @@ Your task: read a news article title and summary, then extract structured intell
 
 ## Significance scoring rubric (1-5)
 
-Score for relevance to a BESS competitive-intelligence audience focused on ERCOT and CAISO:
-
-- **5** — Major competitive/market-moving event. Examples: a >500 MWh ERCOT or CAISO BESS commissioning; a Tesla Megapack product update; a major FERC/CPUC/PUCT order materially changing storage economics; large M&A involving a top-5 OEM or developer.
-- **4** — Meaningful competitive signal. Examples: a sizable BESS deployment outside ERCOT/CAISO; a competitor OEM (BYD, CATL, Fluence, Sungrow, Wärtsilä, Hithium, Samsung SDI) product launch or order; relevant federal policy (IRA, FEOC, tariffs); a notable safety incident at a utility-scale BESS site.
-- **3** — Moderately relevant. Smaller utility-scale projects, partnership announcements, secondary-market policy, BESS financing/funding rounds.
-- **2** — Tangential. Solar or EV stories that mention storage in passing, distant geographies with no clear ERCOT/CAISO read-across.
-- **1** — Barely related. Pure EV consumer news, grid/transmission stories with no storage angle, rooftop solar product news.
+- **5 — Critical**: market-moving event, major product launch, $500M+ deal, policy shift.
+- **4 — High**: contract wins, M&A, notable competitor moves.
+- **3 — Medium**: industry analysis, technology updates, smaller deals.
+- **2 — Low**: adjacent market signals, EV supply chain, solar, grid infrastructure.
+- **1 — Monitoring**: general energy news, low BESS specificity.
 
 Be honest about low scores — many feed items will be 1s or 2s and that is fine.
 
+## Category classification
+
+Every article gets exactly one category. Pick the single best fit:
+
+- **Direct BESS**: the article centers on a battery storage product, project, or company action (launches, contract wins, deployments, commissionings).
+- **Supply Chain**: cell manufacturers, materials pricing, factory capacity decisions, FEOC restrictions — anything upstream of the deployed BESS.
+- **Adjacent Market**: co-located solar+storage projects, non-Li-ion long-duration alternatives (iron-air, thermal, flow, hydrogen), EV battery developments that read across to stationary storage.
+- **Policy & Regulation**: IRA, FEOC, NFPA, interconnection rules, capacity-market design changes, tariffs, FERC/CPUC/PUCT orders.
+- **Market Structure**: ISO dynamics, pricing trends, grid economics, demand forecasts, transmission planning — non-project-level market context.
+- **M&A**: acquisitions, mergers, equity investments, funding rounds, partnerships with financial significance.
+
+When in doubt, ask which lens best frames the story: a project (Direct BESS), an upstream component (Supply Chain), a tangential market (Adjacent), a rule change (Policy), a market trend (Market Structure), or a deal/transaction (M&A).
+
 ## Output
 
-Return a single JSON object matching the schema. Required fields: `significance_score`, `significance_reason`. All other fields may be null."""
+Return a single JSON object matching the schema. Required: `significance_score`, `significance_reason`, `category`. All other fields may be null."""
 
 
 TAG_PRIORITY_SQL = """
@@ -177,8 +208,8 @@ def insert_extraction(conn: sqlite3.Connection, article_id: int, intel: Extracte
         INSERT INTO extracted_intel
             (article_id, company, event_type, product_name, capacity_mwh,
              location_state, iso_market, customer, significance_score,
-             significance_reason, model_used)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             significance_reason, category, model_used)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             article_id,
@@ -191,9 +222,38 @@ def insert_extraction(conn: sqlite3.Connection, article_id: int, intel: Extracte
             intel.customer,
             intel.significance_score,
             intel.significance_reason,
+            intel.category,
             MODEL,
         ),
     )
+
+
+def reextract_recent(conn: sqlite3.Connection, n: int) -> int:
+    """Delete extractions for the N most-recently-published articles that
+    have been extracted, so they get re-processed on the next pass."""
+    cur = conn.cursor()
+    cur.execute(
+        """
+        SELECT ei.article_id
+        FROM extracted_intel ei
+        JOIN articles a ON a.id = ei.article_id
+        ORDER BY COALESCE(NULLIF(a.published_at, ''), a.published_date) DESC,
+                 a.id DESC
+        LIMIT ?
+        """,
+        (n,),
+    )
+    article_ids = [r[0] for r in cur.fetchall()]
+    if not article_ids:
+        return 0
+    placeholders = ",".join("?" * len(article_ids))
+    cur.execute(
+        f"DELETE FROM extracted_intel WHERE article_id IN ({placeholders})",
+        article_ids,
+    )
+    deleted = cur.rowcount
+    conn.commit()
+    return deleted
 
 
 def format_field(value) -> str:
@@ -210,6 +270,9 @@ def main() -> None:
                         help="Max number of unprocessed articles to process (default: all).")
     parser.add_argument("--prioritize-tags", action="store_true",
                         help="Process BESS-tagged articles first (ERCOT/CAISO > COMPETITOR/TESLA > POLICY/SAFETY > untagged).")
+    parser.add_argument("--reextract", type=int, default=None, metavar="N",
+                        help="Delete extractions for the N most-recently-published already-extracted "
+                             "articles, then re-run extraction on them (useful after schema changes).")
     args = parser.parse_args()
 
     api_key = (os.environ.get("ANTHROPIC_API_KEY") or "").strip()
@@ -221,6 +284,10 @@ def main() -> None:
     # into GitHub Actions from a file or chat.
     client = anthropic.Anthropic(api_key=api_key)
     conn = init_db()
+
+    if args.reextract:
+        cleared = reextract_recent(conn, args.reextract)
+        print(f"Cleared {cleared} existing extraction(s) for re-processing.\n")
 
     articles = fetch_unprocessed(conn, limit=args.limit, prioritize_tags=args.prioritize_tags)
     print(f"BESS Intel Extractor — model: {MODEL}")

@@ -72,19 +72,45 @@ ARTICLE_FIELDS = """
     ei.article_id, a.title, a.url, a.source_name, ei.extracted_at,
     ei.company, ei.event_type, ei.product_name, ei.capacity_mwh,
     ei.location_state, ei.iso_market, ei.customer,
-    ei.significance_score, ei.significance_reason
+    ei.significance_score, ei.significance_reason, ei.category
 """
 
 ARTICLE_KEYS = [
     "article_id", "title", "url", "source_name", "extracted_at",
     "company", "event_type", "product_name", "capacity_mwh",
     "location_state", "iso_market", "customer",
-    "significance_score", "significance_reason",
+    "significance_score", "significance_reason", "category",
 ]
+
+# Mapping from category name to a short CSS slug for color-coded badges
+CATEGORY_SLUGS = {
+    "Direct BESS":         "direct",
+    "Supply Chain":        "supply",
+    "Adjacent Market":     "adjacent",
+    "Policy & Regulation": "policy",
+    "Market Structure":    "market",
+    "M&A":                 "mna",
+}
 
 CSS = """
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
          color: #1a1a1a; margin: 0; padding: 0; background: #f3f4f6; }
+  .cat-badge { display: inline-block; padding: 1px 7px; border-radius: 4px;
+               font-size: 10px; font-weight: 600; margin-left: 6px;
+               border: 1px solid currentColor; vertical-align: middle; }
+  .cat-direct   { color: #1e40af; background: #dbeafe; border-color: #93c5fd; }
+  .cat-supply   { color: #5b21b6; background: #ede9fe; border-color: #c4b5fd; }
+  .cat-adjacent { color: #4d7c0f; background: #ecfccb; border-color: #bef264; }
+  .cat-policy   { color: #9a3412; background: #ffedd5; border-color: #fdba74; }
+  .cat-market   { color: #075985; background: #e0f2fe; border-color: #7dd3fc; }
+  .cat-mna      { color: #831843; background: #fce7f3; border-color: #f9a8d4; }
+  .legend-block { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;
+                  padding: 12px 16px; margin-bottom: 20px; font-size: 12px; }
+  .legend-block .lt { font-weight: 600; color: #475569; margin-bottom: 6px;
+                      text-transform: uppercase; letter-spacing: 0.04em; font-size: 11px; }
+  .legend-block table { border-collapse: collapse; width: 100%; }
+  .legend-block td { padding: 2px 8px 2px 0; vertical-align: top; color: #475569; line-height: 1.5; }
+  .legend-block td.bn { white-space: nowrap; width: 1%; }
   .container { max-width: 640px; margin: 24px auto; padding: 28px; background: white;
                border-radius: 8px; }
   .header { border-bottom: 2px solid #1a1a1a; padding-bottom: 12px; margin-bottom: 20px; }
@@ -221,10 +247,15 @@ def render_article_html(article: dict) -> str:
     customer = html.escape(fmt(article["customer"]))
     product = html.escape(fmt(article["product_name"]))
     extracted_at = html.escape(article["extracted_at"] or "")
+    category = article.get("category")
+    cat_html = ""
+    if category and category in CATEGORY_SLUGS:
+        cat_html = (f'<span class="cat-badge cat-{CATEGORY_SLUGS[category]}">'
+                    f'{html.escape(category)}</span>')
     return f"""
     <div class="article {score_class}">
       <div class="article-title">
-        <span class="badge {badge_class}">{score}/5</span>
+        <span class="badge {badge_class}">{score}/5</span>{cat_html}
         <a href="{url}">{title}</a>
       </div>
       <div class="article-meta">{source} • extracted {extracted_at} UTC</div>
@@ -242,8 +273,31 @@ def render_article_html(article: dict) -> str:
     """
 
 
+LEGEND_HTML = """
+<div class="legend-block">
+  <div class="lt">Significance scoring</div>
+  <table>
+    <tr><td class="bn"><span class="badge badge-5">5</span></td><td><b>Critical</b> — market-moving event, major product launch, $500M+ deal, policy shift</td></tr>
+    <tr><td class="bn"><span class="badge badge-4">4</span></td><td><b>High</b> — contract wins, M&amp;A, notable competitor moves</td></tr>
+    <tr><td class="bn"><span class="badge badge-3">3</span></td><td><b>Medium</b> — industry analysis, technology updates, smaller deals</td></tr>
+    <tr><td class="bn"><span class="badge" style="background:#94a3b8;">2</span></td><td><b>Low</b> — adjacent market signals, EV supply chain, solar, grid infrastructure</td></tr>
+    <tr><td class="bn"><span class="badge" style="background:#cbd5e1;color:#475569;">1</span></td><td><b>Monitoring</b> — general energy news, low BESS specificity</td></tr>
+  </table>
+</div>
+"""
+
+LEGEND_PLAIN = """\
+Significance scoring:
+  5 = Critical    — market-moving event, major product launch, $500M+ deal, policy shift
+  4 = High        — contract wins, M&A, notable competitor moves
+  3 = Medium      — industry analysis, technology updates, smaller deals
+  2 = Low         — adjacent market signals, EV supply chain, solar, grid infrastructure
+  1 = Monitoring  — general energy news, low BESS specificity
+"""
+
+
 def render_html(title: str, subtitle: str, sections: list) -> str:
-    body_parts = []
+    body_parts = [LEGEND_HTML]
     for header, articles in sections:
         if header:
             body_parts.append(f'<div class="group-header">{html.escape(header)}</div>')
@@ -276,7 +330,7 @@ def render_html(title: str, subtitle: str, sections: list) -> str:
 
 
 def render_plain(title: str, subtitle: str, sections: list) -> str:
-    lines = [title, subtitle, "=" * len(title), ""]
+    lines = [title, subtitle, "=" * len(title), "", LEGEND_PLAIN]
     for header, articles in sections:
         if header:
             lines.append(f"--- {header} ---")
@@ -285,7 +339,8 @@ def render_plain(title: str, subtitle: str, sections: list) -> str:
         for a in articles:
             cap = fmt(a["capacity_mwh"])
             cap_str = cap if cap == "—" else f"{cap} MWh"
-            lines.append(f"  [{a['significance_score']}/5] {a['title']}")
+            cat = a.get("category") or "—"
+            lines.append(f"  [{a['significance_score']}/5] [{cat}] {a['title']}")
             lines.append(f"        Source: {a['source_name']}  •  Company: {fmt(a['company'])}")
             lines.append(f"        Event: {fmt(a['event_type'])}  •  Capacity: {cap_str}  •  Market: {fmt(a['iso_market'])}")
             lines.append(f"        {a['significance_reason']}")

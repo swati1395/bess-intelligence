@@ -60,11 +60,15 @@ def init_db(db_path: str = DB_PATH) -> sqlite3.Connection:
     # Migration: track which extractions have already triggered a Tier 1 email alert
     if not _column_exists(cur, "extracted_intel", "alerted_at"):
         cur.execute("ALTER TABLE extracted_intel ADD COLUMN alerted_at TIMESTAMP")
+    # Migration: category classification (one of 6 BESS intel categories)
+    if not _column_exists(cur, "extracted_intel", "category"):
+        cur.execute("ALTER TABLE extracted_intel ADD COLUMN category TEXT")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_intel_score ON extracted_intel(significance_score)")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_intel_iso ON extracted_intel(iso_market)")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_intel_event_type ON extracted_intel(event_type)")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_intel_company ON extracted_intel(company)")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_intel_alerted_at ON extracted_intel(alerted_at)")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_intel_category ON extracted_intel(category)")
 
     cur.execute(
         """

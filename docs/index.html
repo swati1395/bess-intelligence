@@ -103,6 +103,17 @@ button.reset-btn:hover { background: var(--border); }
 .badge-4 { background: var(--warning); }
 .badge-5 { background: var(--critical); }
 
+.cat-badge { display: inline-block; padding: 1px 7px; border-radius: 4px;
+             font-size: 10px; font-weight: 600; margin-left: 6px;
+             border: 1px solid currentColor; vertical-align: middle;
+             white-space: nowrap; }
+.cat-direct   { color: #1e40af; background: #dbeafe; border-color: #93c5fd; }
+.cat-supply   { color: #5b21b6; background: #ede9fe; border-color: #c4b5fd; }
+.cat-adjacent { color: #4d7c0f; background: #ecfccb; border-color: #bef264; }
+.cat-policy   { color: #9a3412; background: #ffedd5; border-color: #fdba74; }
+.cat-market   { color: #075985; background: #e0f2fe; border-color: #7dd3fc; }
+.cat-mna      { color: #831843; background: #fce7f3; border-color: #f9a8d4; }
+
 .pipeline-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .pipeline-iso h3 { margin: 0 0 12px; font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
 
@@ -135,7 +146,7 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
   <header>
     <h1>BESS Market Intelligence</h1>
     <div class="tagline">Battery energy storage — competitive intelligence with ERCOT &amp; CAISO focus</div>
-    <div class="updated">Last refreshed: 2026-05-23 23:58 UTC</div>
+    <div class="updated">Last refreshed: 2026-05-24 09:52 UTC</div>
   </header>
 
   <div class="coverage-note">
@@ -151,10 +162,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
       <div class="value">591</div>
       <div class="sub">7 RSS sources, all topics</div></div>
     <div class="stat"><div class="label">Structured extractions</div>
-      <div class="value">332</div>
+      <div class="value">529</div>
       <div class="sub">via Claude Opus 4.7</div></div>
     <div class="stat"><div class="label">High-significance (4+)</div>
-      <div class="value">16</div>
+      <div class="value">24</div>
       <div class="sub">market-relevant signals</div></div>
     <div class="stat"><div class="label">Active pipeline</div>
       <div class="value">290.03</div>
@@ -166,11 +177,11 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
   <details class="legend">
     <summary>Significance scoring guide (click to expand)</summary>
     <div class="scale">
-      <div class="row"><span class="b badge-5">5</span><span><strong>Market-moving event</strong> — major product launch, $500M+ deal, major policy change.</span></div>
-      <div class="row"><span class="b badge-4">4</span><span><strong>High-priority competitive signal</strong> — contract wins, M&amp;A, notable competitor moves.</span></div>
-      <div class="row"><span class="b badge-3">3</span><span><strong>Relevant intelligence</strong> — smaller deals, industry analysis, technology updates.</span></div>
-      <div class="row"><span class="b" style="background:#94a3b8;">2</span><span><strong>Adjacent content</strong> — solar, grid infrastructure, indirect BESS connection.</span></div>
-      <div class="row"><span class="b" style="background:#cbd5e1;color:#475569;">1</span><span><strong>General noise</strong> — EV consumer news, unrelated energy content.</span></div>
+      <div class="row"><span class="b badge-5">5</span><span><strong>Critical</strong> — market-moving event, major product launch, $500M+ deal, policy shift.</span></div>
+      <div class="row"><span class="b badge-4">4</span><span><strong>High</strong> — contract wins, M&amp;A, notable competitor moves.</span></div>
+      <div class="row"><span class="b badge-3">3</span><span><strong>Medium</strong> — industry analysis, technology updates, smaller deals.</span></div>
+      <div class="row"><span class="b" style="background:#94a3b8;">2</span><span><strong>Low</strong> — adjacent market signals, EV supply chain, solar, grid infrastructure.</span></div>
+      <div class="row"><span class="b" style="background:#cbd5e1;color:#475569;">1</span><span><strong>Monitoring</strong> — general energy news, low BESS specificity.</span></div>
     </div>
   </details>
 
@@ -189,11 +200,15 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
     </div>
     <div class="filter-group">
       <label for="filter-company">Company</label>
-      <select id="filter-company"><option value="ALL">All companies</option><option value="AES">AES</option><option value="Antora">Antora</option><option value="Antora Energy">Antora Energy</option><option value="Canadian Solar">Canadian Solar</option><option value="Edify Energy">Edify Energy</option><option value="Enbridge">Enbridge</option><option value="EnerVenue">EnerVenue</option><option value="Fluence">Fluence</option><option value="Ford">Ford</option><option value="Ford Energy">Ford Energy</option><option value="Frontier Power">Frontier Power</option><option value="Gotion">Gotion</option><option value="GridStor">GridStor</option><option value="Gridstor">Gridstor</option><option value="Hitachi Energy">Hitachi Energy</option><option value="HyperStrong">HyperStrong</option><option value="Iberdrola Australia">Iberdrola Australia</option><option value="Inlyte Energy">Inlyte Energy</option><option value="Inovance Technology">Inovance Technology</option><option value="Intertek CEA">Intertek CEA</option><option value="Invinity">Invinity</option><option value="Invinity Energy Systems">Invinity Energy Systems</option><option value="kWh Analytics">kWh Analytics</option><option value="Moment Energy">Moment Energy</option><option value="NERC">NERC</option><option value="NextEra Energy">NextEra Energy</option><option value="Rept Battero">Rept Battero</option><option value="SEIA">SEIA</option><option value="SMA">SMA</option><option value="Spearmint Energy">Spearmint Energy</option><option value="Sungrow">Sungrow</option><option value="Sunraycer Renewables">Sunraycer Renewables</option><option value="Tenaga Nasional Berhad">Tenaga Nasional Berhad</option><option value="Tesla">Tesla</option><option value="Xcel Energy">Xcel Energy</option><option value="Zelestra">Zelestra</option><option value="(none)">(No company identified)</option></select>
+      <select id="filter-company"><option value="ALL">All companies</option><option value="AES">AES</option><option value="Antora">Antora</option><option value="Antora Energy">Antora Energy</option><option value="Aquila Clean Energy EMEA">Aquila Clean Energy EMEA</option><option value="BYD Energy Storage">BYD Energy Storage</option><option value="CAISO">CAISO</option><option value="Canadian Solar">Canadian Solar</option><option value="CIM Group">CIM Group</option><option value="EDF Power Solutions">EDF Power Solutions</option><option value="Edify Energy">Edify Energy</option><option value="Electric Era">Electric Era</option><option value="Enbridge">Enbridge</option><option value="EnerVenue">EnerVenue</option><option value="Fluence">Fluence</option><option value="Fluence Energy">Fluence Energy</option><option value="Ford">Ford</option><option value="Ford Energy">Ford Energy</option><option value="Frontier Power">Frontier Power</option><option value="Gotion">Gotion</option><option value="Grenergy">Grenergy</option><option value="Gridstor">Gridstor</option><option value="GridStor">GridStor</option><option value="Hitachi Energy">Hitachi Energy</option><option value="HiTHIUM">HiTHIUM</option><option value="Hithium">Hithium</option><option value="Hull Street Energy">Hull Street Energy</option><option value="HyperStrong">HyperStrong</option><option value="Inovance Technology">Inovance Technology</option><option value="Intertek CEA">Intertek CEA</option><option value="Invinity">Invinity</option><option value="Invinity Energy Systems">Invinity Energy Systems</option><option value="Lyten">Lyten</option><option value="MN8 Energy">MN8 Energy</option><option value="Moment Energy">Moment Energy</option><option value="NextEra">NextEra</option><option value="NextEra Energy">NextEra Energy</option><option value="Rept Battero">Rept Battero</option><option value="Samsung SDI">Samsung SDI</option><option value="SEIA">SEIA</option><option value="Shatterdome Energy">Shatterdome Energy</option><option value="SMA">SMA</option><option value="Spearmint Energy">Spearmint Energy</option><option value="Sungrow">Sungrow</option><option value="Sunraycer Renewables">Sunraycer Renewables</option><option value="Tesla">Tesla</option><option value="Trina Storage">Trina Storage</option><option value="Xcel Energy">Xcel Energy</option><option value="Zelestra">Zelestra</option><option value="(none)">(No company identified)</option></select>
     </div>
     <div class="filter-group">
       <label for="filter-event">Event type</label>
       <select id="filter-event"><option value="ALL">All event types</option><option value="analysis_commentary">Analysis commentary</option><option value="contract_announcement">Contract announcement</option><option value="deployment">Deployment</option><option value="financial_results">Financial results</option><option value="merger_acquisition">Merger acquisition</option><option value="other">Other</option><option value="partnership">Partnership</option><option value="product_launch">Product launch</option><option value="regulatory_change">Regulatory change</option><option value="(none)">(No event type)</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="filter-category">Category</label>
+      <select id="filter-category"><option value="ALL">All categories</option><option value="Direct BESS">Direct BESS</option><option value="Supply Chain">Supply Chain</option><option value="Adjacent Market">Adjacent Market</option><option value="Policy &amp; Regulation">Policy &amp; Regulation</option><option value="Market Structure">Market Structure</option><option value="M&amp;A">M&amp;A</option><option value="(none)">(Uncategorized)</option></select>
     </div>
     <div class="filter-group">
       <label for="filter-q">Search titles</label>
@@ -211,14 +226,59 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
   </div>
 
   <section id="articles-list">
+    <article class="article-card score-5"
+             data-score="5"
+             data-iso="(none)"
+             data-company="Fluence"
+             data-event="financial_results"
+             data-category="Direct BESS"
+             data-title="fluence energy, inc. reports second quarter 2025 results; lowers full year 2025 guidance, citing decisions to pause certain u.s. projects due to tariff uncertainty">
+      <div class="article-head">
+        <span class="badge badge-5">5/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://www.globenewswire.com/news-release/2025/05/07/3076549/0/en/fluence-energy-inc-reports-second-quarter-2025-results-lowers-full-year-2025-guidance-citing-decisions-to-pause-certain-u-s-projects-due-to-tariff-uncertainty.html" target="_blank" rel="noopener">Fluence Energy, Inc. Reports Second Quarter 2025 Results; Lowers Full Year 2025 Guidance, Citing Decisions to Pause Certain U.S. Projects Due to Tariff Uncertainty</a>
+      </div>
+      <div class="article-meta">
+        <span>Fluence</span>
+        <span>· 2025-05-07</span>
+        <span>· Fluence</span>
+        <span>· Financial results</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Major BESS integrator lowering full-year guidance and pausing US projects due to tariff uncertainty is a market-moving signal for the entire storage sector.</p>
+    </article>
+    
+    <article class="article-card score-4"
+             data-score="4"
+             data-iso="(none)"
+             data-company="NextEra Energy"
+             data-event="merger_acquisition"
+             data-category="M&amp;A"
+             data-title="giant nextera-dominion merger should be met with ‘caution’ to avoid rate increases, groups warn">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span><span class="cat-badge cat-mna">M&amp;A</span>
+        <a class="article-title" href="https://www.pv-tech.org/giant-nextera-dominion-merger-should-be-met-with-caution-to-avoid-rate-increases-groups-warn/" target="_blank" rel="noopener">Giant NextEra-Dominion merger should be met with ‘caution’ to avoid rate increases, groups warn</a>
+      </div>
+      <div class="article-meta">
+        <span>PV Tech</span>
+        <span>· 2026-05-22</span>
+        <span>· NextEra Energy</span>
+        <span>· Merger acquisition</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Merger of two major US utilities with significant renewable and storage portfolios could reshape competitive landscape and procurement dynamics for BESS developers.</p>
+    </article>
+    
     <article class="article-card score-4"
              data-score="4"
              data-iso="(none)"
              data-company="Sungrow"
              data-event="contract_announcement"
+             data-category="Direct BESS"
              data-title="sungrow wins 7.5 gwh masdar order for abu dhabi 24/7 solar-storage project">
       <div class="article-head">
-        <span class="badge badge-4">4/5</span>
+        <span class="badge badge-4">4/5</span><span class="cat-badge cat-direct">Direct BESS</span>
         <a class="article-title" href="https://www.ess-news.com/2026/05/22/sungrow-wins-7-5-gwh-masdar-order-for-abu-dhabi-24-7-solar-storage-project/" target="_blank" rel="noopener">Sungrow wins 7.5 GWh Masdar order for Abu Dhabi 24/7 solar-storage project</a>
       </div>
       <div class="article-meta">
@@ -229,7 +289,7 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· No specific market</span>
         <span>· 7500 MWh</span>
       </div>
-      <p class="article-reason">Massive 7.5 GWh order for a major Tesla/Fluence competitor signals Sungrow&#x27;s growing global scale and validates PowerTitan 3.0, relevant read-across for ERCOT/CAISO procurement competition.</p>
+      <p class="article-reason">Massive 7.5 GWh order signals Sungrow&#x27;s growing global dominance and validates large-scale 24/7 solar+storage as a competitive architecture against standalone BESS.</p>
     </article>
     
     <article class="article-card score-4"
@@ -237,9 +297,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
              data-iso="ERCOT"
              data-company="Spearmint Energy"
              data-event="contract_announcement"
+             data-category="Direct BESS"
              data-title="spearmint energy secures us$450 million for 600mwh texas bess project">
       <div class="article-head">
-        <span class="badge badge-4">4/5</span>
+        <span class="badge badge-4">4/5</span><span class="cat-badge cat-direct">Direct BESS</span>
         <a class="article-title" href="https://www.energy-storage.news/spearmint-energy-secures-us450-million-for-600mwh-texas-bess-project/" target="_blank" rel="noopener">Spearmint Energy secures US$450 million for 600MWh Texas BESS project</a>
       </div>
       <div class="article-meta">
@@ -250,7 +311,7 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· ERCOT</span>
         <span>· 600 MWh</span>
       </div>
-      <p class="article-reason">A $450M financing close for a 600 MWh ERCOT BESS project is a meaningful competitive signal indicating continued capital flow into Texas storage development.</p>
+      <p class="article-reason">$450M financing for a 600MWh ERCOT BESS project is a sizeable competitive deployment signal in Texas.</p>
     </article>
     
     <article class="article-card score-4"
@@ -258,9 +319,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
              data-iso="ERCOT"
              data-company="Frontier Power"
              data-event="merger_acquisition"
+             data-category="M&amp;A"
              data-title="ldes investor frontier power acquires 480mwh texas bess portfolio from bimergen">
       <div class="article-head">
-        <span class="badge badge-4">4/5</span>
+        <span class="badge badge-4">4/5</span><span class="cat-badge cat-mna">M&amp;A</span>
         <a class="article-title" href="https://www.energy-storage.news/ldes-investor-frontier-power-acquires-480mwh-texas-bess-portfolio-from-bimergen/" target="_blank" rel="noopener">LDES investor Frontier Power acquires 480MWh Texas BESS portfolio from Bimergen</a>
       </div>
       <div class="article-meta">
@@ -271,28 +333,29 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· ERCOT</span>
         <span>· 480 MWh</span>
       </div>
-      <p class="article-reason">Mid-sized 480MWh ERCOT BESS portfolio changing hands signals continued M&amp;A activity and capital flows into Texas storage assets, relevant to competitive positioning.</p>
+      <p class="article-reason">Mid-sized ERCOT BESS portfolio acquisition by an LDES-focused investor signals continued capital inflow and consolidation in the Texas storage market.</p>
     </article>
     
     <article class="article-card score-4"
              data-score="4"
              data-iso="ERCOT"
              data-company="Spearmint Energy"
-             data-event="deployment"
+             data-event="contract_announcement"
+             data-category="M&amp;A"
              data-title="bess financing: spearmint closes $450 million for 600 mwh ercot project, powerbank leases 60 mwh across new york">
       <div class="article-head">
-        <span class="badge badge-4">4/5</span>
+        <span class="badge badge-4">4/5</span><span class="cat-badge cat-mna">M&amp;A</span>
         <a class="article-title" href="https://www.ess-news.com/2026/05/22/bess-financing-spearmint-closes-450-million-for-600-mwh-ercot-project-powerbank-leases-60-mwh-across-new-york/" target="_blank" rel="noopener">BESS financing: Spearmint closes $450 million for 600 MWh ERCOT project, PowerBank leases 60 MWh across New York</a>
       </div>
       <div class="article-meta">
         <span>ESS News</span>
         <span>· 2026-05-22</span>
         <span>· Spearmint Energy</span>
-        <span>· Deployment</span>
+        <span>· Contract announcement</span>
         <span>· ERCOT</span>
         <span>· 600 MWh</span>
       </div>
-      <p class="article-reason">A $450M financing close for a 600 MWh standalone ERCOT BESS project is a meaningful competitive signal showing continued capital flow into Texas storage.</p>
+      <p class="article-reason">$450M financing close for a 600 MWh ERCOT standalone BESS is a material competitive datapoint on Texas project economics and capital availability.</p>
     </article>
     
     <article class="article-card score-4"
@@ -300,9 +363,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
              data-iso="(none)"
              data-company="Sungrow"
              data-event="contract_announcement"
+             data-category="Direct BESS"
              data-title="masdar picks sungrow as supplier for world’s largest 24/7 renewable energy project in uae">
       <div class="article-head">
-        <span class="badge badge-4">4/5</span>
+        <span class="badge badge-4">4/5</span><span class="cat-badge cat-direct">Direct BESS</span>
         <a class="article-title" href="https://www.energy-storage.news/masdar-picks-sungrow-as-supplier-for-worlds-largest-24-7-renewable-energy-project-in-uae/" target="_blank" rel="noopener">Masdar picks Sungrow as supplier for world’s largest 24/7 renewable energy project in UAE</a>
       </div>
       <div class="article-meta">
@@ -313,7 +377,7 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· No specific market</span>
         <span>· —</span>
       </div>
-      <p class="article-reason">Sungrow, a top competitor BESS OEM, winning supply for the world&#x27;s first gigawatt-scale 24/7 dispatchable renewables project is a meaningful competitive signal even though it&#x27;s outside ERCOT/CAISO.</p>
+      <p class="article-reason">Gigawatt-scale 24/7 dispatchable renewables project implies massive BESS deployment and is a major contract win for Sungrow, a key competitor in stationary storage.</p>
     </article>
     
     <article class="article-card score-4"
@@ -321,9 +385,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
              data-iso="(none)"
              data-company="(none)"
              data-event="analysis_commentary"
+             data-category="Market Structure"
              data-title="us deploys quarterly record 10 gwh of energy storage amid energy security push">
       <div class="article-head">
-        <span class="badge badge-4">4/5</span>
+        <span class="badge badge-4">4/5</span><span class="cat-badge cat-market">Market Structure</span>
         <a class="article-title" href="https://www.ess-news.com/2026/05/22/us-deploys-quarterly-record-10-gwh-of-energy-storage-amid-energy-security-push/" target="_blank" rel="noopener">US deploys quarterly record 10 GWh of energy storage amid energy security push</a>
       </div>
       <div class="article-meta">
@@ -334,28 +399,7 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· No specific market</span>
         <span>· 10000 MWh</span>
       </div>
-      <p class="article-reason">Record quarterly US storage deployment with upward five-year pipeline revision is a meaningful market-wide signal for BESS competitors in ERCOT/CAISO.</p>
-    </article>
-    
-    <article class="article-card score-4"
-             data-score="4"
-             data-iso="ERCOT"
-             data-company="GridStor"
-             data-event="deployment"
-             data-title="integration and commissioning support helps complete 220 mw bess project in texas">
-      <div class="article-head">
-        <span class="badge badge-4">4/5</span>
-        <a class="article-title" href="https://pv-magazine-usa.com/2026/05/21/integration-and-commissioning-support-helps-complete-220-mw-bess-project-in-texas/" target="_blank" rel="noopener">Integration and commissioning support helps complete 220 MW BESS project in Texas</a>
-      </div>
-      <div class="article-meta">
-        <span>PV Magazine USA</span>
-        <span>· 2026-05-21</span>
-        <span>· GridStor</span>
-        <span>· Deployment</span>
-        <span>· ERCOT</span>
-        <span>· —</span>
-      </div>
-      <p class="article-reason">A 220 MW BESS commissioning in ERCOT is a meaningful competitive datapoint, though missing duration limits MWh sizing and GridStor is a mid-tier developer.</p>
+      <p class="article-reason">Record quarterly US BESS deployment of 10 GWh with 32% YoY growth and upward five-year pipeline revision is a key market-sizing datapoint for competitive positioning.</p>
     </article>
     
     <article class="article-card score-4"
@@ -363,9 +407,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
              data-iso="(none)"
              data-company="(none)"
              data-event="analysis_commentary"
+             data-category="Market Structure"
              data-title="u.s. deploys quarterly record 10 gwh of energy storage amid energy security push">
       <div class="article-head">
-        <span class="badge badge-4">4/5</span>
+        <span class="badge badge-4">4/5</span><span class="cat-badge cat-market">Market Structure</span>
         <a class="article-title" href="https://pv-magazine-usa.com/2026/05/21/u-s-deploys-quarterly-record-10-gwh-of-energy-storage-amid-energy-security-push/" target="_blank" rel="noopener">U.S. deploys quarterly record 10 GWh of energy storage amid energy security push</a>
       </div>
       <div class="article-meta">
@@ -376,7 +421,7 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· No specific market</span>
         <span>· 10000 MWh</span>
       </div>
-      <p class="article-reason">Record-setting US quarterly storage deployment with upward five-year pipeline revision is a meaningful macro signal for BESS competitive positioning, though not a single-market ERCOT/CAISO event.</p>
+      <p class="article-reason">Record quarterly US storage deployment with upward 5-year pipeline revision is a key market-structure signal for BESS competitors.</p>
     </article>
     
     <article class="article-card score-4"
@@ -384,324 +429,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
              data-iso="(none)"
              data-company="Gridstor"
              data-event="merger_acquisition"
+             data-category="M&amp;A"
              data-title="batteries on the move: gridstor buys 796 mwh birdseye bess, hull street to buy firstlight’s 1.4 gw portfolio">
       <div class="article-head">
-        <span class="badge badge-4">4/5</span>
-        <a class="article-title" href="https://www.ess-news.com/2026/05/21/batteries-on-the-move-gridstor-buys-796-mwh-birdseye-bess-hull-street-to-buy-firstlights-1-4-gw-portfolio/" target="_blank" rel="noopener">Batteries on the move: Gridstor buys 796 MWh Birdseye BESS, Hull Street to buy FirstLight’s 1.4 GW portfolio</a>
-      </div>
-      <div class="article-meta">
-        <span>ESS News</span>
-        <span>· 2026-05-21</span>
-        <span>· Gridstor</span>
-        <span>· Merger acquisition</span>
-        <span>· No specific market</span>
-        <span>· 796 MWh</span>
-      </div>
-      <p class="article-reason">Sizable BESS asset acquisitions (796 MWh Birdseye plus 1.4 GW FirstLight portfolio) signal active secondary-market consolidation relevant to competitive positioning among storage developers.</p>
-    </article>
-    
-    <article class="article-card score-4"
-             data-score="4"
-             data-iso="ERCOT"
-             data-company="Tesla"
-             data-event="deployment"
-             data-title="exclusive: tesla (tsla) is building its giant solar panel factory in houston">
-      <div class="article-head">
-        <span class="badge badge-4">4/5</span>
-        <a class="article-title" href="https://electrek.co/2026/05/19/tesla-tsla-solar-panel-factory-houston-brookshire-100-gw/" target="_blank" rel="noopener">Exclusive: Tesla (TSLA) is building its giant solar panel factory in Houston</a>
-      </div>
-      <div class="article-meta">
-        <span>Electrek</span>
-        <span>· 2026-05-19</span>
-        <span>· Tesla</span>
-        <span>· Deployment</span>
-        <span>· ERCOT</span>
-        <span>· —</span>
-      </div>
-      <p class="article-reason">Tesla&#x27;s solar factory is co-located with the Brookshire Megapack Megafactory in ERCOT territory, reinforcing Tesla&#x27;s Texas manufacturing footprint that directly supplies the BESS market, though the article itself focuses on solar.</p>
-    </article>
-    
-    <article class="article-card score-4"
-             data-score="4"
-             data-iso="(none)"
-             data-company="Ford Energy"
-             data-event="contract_announcement"
-             data-title="ford energy makes 20gwh, five-year north america supply deal with edf">
-      <div class="article-head">
-        <span class="badge badge-4">4/5</span>
-        <a class="article-title" href="https://www.energy-storage.news/ford-energy-makes-20gwh-five-year-north-america-supply-deal-with-edf/" target="_blank" rel="noopener">Ford Energy makes 20GWh, five-year North America supply deal with EDF</a>
-      </div>
-      <div class="article-meta">
-        <span>Energy Storage News</span>
-        <span>· 2026-05-19</span>
-        <span>· Ford Energy</span>
-        <span>· Contract announcement</span>
-        <span>· No specific market</span>
-        <span>· 20000 MWh</span>
-      </div>
-      <p class="article-reason">A 20 GWh five-year BESS supply deal between a new OEM entrant (Ford) and a major developer (EDF) is a significant competitive signal for North American battery supply, including potential ERCOT/CAISO deployments.</p>
-    </article>
-    
-    <article class="article-card score-4"
-             data-score="4"
-             data-iso="(none)"
-             data-company="Ford"
-             data-event="partnership"
-             data-title="ford and edf sign gigawatt-scale bess agreement for north american market">
-      <div class="article-head">
-        <span class="badge badge-4">4/5</span>
-        <a class="article-title" href="https://pv-magazine-usa.com/2026/05/18/ford-and-edf-sign-gigawatt-scale-bess-agreement-for-north-american-market/" target="_blank" rel="noopener">Ford and EDF sign gigawatt-scale BESS agreement for North American market</a>
-      </div>
-      <div class="article-meta">
-        <span>PV Magazine USA</span>
-        <span>· 2026-05-18</span>
-        <span>· Ford</span>
-        <span>· Partnership</span>
-        <span>· No specific market</span>
-        <span>· —</span>
-      </div>
-      <p class="article-reason">Ford&#x27;s entry into utility-scale BESS via a gigawatt-scale framework with EDF signals a new OEM competitor in the North American market, relevant to ERCOT/CAISO procurement dynamics.</p>
-    </article>
-    
-    <article class="article-card score-4"
-             data-score="4"
-             data-iso="ERCOT"
-             data-company="Sunraycer Renewables"
-             data-event="contract_announcement"
-             data-title="sunraycer renewables closes $901 million financing for 473 mwh bess portfolio in texas">
-      <div class="article-head">
-        <span class="badge badge-4">4/5</span>
-        <a class="article-title" href="https://pv-magazine-usa.com/2026/05/15/sunraycer-renewables-closes-901-million-financing-for-473-mwh-bess-portfolio-in-texas/" target="_blank" rel="noopener">Sunraycer Renewables closes $901 million financing for 473 MWh BESS portfolio in Texas</a>
-      </div>
-      <div class="article-meta">
-        <span>PV Magazine USA</span>
-        <span>· 2026-05-15</span>
-        <span>· Sunraycer Renewables</span>
-        <span>· Contract announcement</span>
-        <span>· ERCOT</span>
-        <span>· 473 MWh</span>
-      </div>
-      <p class="article-reason">Sizable ERCOT solar-plus-storage portfolio with hyperscaler PPA and major financing close signals continued capital flow and Google&#x27;s growing role as BESS offtaker in Texas.</p>
-    </article>
-    
-    <article class="article-card score-4"
-             data-score="4"
-             data-iso="(none)"
-             data-company="Gotion"
-             data-event="partnership"
-             data-title="china’s gotion and richardson electronics partner for us-made bess">
-      <div class="article-head">
-        <span class="badge badge-4">4/5</span>
-        <a class="article-title" href="https://www.energy-storage.news/chinas-gotion-and-richardson-electronics-partner-for-us-made-bess/" target="_blank" rel="noopener">China’s Gotion and Richardson Electronics partner for US-made BESS</a>
-      </div>
-      <div class="article-meta">
-        <span>Energy Storage News</span>
-        <span>· 2026-05-14</span>
-        <span>· Gotion</span>
-        <span>· Partnership</span>
-        <span>· No specific market</span>
-        <span>· —</span>
-      </div>
-      <p class="article-reason">Chinese OEM partnering with a US manufacturer to navigate FEOC restrictions is a meaningful competitive signal for domestic BESS supply chains relevant to ERCOT/CAISO procurement.</p>
-    </article>
-    
-    <article class="article-card score-4"
-             data-score="4"
-             data-iso="CAISO"
-             data-company="AES"
-             data-event="other"
-             data-title="aes pulls out of san diego area battery project after local opposition">
-      <div class="article-head">
-        <span class="badge badge-4">4/5</span>
-        <a class="article-title" href="https://www.canarymedia.com/articles/batteries/aes-san-diego-area-battery-opposition" target="_blank" rel="noopener">AES pulls out of San Diego area battery project after local opposition</a>
-      </div>
-      <div class="article-meta">
-        <span>Canary Media</span>
-        <span>· 2026-04-09</span>
-        <span>· AES</span>
-        <span>· Other</span>
-        <span>· CAISO</span>
-        <span>· —</span>
-      </div>
-      <p class="article-reason">A major IPP withdrawing a CAISO-area BESS project due to community opposition signals growing siting risk in California, materially relevant to BESS developers.</p>
-    </article>
-    
-    <article class="article-card score-4"
-             data-score="4"
-             data-iso="CAISO"
-             data-company="(none)"
-             data-event="deployment"
-             data-title="nation&#x27;s largest urban battery to take center stage near san francisco">
-      <div class="article-head">
-        <span class="badge badge-4">4/5</span>
-        <a class="article-title" href="https://www.canarymedia.com/articles/batteries/nations-largest-urban-battery-san-francisco" target="_blank" rel="noopener">Nation&#x27;s largest urban battery to take center stage near San Francisco</a>
-      </div>
-      <div class="article-meta">
-        <span>Canary Media</span>
-        <span>· 2026-04-03</span>
-        <span>· No company</span>
-        <span>· Deployment</span>
-        <span>· CAISO</span>
-        <span>· —</span>
-      </div>
-      <p class="article-reason">Large urban BESS deployment in the CAISO Bay Area footprint is a meaningful competitive signal, though the summary lacks specific capacity or developer details.</p>
-    </article>
-    
-    <article class="article-card score-3"
-             data-score="3"
-             data-iso="(none)"
-             data-company="(none)"
-             data-event="analysis_commentary"
-             data-title="us summer generating capacity increases by 75 gw since 2025: ferc">
-      <div class="article-head">
-        <span class="badge badge-3">3/5</span>
-        <a class="article-title" href="https://www.utilitydive.com/news/ferc-summer-market-reliability-assessment/820962/" target="_blank" rel="noopener">US summer generating capacity increases by 75 GW since 2025: FERC</a>
-      </div>
-      <div class="article-meta">
-        <span>Utility Dive</span>
-        <span>· 2026-05-22</span>
-        <span>· No company</span>
-        <span>· Analysis commentary</span>
-        <span>· No specific market</span>
-        <span>· —</span>
-      </div>
-      <p class="article-reason">Broad FERC capacity report with significant ERCOT and WECC additions provides useful macro context for BESS demand, but lacks BESS-specific deployment detail.</p>
-    </article>
-    
-    <article class="article-card score-3"
-             data-score="3"
-             data-iso="(none)"
-             data-company="Invinity"
-             data-event="contract_announcement"
-             data-title="invinity supplies large-scale vanadium flow storage for flexbase project in switzerland">
-      <div class="article-head">
-        <span class="badge badge-3">3/5</span>
-        <a class="article-title" href="https://www.ess-news.com/2026/05/22/invinity-supplies-large-scale-vanadium-flow-storage-for-flexbase-project-in-switzerland/" target="_blank" rel="noopener">Invinity supplies large-scale vanadium flow storage for Flexbase project in Switzerland</a>
-      </div>
-      <div class="article-meta">
-        <span>ESS News</span>
-        <span>· 2026-05-22</span>
-        <span>· Invinity</span>
-        <span>· Contract announcement</span>
-        <span>· No specific market</span>
-        <span>· 1600 MWh</span>
-      </div>
-      <p class="article-reason">Large vanadium flow battery order is a notable competitive signal for long-duration storage, but it&#x27;s in Switzerland with no direct ERCOT/CAISO read-through.</p>
-    </article>
-    
-    <article class="article-card score-3"
-             data-score="3"
-             data-iso="(none)"
-             data-company="Inlyte Energy"
-             data-event="product_launch"
-             data-title="inlyte energy plans pilot projects to prove its iron-sodium battery technology">
-      <div class="article-head">
-        <span class="badge badge-3">3/5</span>
-        <a class="article-title" href="https://pv-magazine-usa.com/2026/05/22/inlyte-energy-plans-pilot-projects-to-prove-its-iron-sodium-battery-technology/" target="_blank" rel="noopener">Inlyte Energy plans pilot projects to prove its iron-sodium battery technology</a>
-      </div>
-      <div class="article-meta">
-        <span>PV Magazine USA</span>
-        <span>· 2026-05-22</span>
-        <span>· Inlyte Energy</span>
-        <span>· Product launch</span>
-        <span>· No specific market</span>
-        <span>· —</span>
-      </div>
-      <p class="article-reason">Early-stage iron-sodium LDES pilot targeting data center load is a notable emerging-tech signal but not yet competitively material to ERCOT/CAISO lithium-ion BESS markets.</p>
-    </article>
-    
-    <article class="article-card score-3"
-             data-score="3"
-             data-iso="(none)"
-             data-company="Antora Energy"
-             data-event="contract_announcement"
-             data-title="antora’s hot carbon thermal batteries win 5 gwh energy storage project">
-      <div class="article-head">
-        <span class="badge badge-3">3/5</span>
-        <a class="article-title" href="https://pv-magazine-usa.com/2026/05/22/antoras-hot-carbon-thermal-batteries-win-5-gwh-energy-storage-project-in-us/" target="_blank" rel="noopener">Antora’s hot carbon thermal batteries win 5 GWh energy storage project</a>
-      </div>
-      <div class="article-meta">
-        <span>PV Magazine USA</span>
-        <span>· 2026-05-22</span>
-        <span>· Antora Energy</span>
-        <span>· Contract announcement</span>
-        <span>· No specific market</span>
-        <span>· 5000 MWh</span>
-      </div>
-      <p class="article-reason">Large 5 GWh thermal storage deal is notable for the broader storage landscape, but thermal batteries for industrial heat are adjacent to lithium-ion BESS competition in ERCOT/CAISO wholesale markets.</p>
-    </article>
-    
-    <article class="article-card score-3"
-             data-score="3"
-             data-iso="(none)"
-             data-company="SMA"
-             data-event="partnership"
-             data-title="sma and hyperstrong agree to cooperate worldwide on energy storage">
-      <div class="article-head">
-        <span class="badge badge-3">3/5</span>
-        <a class="article-title" href="https://www.ess-news.com/2026/05/22/sma-and-hyperstrong-agree-to-cooperate-worldwide-on-energy-storage/" target="_blank" rel="noopener">SMA and Hyperstrong agree to cooperate worldwide on energy storage</a>
-      </div>
-      <div class="article-meta">
-        <span>ESS News</span>
-        <span>· 2026-05-22</span>
-        <span>· SMA</span>
-        <span>· Partnership</span>
-        <span>· No specific market</span>
-        <span>· —</span>
-      </div>
-      <p class="article-reason">Partnership between German inverter maker SMA and Chinese BESS integrator Hyperstrong is a moderately relevant competitive signal in global utility-scale storage but lacks direct ERCOT/CAISO impact.</p>
-    </article>
-    
-    <article class="article-card score-3"
-             data-score="3"
-             data-iso="(none)"
-             data-company="NextEra Energy"
-             data-event="merger_acquisition"
-             data-title="nextera energy wants to buy its way into data center alley">
-      <div class="article-head">
-        <span class="badge badge-3">3/5</span>
-        <a class="article-title" href="https://www.canarymedia.com/articles/utilities/nextera-energy-wants-to-buy-its-way-into-data-center-alley" target="_blank" rel="noopener">NextEra Energy wants to buy its way into Data Center Alley</a>
-      </div>
-      <div class="article-meta">
-        <span>Canary Media</span>
-        <span>· 2026-05-22</span>
-        <span>· NextEra Energy</span>
-        <span>· Merger acquisition</span>
-        <span>· No specific market</span>
-        <span>· —</span>
-      </div>
-      <p class="article-reason">A NextEra megamerger targeting data center load in Virginia could reshape renewables/storage development priorities, but has limited direct ERCOT/CAISO read-across.</p>
-    </article>
-    
-    <article class="article-card score-3"
-             data-score="3"
-             data-iso="(none)"
-             data-company="Enbridge"
-             data-event="deployment"
-             data-title="enbridge, meta to build 365-mw solar/200-mw storage project">
-      <div class="article-head">
-        <span class="badge badge-3">3/5</span>
-        <a class="article-title" href="https://www.utilitydive.com/news/enbridge-meta-build-365-mw200-mw-solarstorage-project/820905/" target="_blank" rel="noopener">Enbridge, Meta to build 365-MW solar/200-MW storage project</a>
-      </div>
-      <div class="article-meta">
-        <span>Utility Dive</span>
-        <span>· 2026-05-21</span>
-        <span>· Enbridge</span>
-        <span>· Deployment</span>
-        <span>· No specific market</span>
-        <span>· —</span>
-      </div>
-      <p class="article-reason">Mid-sized hybrid solar+storage project with a hyperscaler offtaker is a relevant data point on corporate BESS procurement, but it&#x27;s outside ERCOT/CAISO and storage capacity (200 MW, no duration disclosed) is modest.</p>
-    </article>
-    
-    <article class="article-card score-3"
-             data-score="3"
-             data-iso="(none)"
-             data-company="Gridstor"
-             data-event="merger_acquisition"
-             data-title="batteries on the move: gridstor buys 796 mwh birdseye bess, hull street to buy firstlight’s 1.4 gw portfolio">
-      <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-4">4/5</span><span class="cat-badge cat-mna">M&amp;A</span>
         <a class="article-title" href="https://pv-magazine-usa.com/2026/05/21/batteries-on-the-move-gridstor-buys-796-mwh-birdseye-bess-hull-street-to-buy-firstlights-1-4-gw-portfolio/" target="_blank" rel="noopener">Batteries on the move: Gridstor buys 796 MWh Birdseye BESS, Hull Street to buy FirstLight’s 1.4 GW portfolio</a>
       </div>
       <div class="article-meta">
@@ -712,38 +443,40 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· No specific market</span>
         <span>· 796 MWh</span>
       </div>
-      <p class="article-reason">Notable BESS asset acquisitions signal active M&amp;A in storage, but no clear ERCOT/CAISO siting disclosed in the summary.</p>
+      <p class="article-reason">Two notable storage M&amp;A transactions including Gridstor&#x27;s 796 MWh BESS acquisition and Hull Street&#x27;s 1.4 GW portfolio buy signal active consolidation in the storage asset market.</p>
     </article>
     
-    <article class="article-card score-3"
-             data-score="3"
+    <article class="article-card score-4"
+             data-score="4"
              data-iso="(none)"
-             data-company="(none)"
-             data-event="deployment"
-             data-title="us roundup: bess project advancements from oci energy, mn8 energy, gridstor, grenergy">
+             data-company="Gridstor"
+             data-event="merger_acquisition"
+             data-category="M&amp;A"
+             data-title="batteries on the move: gridstor buys 796 mwh birdseye bess, hull street to buy firstlight’s 1.4 gw portfolio">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
-        <a class="article-title" href="https://www.energy-storage.news/us-roundup-bess-project-advancements-from-oci-energy-mn8-energy-gridstor-grenergy/" target="_blank" rel="noopener">US ROUNDUP: BESS project advancements from OCI Energy, MN8 Energy, GridStor, Grenergy</a>
+        <span class="badge badge-4">4/5</span><span class="cat-badge cat-mna">M&amp;A</span>
+        <a class="article-title" href="https://www.ess-news.com/2026/05/21/batteries-on-the-move-gridstor-buys-796-mwh-birdseye-bess-hull-street-to-buy-firstlights-1-4-gw-portfolio/" target="_blank" rel="noopener">Batteries on the move: Gridstor buys 796 MWh Birdseye BESS, Hull Street to buy FirstLight’s 1.4 GW portfolio</a>
       </div>
       <div class="article-meta">
-        <span>Energy Storage News</span>
+        <span>ESS News</span>
         <span>· 2026-05-21</span>
-        <span>· No company</span>
-        <span>· Deployment</span>
+        <span>· Gridstor</span>
+        <span>· Merger acquisition</span>
         <span>· No specific market</span>
-        <span>· —</span>
+        <span>· 796 MWh</span>
       </div>
-      <p class="article-reason">Multi-developer BESS project roundup spanning ERCOT and CAISO footprints provides useful competitive signal, but lack of specific capacity or contract details limits impact.</p>
+      <p class="article-reason">Two notable BESS/storage M&amp;A transactions including a 796 MWh operational BESS acquisition and a 1.4 GW portfolio sale signal active consolidation in the storage asset market.</p>
     </article>
     
-    <article class="article-card score-3"
-             data-score="3"
+    <article class="article-card score-4"
+             data-score="4"
              data-iso="(none)"
              data-company="Invinity Energy Systems"
              data-event="contract_announcement"
+             data-category="Adjacent Market"
              data-title="invinity lands contract for 2.1gwh flow battery in switzerland, share price soars 60%">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-4">4/5</span><span class="cat-badge cat-adjacent">Adjacent Market</span>
         <a class="article-title" href="https://www.energy-storage.news/invinity-lands-contract-for-2-1gwh-flow-battery-in-switzerland-share-price-soars-60/" target="_blank" rel="noopener">Invinity lands contract for 2.1GWh flow battery in Switzerland, share price soars 60%</a>
       </div>
       <div class="article-meta">
@@ -754,122 +487,40 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· No specific market</span>
         <span>· 2100 MWh</span>
       </div>
-      <p class="article-reason">Largest-ever flow battery contract is a notable competitive signal for long-duration storage, but it&#x27;s a non-lithium technology in Switzerland with limited direct read-across to ERCOT/CAISO.</p>
+      <p class="article-reason">Largest-ever flow battery contract at 2.1GWh signals major competitive threat to Li-ion in long-duration storage and validates vanadium flow for data center applications.</p>
     </article>
     
-    <article class="article-card score-3"
-             data-score="3"
+    <article class="article-card score-4"
+             data-score="4"
              data-iso="(none)"
-             data-company="HyperStrong"
-             data-event="partnership"
-             data-title="china’s hyperstrong deepens ties with european inverter manufacturer sma for global utility-scale bess projects">
+             data-company="Enbridge"
+             data-event="contract_announcement"
+             data-category="Adjacent Market"
+             data-title="enbridge to build 365mw/1.6gwh solar-plus-storage project in wyoming for meta data centre">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
-        <a class="article-title" href="https://www.energy-storage.news/chinas-hyperstrong-deepens-ties-with-european-inverter-manufacturer-sma-for-global-utility-scale-bess-projects/" target="_blank" rel="noopener">China’s HyperStrong deepens ties with European inverter manufacturer SMA for global utility-scale BESS projects</a>
+        <span class="badge badge-4">4/5</span><span class="cat-badge cat-adjacent">Adjacent Market</span>
+        <a class="article-title" href="https://www.pv-tech.org/enbridge-to-build-365mw-1-6gwh-solar-plus-storage-project-in-wyoming-for-meta-data-centre/" target="_blank" rel="noopener">Enbridge to build 365MW/1.6GWh solar-plus-storage project in Wyoming for Meta data centre</a>
       </div>
       <div class="article-meta">
-        <span>Energy Storage News</span>
-        <span>· 2026-05-21</span>
-        <span>· HyperStrong</span>
-        <span>· Partnership</span>
-        <span>· No specific market</span>
-        <span>· —</span>
-      </div>
-      <p class="article-reason">Partnership between a major Chinese BESS integrator and SMA signals competitive positioning in global utility-scale BESS, but limited direct ERCOT/CAISO impact.</p>
-    </article>
-    
-    <article class="article-card score-3"
-             data-score="3"
-             data-iso="(none)"
-             data-company="SEIA"
-             data-event="analysis_commentary"
-             data-title="seia: ai is fueling a massive us energy storage boom">
-      <div class="article-head">
-        <span class="badge badge-3">3/5</span>
-        <a class="article-title" href="https://electrek.co/2026/05/20/seia-ai-is-fueling-a-massive-us-energy-storage-boom/" target="_blank" rel="noopener">SEIA: AI is fueling a massive US energy storage boom</a>
-      </div>
-      <div class="article-meta">
-        <span>Electrek</span>
-        <span>· 2026-05-21</span>
-        <span>· SEIA</span>
-        <span>· Analysis commentary</span>
-        <span>· No specific market</span>
-        <span>· —</span>
-      </div>
-      <p class="article-reason">Industry-wide US storage growth report from SEIA provides useful market context but lacks specific ERCOT/CAISO project or competitive details.</p>
-    </article>
-    
-    <article class="article-card score-3"
-             data-score="3"
-             data-iso="(none)"
-             data-company="Edify Energy"
-             data-event="deployment"
-             data-title="edify energy to proceed with 2,400mwh solar-plus-storage sites in australia">
-      <div class="article-head">
-        <span class="badge badge-3">3/5</span>
-        <a class="article-title" href="https://www.energy-storage.news/edify-energy-to-proceed-with-2400mwh-solar-plus-storage-sites-in-australia/" target="_blank" rel="noopener">Edify Energy to proceed with 2,400MWh solar-plus-storage sites in Australia</a>
-      </div>
-      <div class="article-meta">
-        <span>Energy Storage News</span>
-        <span>· 2026-05-21</span>
-        <span>· Edify Energy</span>
-        <span>· Deployment</span>
-        <span>· No specific market</span>
-        <span>· 2400 MWh</span>
-      </div>
-      <p class="article-reason">Large 2.4GWh BESS financial close is notable globally but located in Australia with no direct ERCOT/CAISO read-across.</p>
-    </article>
-    
-    <article class="article-card score-3"
-             data-score="3"
-             data-iso="CAISO"
-             data-company="(none)"
-             data-event="regulatory_change"
-             data-title="financing for california’s signature virtual power plant remains uncertain">
-      <div class="article-head">
-        <span class="badge badge-3">3/5</span>
-        <a class="article-title" href="https://www.utilitydive.com/news/financing-for-californias-signature-virtual-power-plant-remains-uncertain/820747/" target="_blank" rel="noopener">Financing for California’s signature virtual power plant remains uncertain</a>
-      </div>
-      <div class="article-meta">
-        <span>Utility Dive</span>
+        <span>PV Tech</span>
         <span>· 2026-05-20</span>
-        <span>· No company</span>
-        <span>· Regulatory change</span>
-        <span>· CAISO</span>
-        <span>· —</span>
-      </div>
-      <p class="article-reason">California&#x27;s Demand Side Grid Support program funding uncertainty affects VPP and distributed storage economics in CAISO, but is not directly market-moving for utility-scale BESS.</p>
-    </article>
-    
-    <article class="article-card score-3"
-             data-score="3"
-             data-iso="(none)"
-             data-company="Fluence"
-             data-event="analysis_commentary"
-             data-title="battery energy storage is foundational to the ai economy">
-      <div class="article-head">
-        <span class="badge badge-3">3/5</span>
-        <a class="article-title" href="https://www.renewableenergyworld.com/energy-storage/battery/battery-energy-storage-is-foundational-to-the-ai-economy/" target="_blank" rel="noopener">Battery energy storage is foundational to the AI economy</a>
-      </div>
-      <div class="article-meta">
-        <span>Renewable Energy World</span>
-        <span>· 2026-05-20</span>
-        <span>· Fluence</span>
-        <span>· Analysis commentary</span>
+        <span>· Enbridge</span>
+        <span>· Contract announcement</span>
         <span>· No specific market</span>
-        <span>· —</span>
+        <span>· 1600 MWh</span>
       </div>
-      <p class="article-reason">Commentary from a top-tier BESS integrator (Fluence) on the data center/AI demand thesis is relevant context but not a transactional event.</p>
+      <p class="article-reason">Large 1.6GWh solar-plus-storage project tied to a hyperscaler offtake signals continued data center-driven BESS demand.</p>
     </article>
     
-    <article class="article-card score-3"
-             data-score="3"
+    <article class="article-card score-4"
+             data-score="4"
              data-iso="ERCOT"
              data-company="Sunraycer Renewables"
              data-event="contract_announcement"
+             data-category="M&amp;A"
              data-title="sunraycer closes us$901 million financing for three texas solar-plus-bess projects">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-4">4/5</span><span class="cat-badge cat-mna">M&amp;A</span>
         <a class="article-title" href="https://www.energy-storage.news/sunraycer-closes-us901-million-financing-for-three-texas-solar-plus-bess-projects/" target="_blank" rel="noopener">Sunraycer closes US$901 million financing for three Texas solar-plus-BESS projects</a>
       </div>
       <div class="article-meta">
@@ -880,7 +531,777 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· ERCOT</span>
         <span>· —</span>
       </div>
-      <p class="article-reason">Sizable $901M financing for three solar-plus-BESS projects in ERCOT signals continued capital flow into Texas storage, though specific MWh capacity is not disclosed.</p>
+      <p class="article-reason">Large $901M financing close for three solar+BESS projects in ERCOT signals continued capital flow into Texas co-located storage development.</p>
+    </article>
+    
+    <article class="article-card score-4"
+             data-score="4"
+             data-iso="(none)"
+             data-company="NextEra Energy"
+             data-event="merger_acquisition"
+             data-category="M&amp;A"
+             data-title="nextera energy and dominion energy combine to form massive us power utility">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span><span class="cat-badge cat-mna">M&amp;A</span>
+        <a class="article-title" href="https://www.pv-tech.org/nextera-energy-and-dominion-energy-combine-to-form-massive-us-power-utility/" target="_blank" rel="noopener">NextEra Energy and Dominion Energy combine to form massive US power utility</a>
+      </div>
+      <div class="article-meta">
+        <span>PV Tech</span>
+        <span>· 2026-05-19</span>
+        <span>· NextEra Energy</span>
+        <span>· Merger acquisition</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">A NextEra-Dominion combination would create the largest US regulated utility, reshaping renewables and storage procurement scale across multiple ISOs.</p>
+    </article>
+    
+    <article class="article-card score-4"
+             data-score="4"
+             data-iso="(none)"
+             data-company="Ford Energy"
+             data-event="contract_announcement"
+             data-category="Direct BESS"
+             data-title="ford energy makes 20gwh, five-year north america supply deal with edf">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://www.energy-storage.news/ford-energy-makes-20gwh-five-year-north-america-supply-deal-with-edf/" target="_blank" rel="noopener">Ford Energy makes 20GWh, five-year North America supply deal with EDF</a>
+      </div>
+      <div class="article-meta">
+        <span>Energy Storage News</span>
+        <span>· 2026-05-19</span>
+        <span>· Ford Energy</span>
+        <span>· Contract announcement</span>
+        <span>· No specific market</span>
+        <span>· 20000 MWh</span>
+      </div>
+      <p class="article-reason">A 20 GWh, five-year BESS supply deal is a major commercial commitment and signals Ford&#x27;s entry as a stationary storage supplier competing with Tesla, LG, and CATL.</p>
+    </article>
+    
+    <article class="article-card score-4"
+             data-score="4"
+             data-iso="(none)"
+             data-company="Ford"
+             data-event="contract_announcement"
+             data-category="Direct BESS"
+             data-title="ford and edf sign gigawatt-scale bess agreement for north american market">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://pv-magazine-usa.com/2026/05/18/ford-and-edf-sign-gigawatt-scale-bess-agreement-for-north-american-market/" target="_blank" rel="noopener">Ford and EDF sign gigawatt-scale BESS agreement for North American market</a>
+      </div>
+      <div class="article-meta">
+        <span>PV Magazine USA</span>
+        <span>· 2026-05-18</span>
+        <span>· Ford</span>
+        <span>· Contract announcement</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Ford&#x27;s entry into BESS via a gigawatt-scale multi-year framework deal with a major developer signals a new competitor in the North American stationary storage market.</p>
+    </article>
+    
+    <article class="article-card score-4"
+             data-score="4"
+             data-iso="(none)"
+             data-company="NextEra"
+             data-event="merger_acquisition"
+             data-category="M&amp;A"
+             data-title="nextera and dominion agree $67bn mega-deal to form new wind and utility giant">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span><span class="cat-badge cat-mna">M&amp;A</span>
+        <a class="article-title" href="https://www.rechargenews.com/finance/nextera-and-dominion-agree-67bn-mega-deal-to-form-new-wind-and-utility-giant/2-1-1990924" target="_blank" rel="noopener">NextEra and Dominion agree $67bn mega-deal to form new wind and utility giant</a>
+      </div>
+      <div class="article-meta">
+        <span>Recharge News</span>
+        <span>· 2026-05-18</span>
+        <span>· NextEra</span>
+        <span>· Merger acquisition</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">A $67bn utility mega-merger creating a 110GW generation giant reshapes the competitive landscape for power procurement and storage deployment serving data center load growth.</p>
+    </article>
+    
+    <article class="article-card score-4"
+             data-score="4"
+             data-iso="(none)"
+             data-company="NextEra"
+             data-event="merger_acquisition"
+             data-category="M&amp;A"
+             data-title="record deal to merge nextera and dominion would create new wind giant">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span><span class="cat-badge cat-mna">M&amp;A</span>
+        <a class="article-title" href="https://www.rechargenews.com/finance/record-deal-to-merge-nextera-and-dominion-would-create-new-wind-giant/2-1-1990654" target="_blank" rel="noopener">Record deal to merge NextEra and Dominion would create new wind giant</a>
+      </div>
+      <div class="article-meta">
+        <span>Recharge News</span>
+        <span>· 2026-05-18</span>
+        <span>· NextEra</span>
+        <span>· Merger acquisition</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">A NextEra-Dominion merger would reshape US power generation and indirectly affect BESS deployment strategy across multiple ISOs, though the focus is wind and data center demand rather than storage directly.</p>
+    </article>
+    
+    <article class="article-card score-4"
+             data-score="4"
+             data-iso="ERCOT"
+             data-company="Sunraycer Renewables"
+             data-event="contract_announcement"
+             data-category="Direct BESS"
+             data-title="sunraycer renewables closes $901 million financing for 473 mwh bess portfolio in texas">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://pv-magazine-usa.com/2026/05/15/sunraycer-renewables-closes-901-million-financing-for-473-mwh-bess-portfolio-in-texas/" target="_blank" rel="noopener">Sunraycer Renewables closes $901 million financing for 473 MWh BESS portfolio in Texas</a>
+      </div>
+      <div class="article-meta">
+        <span>PV Magazine USA</span>
+        <span>· 2026-05-15</span>
+        <span>· Sunraycer Renewables</span>
+        <span>· Contract announcement</span>
+        <span>· ERCOT</span>
+        <span>· 473 MWh</span>
+      </div>
+      <p class="article-reason">Large $901M financing close for a Texas solar+storage portfolio with Google as offtaker signals continued hyperscaler demand and major capital flow into ERCOT BESS.</p>
+    </article>
+    
+    <article class="article-card score-4"
+             data-score="4"
+             data-iso="(none)"
+             data-company="Gotion"
+             data-event="partnership"
+             data-category="Supply Chain"
+             data-title="china’s gotion and richardson electronics partner for us-made bess">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span><span class="cat-badge cat-supply">Supply Chain</span>
+        <a class="article-title" href="https://www.energy-storage.news/chinas-gotion-and-richardson-electronics-partner-for-us-made-bess/" target="_blank" rel="noopener">China’s Gotion and Richardson Electronics partner for US-made BESS</a>
+      </div>
+      <div class="article-meta">
+        <span>Energy Storage News</span>
+        <span>· 2026-05-14</span>
+        <span>· Gotion</span>
+        <span>· Partnership</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Notable partnership structured to navigate FEOC restrictions, signaling how Chinese BESS suppliers are adapting to maintain US market access.</p>
+    </article>
+    
+    <article class="article-card score-4"
+             data-score="4"
+             data-iso="(none)"
+             data-company="Fluence"
+             data-event="financial_results"
+             data-category="Direct BESS"
+             data-title="fluence energy, inc. reports third quarter 2025 results; reaffirms fiscal year 2025 guidance">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://www.globenewswire.com/news-release/2025/08/11/3131223/0/en/fluence-energy-inc-reports-third-quarter-2025-results-reaffirms-fiscal-year-2025-guidance.html" target="_blank" rel="noopener">Fluence Energy, Inc. Reports Third Quarter 2025 Results; Reaffirms Fiscal Year 2025 Guidance</a>
+      </div>
+      <div class="article-meta">
+        <span>Fluence</span>
+        <span>· 2025-08-11</span>
+        <span>· Fluence</span>
+        <span>· Financial results</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Quarterly earnings from a major pure-play BESS integrator with reaffirmed FY25 guidance is a key signal of competitive health and demand trajectory.</p>
+    </article>
+    
+    <article class="article-card score-4"
+             data-score="4"
+             data-iso="(none)"
+             data-company="Fluence"
+             data-event="contract_announcement"
+             data-category="Direct BESS"
+             data-title="fluence and agl sign deal to deliver the 500 mw / 2000 mwh tomago battery energy storage system in australia">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://www.globenewswire.com/news-release/2025/07/30/3124596/0/en/fluence-and-agl-sign-deal-to-deliver-the-500-mw-2000-mwh-tomago-battery-energy-storage-system-in-australia.html" target="_blank" rel="noopener">Fluence and AGL sign deal to deliver the 500 MW / 2000 MWh Tomago Battery Energy Storage System in Australia</a>
+      </div>
+      <div class="article-meta">
+        <span>Fluence</span>
+        <span>· 2025-07-30</span>
+        <span>· Fluence</span>
+        <span>· Contract announcement</span>
+        <span>· No specific market</span>
+        <span>· 2000 MWh</span>
+      </div>
+      <p class="article-reason">Large 500MW/2000MWh contract win for Fluence with major Australian utility AGL is a notable competitive move in the global BESS integrator market.</p>
+    </article>
+    
+    <article class="article-card score-4"
+             data-score="4"
+             data-iso="(none)"
+             data-company="Sungrow"
+             data-event="contract_announcement"
+             data-category="Direct BESS"
+             data-title="may.21 2026 global news sungrow and masdar sign 7.5gwh energy storage system for abu dhabi’s world first rtc project">
+      <div class="article-head">
+        <span class="badge badge-4">4/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://en.sungrowpower.com/en/sungrow-and-masdar-sign-7-5-gwh-energy-storage-system-for-abu-dhabi-s-world-first-rtc-project" target="_blank" rel="noopener">May.21 2026 Global News Sungrow and Masdar Sign 7.5GWh Energy Storage System for Abu Dhabi’s World First RTC Project</a>
+      </div>
+      <div class="article-meta">
+        <span>Sungrow</span>
+        
+        <span>· Sungrow</span>
+        <span>· Contract announcement</span>
+        <span>· No specific market</span>
+        <span>· 7500 MWh</span>
+      </div>
+      <p class="article-reason">Massive 7.5GWh BESS contract for a first-of-kind 24/7 renewable project signals major competitor scale win, though outside US ISO markets.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="(none)"
+             data-event="analysis_commentary"
+             data-category="Supply Chain"
+             data-title="clean manufacturing boom or capex cliff? reports reveal us supply chain split">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-supply">Supply Chain</span>
+        <a class="article-title" href="https://www.rechargenews.com/policy/clean-manufacturing-boom-or-capex-cliff-reports-reveal-us-supply-chain-split/2-1-1994072" target="_blank" rel="noopener">Clean manufacturing boom or capex cliff? Reports reveal US supply chain split</a>
+      </div>
+      <div class="article-meta">
+        <span>Recharge News</span>
+        <span>· 2026-05-22</span>
+        <span>· No company</span>
+        <span>· Analysis commentary</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Conflicting reports on US clean energy manufacturing capex signal supply chain risk relevant to BESS sourcing but lack specific company or project impact.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Lyten"
+             data-event="other"
+             data-category="Supply Chain"
+             data-title="northvolt’s failed swedish battery factory will now host a data center">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-supply">Supply Chain</span>
+        <a class="article-title" href="https://www.latitudemedia.com/news/northvolts-failed-swedish-battery-factory-will-now-host-a-data-center/" target="_blank" rel="noopener">Northvolt’s failed Swedish battery factory will now host a data center</a>
+      </div>
+      <div class="article-meta">
+        <span>Latitude Media</span>
+        <span>· 2026-05-22</span>
+        <span>· Lyten</span>
+        <span>· Other</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Lyten&#x27;s repurposing of Northvolt&#x27;s failed Swedish gigafactory for a data center signals continued distress in battery manufacturing and an unusual financing strategy leveraging AI capital, relevant to BESS supply chain dynamics.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="(none)"
+             data-event="analysis_commentary"
+             data-category="Market Structure"
+             data-title="us summer generating capacity increases by 75 gw since 2025: ferc">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-market">Market Structure</span>
+        <a class="article-title" href="https://www.utilitydive.com/news/ferc-summer-market-reliability-assessment/820962/" target="_blank" rel="noopener">US summer generating capacity increases by 75 GW since 2025: FERC</a>
+      </div>
+      <div class="article-meta">
+        <span>Utility Dive</span>
+        <span>· 2026-05-22</span>
+        <span>· No company</span>
+        <span>· Analysis commentary</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Broad FERC capacity additions report provides useful market context for BESS siting, especially the 26 GW in ERCOT, but lacks BESS-specific detail.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Invinity"
+             data-event="contract_announcement"
+             data-category="Adjacent Market"
+             data-title="invinity supplies large-scale vanadium flow storage for flexbase project in switzerland">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-adjacent">Adjacent Market</span>
+        <a class="article-title" href="https://www.ess-news.com/2026/05/22/invinity-supplies-large-scale-vanadium-flow-storage-for-flexbase-project-in-switzerland/" target="_blank" rel="noopener">Invinity supplies large-scale vanadium flow storage for Flexbase project in Switzerland</a>
+      </div>
+      <div class="article-meta">
+        <span>ESS News</span>
+        <span>· 2026-05-22</span>
+        <span>· Invinity</span>
+        <span>· Contract announcement</span>
+        <span>· No specific market</span>
+        <span>· 1600 MWh</span>
+      </div>
+      <p class="article-reason">Large 1.6 GWh vanadium flow battery deal is notable for long-duration storage competitive landscape, but located in Switzerland with limited direct ERCOT/CAISO read-through.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Antora Energy"
+             data-event="contract_announcement"
+             data-category="Adjacent Market"
+             data-title="antora’s hot carbon thermal batteries win 5 gwh energy storage project">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-adjacent">Adjacent Market</span>
+        <a class="article-title" href="https://pv-magazine-usa.com/2026/05/22/antoras-hot-carbon-thermal-batteries-win-5-gwh-energy-storage-project-in-us/" target="_blank" rel="noopener">Antora’s hot carbon thermal batteries win 5 GWh energy storage project</a>
+      </div>
+      <div class="article-meta">
+        <span>PV Magazine USA</span>
+        <span>· 2026-05-22</span>
+        <span>· Antora Energy</span>
+        <span>· Contract announcement</span>
+        <span>· No specific market</span>
+        <span>· 5000 MWh</span>
+      </div>
+      <p class="article-reason">Large 5 GWh thermal storage deal signals competitive pressure from non-Li-ion long-duration alternatives, though limited direct overlap with grid-scale BESS use cases.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="EDF Power Solutions"
+             data-event="deployment"
+             data-category="Direct BESS"
+             data-title="edf completes 120mwh poland bess; eurus, ngen and aretis progress other cee projects">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://www.energy-storage.news/edf-completes-120mwh-poland-bess-eurus-ngen-and-aretis-progress-other-cee-projects/" target="_blank" rel="noopener">EDF completes 120MWh Poland BESS; Eurus, NGEN and Aretis progress other CEE projects</a>
+      </div>
+      <div class="article-meta">
+        <span>Energy Storage News</span>
+        <span>· 2026-05-22</span>
+        <span>· EDF Power Solutions</span>
+        <span>· Deployment</span>
+        <span>· No specific market</span>
+        <span>· 120 MWh</span>
+      </div>
+      <p class="article-reason">Mid-sized European BESS commissioning and CEE project pipeline signals growing non-US market activity but limited direct ERCOT/CAISO competitive impact.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="SMA"
+             data-event="partnership"
+             data-category="M&amp;A"
+             data-title="sma and hyperstrong agree to cooperate worldwide on energy storage">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-mna">M&amp;A</span>
+        <a class="article-title" href="https://www.ess-news.com/2026/05/22/sma-and-hyperstrong-agree-to-cooperate-worldwide-on-energy-storage/" target="_blank" rel="noopener">SMA and Hyperstrong agree to cooperate worldwide on energy storage</a>
+      </div>
+      <div class="article-meta">
+        <span>ESS News</span>
+        <span>· 2026-05-22</span>
+        <span>· SMA</span>
+        <span>· Partnership</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Global cooperation between a major European PV/storage inverter maker and a Chinese BESS integrator could shape large-scale storage supply chains, but no specific deal value or project is disclosed.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="NextEra Energy"
+             data-event="merger_acquisition"
+             data-category="M&amp;A"
+             data-title="nextera energy wants to buy its way into data center alley">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-mna">M&amp;A</span>
+        <a class="article-title" href="https://www.canarymedia.com/articles/utilities/nextera-energy-wants-to-buy-its-way-into-data-center-alley" target="_blank" rel="noopener">NextEra Energy wants to buy its way into Data Center Alley</a>
+      </div>
+      <div class="article-meta">
+        <span>Canary Media</span>
+        <span>· 2026-05-22</span>
+        <span>· NextEra Energy</span>
+        <span>· Merger acquisition</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Major utility M&amp;A involving the largest US renewables developer could reshape clean energy and data center power dynamics, though direct BESS impact is indirect.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="ERCOT"
+             data-company="GridStor"
+             data-event="deployment"
+             data-category="Direct BESS"
+             data-title="integration and commissioning support helps complete 220 mw bess project in texas">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://pv-magazine-usa.com/2026/05/21/integration-and-commissioning-support-helps-complete-220-mw-bess-project-in-texas/" target="_blank" rel="noopener">Integration and commissioning support helps complete 220 MW BESS project in Texas</a>
+      </div>
+      <div class="article-meta">
+        <span>PV Magazine USA</span>
+        <span>· 2026-05-21</span>
+        <span>· GridStor</span>
+        <span>· Deployment</span>
+        <span>· ERCOT</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Completion of a 220 MW BESS in ERCOT is a notable deployment but lacks deal size or strategic novelty.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Enbridge"
+             data-event="contract_announcement"
+             data-category="Adjacent Market"
+             data-title="enbridge, meta to build 365-mw solar/200-mw storage project">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-adjacent">Adjacent Market</span>
+        <a class="article-title" href="https://www.utilitydive.com/news/enbridge-meta-build-365-mw200-mw-solarstorage-project/820905/" target="_blank" rel="noopener">Enbridge, Meta to build 365-MW solar/200-MW storage project</a>
+      </div>
+      <div class="article-meta">
+        <span>Utility Dive</span>
+        <span>· 2026-05-21</span>
+        <span>· Enbridge</span>
+        <span>· Contract announcement</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Hyperscaler-backed 200 MW storage project paired with solar shows continued data center demand for storage, but duration unspecified and Wyoming is outside core ERCOT/CAISO focus.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="(none)"
+             data-event="analysis_commentary"
+             data-category="Policy &amp; Regulation"
+             data-title="most states face regulatory logjams on solar-plus-storage as interconnection procedures lag">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-policy">Policy &amp; Regulation</span>
+        <a class="article-title" href="https://pv-magazine-usa.com/2026/05/21/most-states-face-regulatory-logjams-on-solar-plus-storage-as-interconnection-procedures-lag/" target="_blank" rel="noopener">Most states face regulatory logjams on solar-plus-storage as interconnection procedures lag</a>
+      </div>
+      <div class="article-meta">
+        <span>PV Magazine USA</span>
+        <span>· 2026-05-21</span>
+        <span>· No company</span>
+        <span>· Analysis commentary</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Interconnection bottlenecks for solar-plus-storage directly affect BESS deployment timelines across multiple states, but this is an analysis piece without specific market-moving action.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Electric Era"
+             data-event="product_launch"
+             data-category="Direct BESS"
+             data-title="electric era is turning its ev-charging tech into a data center power play">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://www.latitudemedia.com/news/electric-era-is-turning-its-ev-charging-tech-into-a-data-center-power-play/" target="_blank" rel="noopener">Electric Era is turning its EV-charging tech into a data center power play</a>
+      </div>
+      <div class="article-meta">
+        <span>Latitude Media</span>
+        <span>· 2026-05-21</span>
+        <span>· Electric Era</span>
+        <span>· Product launch</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">New entrant pivoting EV-charging battery tech to behind-the-meter data center BESS signals growing competition in the hot data-center storage segment.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="(none)"
+             data-event="deployment"
+             data-category="Direct BESS"
+             data-title="us roundup: bess project advancements from oci energy, mn8 energy, gridstor, grenergy">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://www.energy-storage.news/us-roundup-bess-project-advancements-from-oci-energy-mn8-energy-gridstor-grenergy/" target="_blank" rel="noopener">US ROUNDUP: BESS project advancements from OCI Energy, MN8 Energy, GridStor, Grenergy</a>
+      </div>
+      <div class="article-meta">
+        <span>Energy Storage News</span>
+        <span>· 2026-05-21</span>
+        <span>· No company</span>
+        <span>· Deployment</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Multi-developer BESS project roundup across key markets including ERCOT and CAISO, useful for tracking competitor pipeline activity but lacks specifics in summary.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="(none)"
+             data-event="merger_acquisition"
+             data-category="M&amp;A"
+             data-title="power&#x27;s new big oil-sized player will get scrutiny to match">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-mna">M&amp;A</span>
+        <a class="article-title" href="https://www.rechargenews.com/analysis/powers-new-big-oil-sized-player-will-get-scrutiny-to-match/2-1-1993148" target="_blank" rel="noopener">Power&#x27;s new Big Oil-sized player will get scrutiny to match</a>
+      </div>
+      <div class="article-meta">
+        <span>Recharge News</span>
+        <span>· 2026-05-21</span>
+        <span>· No company</span>
+        <span>· Merger acquisition</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">A large power-sector merger creating a Big Oil-scale player could reshape generation ownership and offtake dynamics relevant to BESS, but the summary lacks specifics on parties or BESS impact.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Grenergy"
+             data-event="contract_announcement"
+             data-category="Adjacent Market"
+             data-title="grenergy secures solar-plus-storage ppa in the us">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-adjacent">Adjacent Market</span>
+        <a class="article-title" href="https://www.pv-tech.org/grenergy-secures-solar-plus-storage-ppa-in-the-us/" target="_blank" rel="noopener">Grenergy secures solar-plus-storage PPA in the US</a>
+      </div>
+      <div class="article-meta">
+        <span>PV Tech</span>
+        <span>· 2026-05-21</span>
+        <span>· Grenergy</span>
+        <span>· Contract announcement</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Hybrid solar+storage PPA with a major US utility is a meaningful but mid-sized commercial milestone for a non-leading IPP.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="HyperStrong"
+             data-event="partnership"
+             data-category="Direct BESS"
+             data-title="china’s hyperstrong deepens ties with european inverter manufacturer sma for global utility-scale bess projects">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://www.energy-storage.news/chinas-hyperstrong-deepens-ties-with-european-inverter-manufacturer-sma-for-global-utility-scale-bess-projects/" target="_blank" rel="noopener">China’s HyperStrong deepens ties with European inverter manufacturer SMA for global utility-scale BESS projects</a>
+      </div>
+      <div class="article-meta">
+        <span>Energy Storage News</span>
+        <span>· 2026-05-21</span>
+        <span>· HyperStrong</span>
+        <span>· Partnership</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Strategic partnership between a major Chinese BESS integrator and SMA expands global utility-scale BESS competitive landscape but lacks immediate US/ERCOT/CAISO impact.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Shatterdome Energy"
+             data-event="other"
+             data-category="M&amp;A"
+             data-title="this quant trader wants to run batteries like a hedge fund">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-mna">M&amp;A</span>
+        <a class="article-title" href="https://www.latitudemedia.com/news/this-quant-trader-wants-to-run-batteries-like-a-hedge-fund/" target="_blank" rel="noopener">This quant trader wants to run batteries like a hedge fund</a>
+      </div>
+      <div class="article-meta">
+        <span>Latitude Media</span>
+        <span>· 2026-05-21</span>
+        <span>· Shatterdome Energy</span>
+        <span>· Other</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Early-stage funding for a BESS trading/optimization platform signals continued investor interest in merchant battery monetization, but $3.5M pre-seed is small and pre-revenue.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="SEIA"
+             data-event="analysis_commentary"
+             data-category="Market Structure"
+             data-title="seia: ai is fueling a massive us energy storage boom">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-market">Market Structure</span>
+        <a class="article-title" href="https://electrek.co/2026/05/20/seia-ai-is-fueling-a-massive-us-energy-storage-boom/" target="_blank" rel="noopener">SEIA: AI is fueling a massive US energy storage boom</a>
+      </div>
+      <div class="article-meta">
+        <span>Electrek</span>
+        <span>· 2026-05-21</span>
+        <span>· SEIA</span>
+        <span>· Analysis commentary</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Industry-wide Q1 storage deployment data from SEIA provides useful market context but is commentary rather than a specific competitive event.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Edify Energy"
+             data-event="deployment"
+             data-category="Adjacent Market"
+             data-title="edify energy to proceed with 2,400mwh solar-plus-storage sites in australia">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-adjacent">Adjacent Market</span>
+        <a class="article-title" href="https://www.energy-storage.news/edify-energy-to-proceed-with-2400mwh-solar-plus-storage-sites-in-australia/" target="_blank" rel="noopener">Edify Energy to proceed with 2,400MWh solar-plus-storage sites in Australia</a>
+      </div>
+      <div class="article-meta">
+        <span>Energy Storage News</span>
+        <span>· 2026-05-21</span>
+        <span>· Edify Energy</span>
+        <span>· Deployment</span>
+        <span>· No specific market</span>
+        <span>· 2400 MWh</span>
+      </div>
+      <p class="article-reason">Large 2.4GWh solar-plus-storage financial close is notable globally but located in Australia, outside core ERCOT/CAISO focus.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Antora Energy"
+             data-event="deployment"
+             data-category="Adjacent Market"
+             data-title="a huge 5 gwh thermal energy storage system is now delivering power to a south dakota biofuels facility">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-adjacent">Adjacent Market</span>
+        <a class="article-title" href="https://www.renewableenergyworld.com/energy-storage/a-huge-5-gwh-thermal-energy-storage-system-is-now-delivering-power-to-a-south-dakota-biofuels-facility/" target="_blank" rel="noopener">A huge 5 GWh thermal energy storage system is now delivering power to a South Dakota biofuels facility</a>
+      </div>
+      <div class="article-meta">
+        <span>Renewable Energy World</span>
+        <span>· 2026-05-20</span>
+        <span>· Antora Energy</span>
+        <span>· Deployment</span>
+        <span>· No specific market</span>
+        <span>· 5000 MWh</span>
+      </div>
+      <p class="article-reason">Large 5 GWh thermal storage commissioning is a notable long-duration alternative to Li-ion BESS, relevant as competitive read-across though sited in an industrial behind-the-meter biofuels application.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="CAISO"
+             data-company="(none)"
+             data-event="regulatory_change"
+             data-category="Policy &amp; Regulation"
+             data-title="financing for california’s signature virtual power plant remains uncertain">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-policy">Policy &amp; Regulation</span>
+        <a class="article-title" href="https://www.utilitydive.com/news/financing-for-californias-signature-virtual-power-plant-remains-uncertain/820747/" target="_blank" rel="noopener">Financing for California’s signature virtual power plant remains uncertain</a>
+      </div>
+      <div class="article-meta">
+        <span>Utility Dive</span>
+        <span>· 2026-05-20</span>
+        <span>· No company</span>
+        <span>· Regulatory change</span>
+        <span>· CAISO</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">California&#x27;s VPP program funding uncertainty affects distributed BESS aggregation economics and demand-side revenue stacking in CAISO.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="ISO-NE"
+             data-company="Hull Street Energy"
+             data-event="merger_acquisition"
+             data-category="M&amp;A"
+             data-title="hull street energy to acquire firstlight’s hydro, pumped storage assets">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-mna">M&amp;A</span>
+        <a class="article-title" href="https://www.renewableenergyworld.com/hydro-power/hull-street-energy-to-acquire-firstlights-hydro-pumped-storage-assets/" target="_blank" rel="noopener">Hull Street Energy to acquire FirstLight’s hydro, pumped storage assets</a>
+      </div>
+      <div class="article-meta">
+        <span>Renewable Energy World</span>
+        <span>· 2026-05-20</span>
+        <span>· Hull Street Energy</span>
+        <span>· Merger acquisition</span>
+        <span>· ISO-NE</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Acquisition of pumped storage and hydro assets is adjacent to BESS competitive landscape, signaling continued investor interest in long-duration storage in the Northeast.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="NextEra"
+             data-event="merger_acquisition"
+             data-category="M&amp;A"
+             data-title="nextera-dominion mega-deal throws spotlight on us power m&amp;a rush">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-mna">M&amp;A</span>
+        <a class="article-title" href="https://www.rechargenews.com/finance/nextera-dominion-mega-deal-throws-spotlight-on-us-power-m-a-rush/2-1-1991217" target="_blank" rel="noopener">NextEra-Dominion mega-deal throws spotlight on US power M&amp;A rush</a>
+      </div>
+      <div class="article-meta">
+        <span>Recharge News</span>
+        <span>· 2026-05-20</span>
+        <span>· NextEra</span>
+        <span>· Merger acquisition</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Large US power M&amp;A activity signals tightening supply and rising valuations for operational/late-stage assets, relevant context for BESS developers but not directly a storage transaction.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Fluence"
+             data-event="analysis_commentary"
+             data-category="Direct BESS"
+             data-title="battery energy storage is foundational to the ai economy">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://www.renewableenergyworld.com/energy-storage/battery/battery-energy-storage-is-foundational-to-the-ai-economy/" target="_blank" rel="noopener">Battery energy storage is foundational to the AI economy</a>
+      </div>
+      <div class="article-meta">
+        <span>Renewable Energy World</span>
+        <span>· 2026-05-20</span>
+        <span>· Fluence</span>
+        <span>· Analysis commentary</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Fluence executive positioning BESS as critical data center infrastructure signals strategic narrative around AI-driven demand, relevant but commentary-level.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="CAISO"
+             data-company="CAISO"
+             data-event="regulatory_change"
+             data-category="Market Structure"
+             data-title="caiso approves transmission plan enabling 45gw of new solar pv">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-market">Market Structure</span>
+        <a class="article-title" href="https://www.pv-tech.org/caiso-approves-transmission-plan-enabling-45gw-of-new-solar-pv/" target="_blank" rel="noopener">CAISO approves transmission plan enabling 45GW of new solar PV</a>
+      </div>
+      <div class="article-meta">
+        <span>PV Tech</span>
+        <span>· 2026-05-20</span>
+        <span>· CAISO</span>
+        <span>· Regulatory change</span>
+        <span>· CAISO</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">CAISO transmission planning enabling 45GW of solar will drive significant co-located and standalone storage opportunities in California, though indirect to BESS.</p>
     </article>
     
     <article class="article-card score-3"
@@ -888,9 +1309,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
              data-iso="(none)"
              data-company="Moment Energy"
              data-event="product_launch"
+             data-category="Direct BESS"
              data-title="second-life bess maker moment energy claims ‘world first’ safety certification as feoc compliance crunch looms">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
         <a class="article-title" href="https://www.energy-storage.news/second-life-bess-maker-moment-energy-claims-world-first-safety-certification-as-feoc-compliance-crunch-looms/" target="_blank" rel="noopener">Second-life BESS maker Moment Energy claims ‘world first’ safety certification as FEOC compliance crunch looms</a>
       </div>
       <div class="article-meta">
@@ -901,28 +1323,29 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· No specific market</span>
         <span>· —</span>
       </div>
-      <p class="article-reason">Second-life BESS safety certification and FEOC compliance is a moderately relevant competitive signal as domestic-content and non-Chinese supply chain pressures reshape US storage procurement.</p>
+      <p class="article-reason">First-of-kind safety certification for second-life BESS is notable for a niche segment, especially against FEOC compliance pressure, but Moment Energy is a small player with limited near-term market impact.</p>
     </article>
     
     <article class="article-card score-3"
              data-score="3"
              data-iso="(none)"
              data-company="HyperStrong"
-             data-event="partnership"
+             data-event="analysis_commentary"
+             data-category="Supply Chain"
              data-title="hyperstrong ceo on sodium-ion bess product potential and challenges">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-supply">Supply Chain</span>
         <a class="article-title" href="https://www.energy-storage.news/hyperstrong-ceo-on-sodium-ion-bess-product-potential-and-challenges/" target="_blank" rel="noopener">HyperStrong CEO on sodium-ion BESS product potential and challenges</a>
       </div>
       <div class="article-meta">
         <span>Energy Storage News</span>
         <span>· 2026-05-20</span>
         <span>· HyperStrong</span>
-        <span>· Partnership</span>
+        <span>· Analysis commentary</span>
         <span>· No specific market</span>
         <span>· 60000 MWh</span>
       </div>
-      <p class="article-reason">A 60 GWh supply agreement between HyperStrong and CATL on sodium-ion BESS is a notable competitive signal on emerging chemistry economics, though it&#x27;s outside ERCOT/CAISO and not an immediate market mover.</p>
+      <p class="article-reason">Major 60GWh CATL supply agreement and sodium-ion commentary signals meaningful chemistry diversification, though impact on ERCOT/CAISO is indirect.</p>
     </article>
     
     <article class="article-card score-3"
@@ -930,9 +1353,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
              data-iso="(none)"
              data-company="Antora"
              data-event="deployment"
+             data-category="Adjacent Market"
              data-title="us startup antora deploys 5gwh thermal energy storage system at biofuels facility in south dakota">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-adjacent">Adjacent Market</span>
         <a class="article-title" href="https://www.energy-storage.news/us-startup-antora-deploys-5gwh-thermal-energy-storage-system-at-biofuels-facility-in-south-dakota/" target="_blank" rel="noopener">US startup Antora deploys 5GWh thermal energy storage system at biofuels facility in South Dakota</a>
       </div>
       <div class="article-meta">
@@ -943,7 +1367,7 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· No specific market</span>
         <span>· 5000 MWh</span>
       </div>
-      <p class="article-reason">Large thermal energy storage deployment is a competitive signal for long-duration storage, but it&#x27;s outside ERCOT/CAISO and uses a different technology than electrochemical BESS.</p>
+      <p class="article-reason">A 5GWh thermal energy storage deployment is a notable long-duration alternative to Li-ion BESS, signaling competitive pressure in the LDES space though sited outside key ISO markets.</p>
     </article>
     
     <article class="article-card score-3"
@@ -951,9 +1375,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
              data-iso="(none)"
              data-company="Hitachi Energy"
              data-event="contract_announcement"
+             data-category="Direct BESS"
              data-title="hitachi inks 20-year ltsa with akaysha energy for 298mwh battery storage system in australia">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
         <a class="article-title" href="https://www.energy-storage.news/hitachi-inks-20-year-ltsa-with-akaysha-energy-for-298mwh-battery-storage-system-in-australia/" target="_blank" rel="noopener">Hitachi inks 20-year LTSA with Akaysha Energy for 298MWh battery storage system in Australia</a>
       </div>
       <div class="article-meta">
@@ -964,7 +1389,7 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· No specific market</span>
         <span>· 298 MWh</span>
       </div>
-      <p class="article-reason">Mid-sized Australian BESS service contract signals Hitachi&#x27;s continued LTSA traction with a notable developer, but limited direct ERCOT/CAISO read-across.</p>
+      <p class="article-reason">A 20-year LTSA on a 298MWh project is a notable service contract win for Hitachi but is a mid-sized Australian deployment with limited direct ERCOT/CAISO read-across.</p>
     </article>
     
     <article class="article-card score-3"
@@ -972,9 +1397,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
              data-iso="(none)"
              data-company="(none)"
              data-event="regulatory_change"
+             data-category="Policy &amp; Regulation"
              data-title="australia’s new south wales seeks 2.5gw of generation and 12gwh of energy storage in state’s largest-ever tender">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-policy">Policy &amp; Regulation</span>
         <a class="article-title" href="https://www.energy-storage.news/australias-new-south-wales-seeks-2-5gw-of-generation-and-12gwh-of-energy-storage-in-states-largest-ever-tender/" target="_blank" rel="noopener">Australia’s New South Wales seeks 2.5GW of generation and 12GWh of energy storage in state’s largest-ever tender</a>
       </div>
       <div class="article-meta">
@@ -985,7 +1411,7 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· No specific market</span>
         <span>· 12000 MWh</span>
       </div>
-      <p class="article-reason">Large 12GWh LDES tender in Australia is a notable global storage procurement signal but has limited direct read-across to ERCOT/CAISO competitive dynamics.</p>
+      <p class="article-reason">Large 12GWh LDES tender in Australia signals significant non-US storage demand but limited direct ERCOT/CAISO competitive impact.</p>
     </article>
     
     <article class="article-card score-3"
@@ -993,9 +1419,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
              data-iso="(none)"
              data-company="(none)"
              data-event="analysis_commentary"
+             data-category="Market Structure"
              data-title="american energy sector to invest $100b in battery storage by 2030 [update]">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-market">Market Structure</span>
         <a class="article-title" href="https://electrek.co/2026/05/19/american-energy-sector-set-to-invest-100b-in-battery-storage-by-2030/" target="_blank" rel="noopener">American energy sector to invest $100B in battery storage by 2030 [update]</a>
       </div>
       <div class="article-meta">
@@ -1006,7 +1433,51 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· No specific market</span>
         <span>· —</span>
       </div>
-      <p class="article-reason">Macro investment-trend commentary on US battery storage growth tied to AI data centers is relevant context for BESS markets but lacks specific deployments, contracts, or ERCOT/CAISO-specific signals.</p>
+      <p class="article-reason">Macro investment forecast ($100B by 2030) confirms strong BESS growth tailwinds including AI data center demand, but contains no specific competitor or project intel.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="ERCOT"
+             data-company="Tesla"
+             data-event="deployment"
+             data-category="Adjacent Market"
+             data-title="exclusive: tesla (tsla) is building its giant solar panel factory in houston">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-adjacent">Adjacent Market</span>
+        <a class="article-title" href="https://electrek.co/2026/05/19/tesla-tsla-solar-panel-factory-houston-brookshire-100-gw/" target="_blank" rel="noopener">Exclusive: Tesla (TSLA) is building its giant solar panel factory in Houston</a>
+      </div>
+      <div class="article-meta">
+        <span>Electrek</span>
+        <span>· 2026-05-19</span>
+        <span>· Tesla</span>
+        <span>· Deployment</span>
+        <span>· ERCOT</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Tesla&#x27;s solar factory is co-located with its Megapack Megafactory in Texas, reinforcing Tesla&#x27;s manufacturing scale-up relevant to BESS supply, though the news itself centers on solar production.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Aquila Clean Energy EMEA"
+             data-event="analysis_commentary"
+             data-category="Market Structure"
+             data-title="lenders now actively financing merchant bess projects in germany">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-market">Market Structure</span>
+        <a class="article-title" href="https://www.energy-storage.news/lenders-now-actively-financing-merchant-bess-projects-in-germany/" target="_blank" rel="noopener">Lenders now actively financing merchant BESS projects in Germany</a>
+      </div>
+      <div class="article-meta">
+        <span>Energy Storage News</span>
+        <span>· 2026-05-19</span>
+        <span>· Aquila Clean Energy EMEA</span>
+        <span>· Analysis commentary</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Merchant BESS financing in Germany signals maturing project finance appetite, relevant as a read-across for merchant risk pricing in ERCOT and other deregulated markets.</p>
     </article>
     
     <article class="article-card score-3"
@@ -1014,9 +1485,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
              data-iso="(none)"
              data-company="Inovance Technology"
              data-event="financial_results"
+             data-category="Supply Chain"
              data-title="inovance’s hong kong ipo: storage fuels growth, targeting global top three pcs ranking">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-supply">Supply Chain</span>
         <a class="article-title" href="https://www.energy-storage.news/inovances-hong-kong-ipo-storage-fuels-growth-targeting-global-top-three-pcs-ranking/" target="_blank" rel="noopener">Inovance’s Hong Kong IPO: storage fuels growth, targeting global top three PCS ranking</a>
       </div>
       <div class="article-meta">
@@ -1027,7 +1499,7 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· No specific market</span>
         <span>· —</span>
       </div>
-      <p class="article-reason">Chinese PCS supplier&#x27;s $2B IPO signals scaling competitor in global storage power conversion market, though limited direct ERCOT/CAISO exposure.</p>
+      <p class="article-reason">A $2B Hong Kong IPO by a Chinese PCS supplier targeting top-three global ranking signals intensifying competition in BESS power conversion systems, though impact on US markets is indirect.</p>
     </article>
     
     <article class="article-card score-3"
@@ -1035,9 +1507,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
              data-iso="(none)"
              data-company="(none)"
              data-event="contract_announcement"
+             data-category="Market Structure"
              data-title="japan’s grid operators select 1.25gw of bess in capacity market auction with 6-hour duration requirement">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-market">Market Structure</span>
         <a class="article-title" href="https://www.energy-storage.news/japans-grid-operators-select-1-25gw-of-bess-in-capacity-market-auction-with-6-hour-duration-requirement/" target="_blank" rel="noopener">Japan’s grid operators select 1.25GW of BESS in capacity market auction with 6-hour duration requirement</a>
       </div>
       <div class="article-meta">
@@ -1048,28 +1521,7 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· No specific market</span>
         <span>· 7506 MWh</span>
       </div>
-      <p class="article-reason">Sizable 1.25GW/6-hour BESS procurement in Japan signals international demand trends and long-duration storage adoption, but has limited direct read-through to ERCOT/CAISO competitive dynamics.</p>
-    </article>
-    
-    <article class="article-card score-3"
-             data-score="3"
-             data-iso="(none)"
-             data-company="Tenaga Nasional Berhad"
-             data-event="deployment"
-             data-title="malaysian utility tnb connects 100mw/400mwh grid-forming battery storage project to grid">
-      <div class="article-head">
-        <span class="badge badge-3">3/5</span>
-        <a class="article-title" href="https://www.energy-storage.news/malaysian-utility-tnb-connects-100mw-400mwh-grid-forming-battery-storage-project-to-grid/" target="_blank" rel="noopener">Malaysian utility TNB connects 100MW/400MWh grid-forming battery storage project to grid</a>
-      </div>
-      <div class="article-meta">
-        <span>Energy Storage News</span>
-        <span>· 2026-05-19</span>
-        <span>· Tenaga Nasional Berhad</span>
-        <span>· Deployment</span>
-        <span>· No specific market</span>
-        <span>· 400 MWh</span>
-      </div>
-      <p class="article-reason">Mid-sized 400MWh grid-forming BESS deployment in Malaysia signals growing international BESS market activity but has limited direct read-across to ERCOT/CAISO competitive dynamics.</p>
+      <p class="article-reason">Large 1.25GW/6-hour BESS procurement signals Japan&#x27;s growing storage market but limited direct relevance to ERCOT/CAISO competitive dynamics.</p>
     </article>
     
     <article class="article-card score-3"
@@ -1077,9 +1529,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
              data-iso="(none)"
              data-company="(none)"
              data-event="financial_results"
+             data-category="Adjacent Market"
              data-title="non-lithium players eos and ess lean on future of us ldes deployment in q1 2026 financials">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-adjacent">Adjacent Market</span>
         <a class="article-title" href="https://www.energy-storage.news/non-lithium-players-eos-and-ess-lean-on-future-of-us-ldes-deployment-in-q1-2026-financials/" target="_blank" rel="noopener">Non-lithium players Eos and ESS lean on future of US LDES deployment in Q1 2026 financials</a>
       </div>
       <div class="article-meta">
@@ -1090,28 +1543,51 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· No specific market</span>
         <span>· —</span>
       </div>
-      <p class="article-reason">Financial outlook from two non-lithium LDES players (Eos, ESS Tech) provides competitive signal on alternative chemistries, but limited direct ERCOT/CAISO read-through.</p>
+      <p class="article-reason">Financial signals from two non-lithium LDES players (Eos, ESS Tech) indicate competitive positioning against Li-ion BESS but are not market-moving on their own.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="CIM Group"
+             data-event="other"
+             data-category="Direct BESS"
+             data-title="cim group launches us energy platform with 1.2gw solar pv, 690mw bess">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://www.pv-tech.org/cim-group-launches-us-energy-platform-1-2gw-solar-pv-690mw-bess/" target="_blank" rel="noopener">CIM Group launches US energy platform with 1.2GW solar PV, 690MW BESS</a>
+      </div>
+      <div class="article-meta">
+        <span>PV Tech</span>
+        <span>· 2026-05-18</span>
+        <span>· CIM Group</span>
+        <span>· Other</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">New entrant launching a 2GW solar+BESS platform with 690MW of storage is a notable competitive development, though MWh duration is unspecified and project locations unclear.</p>
     </article>
     
     <article class="article-card score-3"
              data-score="3"
              data-iso="(none)"
              data-company="Canadian Solar"
-             data-event="analysis_commentary"
+             data-event="other"
+             data-category="Supply Chain"
              data-title="canadian solar plans to double battery cell and bess manufacturing capacity, new ceo says">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-supply">Supply Chain</span>
         <a class="article-title" href="https://www.energy-storage.news/canadian-solar-plans-to-double-battery-cell-and-bess-manufacturing-capacity-new-ceo-says/" target="_blank" rel="noopener">Canadian Solar plans to double battery cell and BESS manufacturing capacity, new CEO says</a>
       </div>
       <div class="article-meta">
         <span>Energy Storage News</span>
         <span>· 2026-05-18</span>
         <span>· Canadian Solar</span>
-        <span>· Analysis commentary</span>
+        <span>· Other</span>
         <span>· No specific market</span>
         <span>· —</span>
       </div>
-      <p class="article-reason">Canadian Solar (e-STORAGE) doubling BESS cell and system manufacturing capacity is a moderately relevant supply-side signal for a tier-2 competitor in ERCOT/CAISO markets.</p>
+      <p class="article-reason">Manufacturing capacity expansion by a Tier-1 BESS supplier signals competitive supply dynamics but lacks specific capacity figures or timelines.</p>
     </article>
     
     <article class="article-card score-3"
@@ -1119,9 +1595,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
              data-iso="(none)"
              data-company="Zelestra"
              data-event="deployment"
+             data-category="Direct BESS"
              data-title="zelestra energises 1gwh hybrid bess project in chile">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
         <a class="article-title" href="https://www.energy-storage.news/zelestra-energises-1gwh-hybrid-bess-project-in-chile/" target="_blank" rel="noopener">Zelestra energises 1GWh hybrid BESS project in Chile</a>
       </div>
       <div class="article-meta">
@@ -1132,28 +1609,7 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· No specific market</span>
         <span>· 1000 MWh</span>
       </div>
-      <p class="article-reason">Large 1GWh BESS energization is notable globally but located in Chile with no direct ERCOT/CAISO read-through.</p>
-    </article>
-    
-    <article class="article-card score-3"
-             data-score="3"
-             data-iso="ERCOT"
-             data-company="(none)"
-             data-event="analysis_commentary"
-             data-title="solar generation to surpass coal in texas">
-      <div class="article-head">
-        <span class="badge badge-3">3/5</span>
-        <a class="article-title" href="https://pv-magazine-usa.com/2026/05/15/solar-generation-to-surpass-coal-in-texas/" target="_blank" rel="noopener">Solar generation to surpass coal in Texas</a>
-      </div>
-      <div class="article-meta">
-        <span>PV Magazine USA</span>
-        <span>· 2026-05-15</span>
-        <span>· No company</span>
-        <span>· Analysis commentary</span>
-        <span>· ERCOT</span>
-        <span>· —</span>
-      </div>
-      <p class="article-reason">ERCOT generation mix shift toward solar increases the value of BESS for evening ramp and net-load shaping, though the article is analysis rather than a specific storage event.</p>
+      <p class="article-reason">Large 1GWh BESS commissioning is notable globally but located in Chile, outside core ERCOT/CAISO focus.</p>
     </article>
     
     <article class="article-card score-3"
@@ -1161,9 +1617,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
              data-iso="(none)"
              data-company="Rept Battero"
              data-event="deployment"
+             data-category="Supply Chain"
              data-title="rept battero opens indonesian cell and bess manufacturing facility">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-supply">Supply Chain</span>
         <a class="article-title" href="https://www.energy-storage.news/rept-battero-opens-indonesian-cell-and-bess-manufacturing-facility/" target="_blank" rel="noopener">Rept Battero opens Indonesian cell and BESS manufacturing facility</a>
       </div>
       <div class="article-meta">
@@ -1174,7 +1631,7 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· No specific market</span>
         <span>· —</span>
       </div>
-      <p class="article-reason">A Chinese cell/BESS manufacturer opening Southeast Asian production capacity is a relevant supply-chain signal amid FEOC/tariff dynamics, though not directly tied to ERCOT/CAISO deployments.</p>
+      <p class="article-reason">New non-China cell and BESS manufacturing capacity in Indonesia is relevant to FEOC-driven supply chain diversification, though Rept Battero is a mid-tier player.</p>
     </article>
     
     <article class="article-card score-3"
@@ -1182,9 +1639,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
              data-iso="(none)"
              data-company="Intertek CEA"
              data-event="analysis_commentary"
+             data-category="Direct BESS"
              data-title="system-level bess manufacturing defects cause ‘hidden risk’ for developers, intertek cea says">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
         <a class="article-title" href="https://www.energy-storage.news/system-level-bess-manufacturing-defects-cause-hidden-risk-for-developers-intertek-cea-says/" target="_blank" rel="noopener">System-level BESS manufacturing defects cause ‘hidden risk’ for developers, Intertek CEA says</a>
       </div>
       <div class="article-meta">
@@ -1195,7 +1653,7 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· No specific market</span>
         <span>· —</span>
       </div>
-      <p class="article-reason">Third-party QA findings on system-level BESS manufacturing defects are relevant to developer risk assessment and OEM selection, though not market-moving.</p>
+      <p class="article-reason">Industry-wide quality assurance finding on system-level BESS manufacturing defects is relevant intelligence on supplier risk but not market-moving.</p>
     </article>
     
     <article class="article-card score-3"
@@ -1203,9 +1661,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
              data-iso="(none)"
              data-company="(none)"
              data-event="analysis_commentary"
+             data-category="Market Structure"
              data-title="the world is installing grid batteries at a blistering pace">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-market">Market Structure</span>
         <a class="article-title" href="https://www.canarymedia.com/articles/batteries/world-installing-grid-batteries" target="_blank" rel="noopener">The world is installing grid batteries at a blistering pace</a>
       </div>
       <div class="article-meta">
@@ -1216,70 +1675,51 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· No specific market</span>
         <span>· —</span>
       </div>
-      <p class="article-reason">Global BloombergNEF data showing 48% YoY growth in grid battery installs is useful market context but not a specific ERCOT/CAISO competitive event.</p>
+      <p class="article-reason">Global BESS deployment growth data (48% YoY, 112 GW in 2025) provides useful market context but is industry-level analysis rather than a specific competitive event.</p>
     </article>
     
     <article class="article-card score-3"
              data-score="3"
              data-iso="(none)"
-             data-company="Iberdrola Australia"
-             data-event="deployment"
-             data-title="iberdrola australia submits 1gw battery storage system to the epbc act">
+             data-company="MN8 Energy"
+             data-event="partnership"
+             data-category="M&amp;A"
+             data-title="mn8 energy bags us$300 million to extend credit facility">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
-        <a class="article-title" href="https://www.energy-storage.news/iberdrola-australia-submits-1gw-battery-storage-system-to-the-epbc-act/" target="_blank" rel="noopener">Iberdrola Australia submits 1GW battery storage system to the EPBC Act</a>
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-mna">M&amp;A</span>
+        <a class="article-title" href="https://www.pv-tech.org/mn8-energy-bags-us300-million-to-extend-credit-facility/" target="_blank" rel="noopener">MN8 Energy bags US$300 million to extend credit facility</a>
       </div>
       <div class="article-meta">
-        <span>Energy Storage News</span>
-        <span>· 2026-05-15</span>
-        <span>· Iberdrola Australia</span>
-        <span>· Deployment</span>
+        <span>PV Tech</span>
+        <span>· 2026-05-14</span>
+        <span>· MN8 Energy</span>
+        <span>· Partnership</span>
         <span>· No specific market</span>
         <span>· —</span>
       </div>
-      <p class="article-reason">Large 1GW BESS project but in Australia with no disclosed duration and limited ERCOT/CAISO read-across; still a notable global developer signal.</p>
+      <p class="article-reason">Mid-size credit facility extension supports a solar+storage developer&#x27;s pipeline but lacks specific BESS project details or market-moving scale.</p>
     </article>
     
     <article class="article-card score-3"
              data-score="3"
              data-iso="(none)"
              data-company="(none)"
-             data-event="contract_announcement"
-             data-title="australia: nsw firming tender secures 2,128mwh of energy storage to address summer shortfall">
-      <div class="article-head">
-        <span class="badge badge-3">3/5</span>
-        <a class="article-title" href="https://www.energy-storage.news/australia-nsw-firming-tender-secures-2128mwh-of-energy-storage-to-address-summer-shortfall/" target="_blank" rel="noopener">Australia: NSW firming tender secures 2,128MWh of energy storage to address summer shortfall</a>
-      </div>
-      <div class="article-meta">
-        <span>Energy Storage News</span>
-        <span>· 2026-05-15</span>
-        <span>· No company</span>
-        <span>· Contract announcement</span>
-        <span>· No specific market</span>
-        <span>· 2128 MWh</span>
-      </div>
-      <p class="article-reason">Sizable 2,128 MWh storage procurement is notable globally but located in Australia with no direct ERCOT/CAISO read-across.</p>
-    </article>
-    
-    <article class="article-card score-3"
-             data-score="3"
-             data-iso="(none)"
-             data-company="NERC"
              data-event="regulatory_change"
+             data-category="Policy &amp; Regulation"
              data-title="nerc inverter-based resource registration initiative enters final stretch for asset owners">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-policy">Policy &amp; Regulation</span>
         <a class="article-title" href="https://pv-magazine-usa.com/2026/05/14/nerc-inverter-based-resource-registration-initiative-enters-final-stretch-for-asset-owners/" target="_blank" rel="noopener">NERC inverter-based resource registration initiative enters final stretch for asset owners</a>
       </div>
       <div class="article-meta">
         <span>PV Magazine USA</span>
         <span>· 2026-05-14</span>
-        <span>· NERC</span>
+        <span>· No company</span>
         <span>· Regulatory change</span>
         <span>· No specific market</span>
         <span>· —</span>
       </div>
-      <p class="article-reason">NERC IBR registration expansion affects compliance obligations for solar and storage operators nationwide, but is a known ongoing regulatory process rather than a new market-moving shift.</p>
+      <p class="article-reason">NERC IBR registration expansion imposes new compliance obligations on previously exempt BESS and solar operators, affecting operational requirements but not market-moving.</p>
     </article>
     
     <article class="article-card score-3"
@@ -1287,9 +1727,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
              data-iso="(none)"
              data-company="(none)"
              data-event="analysis_commentary"
+             data-category="Market Structure"
              data-title="nearly 13gwh of grid-scale bess deployed globally in april">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-market">Market Structure</span>
         <a class="article-title" href="https://www.energy-storage.news/nearly-13gwh-of-grid-scale-bess-deployed-globally-in-april/" target="_blank" rel="noopener">Nearly 13GWh of grid-scale BESS deployed globally in April</a>
       </div>
       <div class="article-meta">
@@ -1300,28 +1741,29 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· No specific market</span>
         <span>· 12800 MWh</span>
       </div>
-      <p class="article-reason">Global monthly BESS deployment data provides useful market context but lacks specific ERCOT/CAISO competitive signal.</p>
+      <p class="article-reason">Global monthly BESS deployment data provides useful market sizing context but is not specific to any competitor or market.</p>
     </article>
     
     <article class="article-card score-3"
              data-score="3"
              data-iso="(none)"
-             data-company="kWh Analytics"
-             data-event="analysis_commentary"
-             data-title="solar risks: internal fire, regulatory fines, and battery inaccuracies">
+             data-company="(none)"
+             data-event="regulatory_change"
+             data-category="Policy &amp; Regulation"
+             data-title="battery breakthrough initiative hit as australia cuts au$1.3 billion in clean energy funding">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
-        <a class="article-title" href="https://pv-magazine-usa.com/2026/05/13/solar-risks-internal-fire-regulatory-fines-and-battery-inaccuracies/" target="_blank" rel="noopener">Solar risks: Internal fire, regulatory fines, and battery inaccuracies</a>
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-policy">Policy &amp; Regulation</span>
+        <a class="article-title" href="https://www.energy-storage.news/battery-breakthrough-initiative-hit-as-australia-cuts-au1-3-billion-in-clean-energy-funding/" target="_blank" rel="noopener">Battery Breakthrough Initiative hit as Australia cuts AU$1.3 billion in clean energy funding</a>
       </div>
       <div class="article-meta">
-        <span>PV Magazine USA</span>
-        <span>· 2026-05-13</span>
-        <span>· kWh Analytics</span>
-        <span>· Analysis commentary</span>
+        <span>Energy Storage News</span>
+        <span>· 2026-05-14</span>
+        <span>· No company</span>
+        <span>· Regulatory change</span>
         <span>· No specific market</span>
         <span>· —</span>
       </div>
-      <p class="article-reason">Industry risk report flagging battery inaccuracies and fire risks is moderately relevant to BESS operators and insurers but not market-moving.</p>
+      <p class="article-reason">Australia cutting AU$1.3B in clean energy manufacturing support including the Battery Breakthrough Initiative signals weakening policy tailwinds for non-China battery manufacturing, but limited direct impact on US BESS markets.</p>
     </article>
     
     <article class="article-card score-3"
@@ -1329,9 +1771,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
              data-iso="(none)"
              data-company="(none)"
              data-event="deployment"
+             data-category="Direct BESS"
              data-title="us roundup: bess project updates from spearmint, polaris, and clearway in texas, puerto rico and utah">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
         <a class="article-title" href="https://www.energy-storage.news/us-roundup-bess-project-updates-from-spearmint-polaris-and-clearway-in-texas-puerto-rico-and-utah/" target="_blank" rel="noopener">US ROUNDUP: BESS project updates from Spearmint, Polaris, and Clearway in Texas, Puerto Rico and Utah</a>
       </div>
       <div class="article-meta">
@@ -1342,7 +1785,7 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· No specific market</span>
         <span>· —</span>
       </div>
-      <p class="article-reason">Roundup includes a Texas/ERCOT BESS project update from Spearmint plus other US deployments, but lacks specifics on capacity or counterparties.</p>
+      <p class="article-reason">Multi-project BESS roundup covering three developers across three regions provides useful deployment signal but lacks specifics on capacity or contracts.</p>
     </article>
     
     <article class="article-card score-3"
@@ -1350,9 +1793,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
              data-iso="PJM"
              data-company="(none)"
              data-event="deployment"
+             data-category="Direct BESS"
              data-title="for cheaper power, virginia’s local utilities build small grid batteries">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
         <a class="article-title" href="https://www.canarymedia.com/articles/batteries/cheaper-power-virginia-utilities-small-batteries" target="_blank" rel="noopener">For cheaper power, Virginia’s local utilities build small grid batteries</a>
       </div>
       <div class="article-meta">
@@ -1363,28 +1807,29 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· PJM</span>
         <span>· —</span>
       </div>
-      <p class="article-reason">Small municipal BESS deployments in Virginia/PJM signal expanding storage adoption in data-center-heavy markets, modestly relevant as a read-across but outside ERCOT/CAISO focus.</p>
+      <p class="article-reason">Signals emerging BESS adoption by municipal utilities in Virginia&#x27;s data-center-heavy PJM market, relevant for tracking demand growth beyond ERCOT/CAISO.</p>
     </article>
     
     <article class="article-card score-3"
              data-score="3"
              data-iso="(none)"
              data-company="EnerVenue"
-             data-event="other"
+             data-event="financial_results"
+             data-category="Adjacent Market"
              data-title="us battery startup builds factory in china after nixing kentucky plant">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-adjacent">Adjacent Market</span>
         <a class="article-title" href="https://www.canarymedia.com/articles/long-duration-energy-storage/us-battery-startup-builds-factory-china" target="_blank" rel="noopener">US battery startup builds factory in China after nixing Kentucky plant</a>
       </div>
       <div class="article-meta">
         <span>Canary Media</span>
         <span>· 2026-04-29</span>
         <span>· EnerVenue</span>
-        <span>· Other</span>
+        <span>· Financial results</span>
         <span>· No specific market</span>
         <span>· —</span>
       </div>
-      <p class="article-reason">A US battery startup pivoting manufacturing to China after abandoning a Kentucky plant is a notable competitive/supply-chain signal, though EnerVenue&#x27;s nickel-hydrogen tech is niche relative to lithium-ion in ERCOT/CAISO.</p>
+      <p class="article-reason">EnerVenue&#x27;s $300M raise and pivot to China manufacturing signals competitive dynamics for non-Li-ion long-duration storage alternatives, but execution risk and limited near-term US market impact keep this medium.</p>
     </article>
     
     <article class="article-card score-3"
@@ -1392,9 +1837,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
              data-iso="CAISO"
              data-company="(none)"
              data-event="regulatory_change"
+             data-category="Policy &amp; Regulation"
              data-title="a new bill would help vpps replace peaker plants in california">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-policy">Policy &amp; Regulation</span>
         <a class="article-title" href="https://www.canarymedia.com/articles/virtual-power-plants/new-bill-vpp-california" target="_blank" rel="noopener">A new bill would help VPPs replace peaker plants in California</a>
       </div>
       <div class="article-meta">
@@ -1405,7 +1851,7 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· CAISO</span>
         <span>· —</span>
       </div>
-      <p class="article-reason">California VPP legislation could expand distributed storage aggregation as competition to peakers, modestly relevant to CAISO BESS competitive dynamics.</p>
+      <p class="article-reason">California legislation enabling VPPs to displace peakers could expand distributed BESS aggregation opportunities in CAISO, though impact depends on final bill provisions.</p>
     </article>
     
     <article class="article-card score-3"
@@ -1413,9 +1859,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
              data-iso="(none)"
              data-company="(none)"
              data-event="regulatory_change"
+             data-category="Policy &amp; Regulation"
              data-title="us judge halts trump admin’s blockade on new wind and solar projects">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-policy">Policy &amp; Regulation</span>
         <a class="article-title" href="https://www.canarymedia.com/articles/clean-energy/us-judge-halts-trump-admins-blockade-on-new-wind-and-solar-projects" target="_blank" rel="noopener">US judge halts Trump admin’s blockade on new wind and solar projects</a>
       </div>
       <div class="article-meta">
@@ -1426,7 +1873,7 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· No specific market</span>
         <span>· —</span>
       </div>
-      <p class="article-reason">Federal court ruling lifting blockade on wind/solar permitting is relevant to renewables broadly but only indirectly affects standalone BESS economics in ERCOT/CAISO.</p>
+      <p class="article-reason">Court ruling lifting federal blockade on wind/solar permitting is positive for renewables broadly and indirectly supports co-located storage, but doesn&#x27;t directly target BESS.</p>
     </article>
     
     <article class="article-card score-3"
@@ -1434,9 +1881,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
              data-iso="ISO-NE"
              data-company="(none)"
              data-event="analysis_commentary"
+             data-category="Market Structure"
              data-title="big grid batteries are finally on a roll in new england">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-market">Market Structure</span>
         <a class="article-title" href="https://www.canarymedia.com/articles/batteries/big-grid-batteries-new-england" target="_blank" rel="noopener">Big grid batteries are finally on a roll in New England</a>
       </div>
       <div class="article-meta">
@@ -1447,7 +1895,29 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· ISO-NE</span>
         <span>· —</span>
       </div>
-      <p class="article-reason">Regional analysis of accelerating BESS buildout in ISO-NE offers competitive read-across but is outside core ERCOT/CAISO focus and lacks specific project details.</p>
+      <p class="article-reason">Regional analysis of accelerating BESS deployment in ISO-NE signals growing market opportunity outside ERCOT/CAISO core focus.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="CAISO"
+             data-company="AES"
+             data-event="other"
+             data-category="Direct BESS"
+             data-title="aes pulls out of san diego area battery project after local opposition">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://www.canarymedia.com/articles/batteries/aes-san-diego-area-battery-opposition" target="_blank" rel="noopener">AES pulls out of San Diego area battery project after local opposition</a>
+      </div>
+      <div class="article-meta">
+        <span>Canary Media</span>
+        <span>· 2026-04-09</span>
+        <span>· AES</span>
+        <span>· Other</span>
+        <span>· CAISO</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Local opposition killing a major CAISO BESS project signals growing siting/permitting risk for developers in California post-Moss Landing.</p>
     </article>
     
     <article class="article-card score-3"
@@ -1455,9 +1925,10 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
              data-iso="MISO"
              data-company="Xcel Energy"
              data-event="deployment"
+             data-category="Direct BESS"
              data-title="xcel minnesota is building a first-of-its-kind virtual power plant">
       <div class="article-head">
-        <span class="badge badge-3">3/5</span>
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
         <a class="article-title" href="https://www.canarymedia.com/articles/virtual-power-plants/xcel-minnesota-first-virtual-power-plant" target="_blank" rel="noopener">Xcel Minnesota is building a first-of-its-kind virtual power plant</a>
       </div>
       <div class="article-meta">
@@ -1468,7 +1939,535 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
         <span>· MISO</span>
         <span>· —</span>
       </div>
-      <p class="article-reason">Novel utility-owned VPP using distributed batteries in MISO is a notable business-model signal for BESS, though outside ERCOT/CAISO and lacking firm MWh figures.</p>
+      <p class="article-reason">First utility-owned VPP in the US using distributed BESS is a notable model for behind-the-meter storage deployment, though scale and specifics are limited.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="CAISO"
+             data-company="(none)"
+             data-event="deployment"
+             data-category="Direct BESS"
+             data-title="nation&#x27;s largest urban battery to take center stage near san francisco">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://www.canarymedia.com/articles/batteries/nations-largest-urban-battery-san-francisco" target="_blank" rel="noopener">Nation&#x27;s largest urban battery to take center stage near San Francisco</a>
+      </div>
+      <div class="article-meta">
+        <span>Canary Media</span>
+        <span>· 2026-04-03</span>
+        <span>· No company</span>
+        <span>· Deployment</span>
+        <span>· CAISO</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Notable urban BESS deployment in CAISO footprint, but article lacks specifics on developer, capacity, or offtaker.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Fluence Energy"
+             data-event="other"
+             data-category="Direct BESS"
+             data-title="fluence investigation alert: bragar eagel &amp; squire, p.c. is investigating fluence energy, inc. on behalf of long-term stockholders and encourages investors to contact the firm">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://www.globenewswire.com/news-release/2025/09/27/3157311/0/en/fluence-investigation-alert-bragar-eagel-squire-p-c-is-investigating-fluence-energy-inc-on-behalf-of-long-term-stockholders-and-encourages-investors-to-contact-the-firm.html" target="_blank" rel="noopener">FLUENCE INVESTIGATION ALERT: Bragar Eagel &amp; Squire, P.C. is Investigating Fluence Energy, Inc. on Behalf of Long-Term Stockholders and Encourages Investors to Contact the Firm</a>
+      </div>
+      <div class="article-meta">
+        <span>Fluence</span>
+        <span>· 2025-09-27</span>
+        <span>· Fluence Energy</span>
+        <span>· Other</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Shareholder investigation into a major BESS integrator signals potential legal/financial overhang for a key competitor, but is not yet a market-moving event.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Fluence"
+             data-event="deployment"
+             data-category="Direct BESS"
+             data-title="verbund and fluence launch large-scale battery storage projects in germany">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://www.globenewswire.com/news-release/2025/07/15/3115325/0/en/verbund-and-fluence-launch-large-scale-battery-storage-projects-in-germany.html" target="_blank" rel="noopener">VERBUND and Fluence launch large-scale battery storage projects in Germany</a>
+      </div>
+      <div class="article-meta">
+        <span>Fluence</span>
+        <span>· 2025-07-15</span>
+        <span>· Fluence</span>
+        <span>· Deployment</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Fluence deployment with VERBUND in Germany signals continued European pipeline expansion but lacks specific capacity/value details and is outside core ERCOT/CAISO focus.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Fluence Energy"
+             data-event="other"
+             data-category="Direct BESS"
+             data-title="fluence alert: bragar eagel &amp; squire, p.c. is investigating fluence energy, inc. on behalf of long-term stockholders and encourages investors to contact the firm">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://www.globenewswire.com/news-release/2025/05/14/3080779/0/en/fluence-alert-bragar-eagel-squire-p-c-is-investigating-fluence-energy-inc-on-behalf-of-long-term-stockholders-and-encourages-investors-to-contact-the-firm.html" target="_blank" rel="noopener">FLUENCE ALERT: Bragar Eagel &amp; Squire, P.C. is Investigating Fluence Energy, Inc. on Behalf of Long-Term Stockholders and Encourages Investors to Contact the Firm</a>
+      </div>
+      <div class="article-meta">
+        <span>Fluence</span>
+        <span>· 2025-05-13</span>
+        <span>· Fluence Energy</span>
+        <span>· Other</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Shareholder investigation of a major BESS integrator signals potential legal/financial overhang for Fluence, a key ERCOT/CAISO competitor.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Fluence"
+             data-event="other"
+             data-category="Direct BESS"
+             data-title="bragar eagel &amp; squire, p.c. reminds investors that class action lawsuits have been filed against ready capital, digimarc, xplr, and fluence and encourages investors to contact the firm">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://www.globenewswire.com/news-release/2025/04/22/3065091/0/en/bragar-eagel-squire-p-c-reminds-investors-that-class-action-lawsuits-have-been-filed-against-ready-capital-digimarc-xplr-and-fluence-and-encourages-investors-to-contact-the-firm.html" target="_blank" rel="noopener">Bragar Eagel &amp; Squire, P.C. Reminds Investors That Class Action Lawsuits Have Been Filed Against Ready Capital, Digimarc, XPLR, and Fluence and Encourages Investors to Contact the Firm</a>
+      </div>
+      <div class="article-meta">
+        <span>Fluence</span>
+        <span>· 2025-04-21</span>
+        <span>· Fluence</span>
+        <span>· Other</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Securities class action against Fluence is a notable competitor governance/legal risk signal for a major BESS integrator, though not directly market-moving.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Samsung SDI"
+             data-event="financial_results"
+             data-category="Supply Chain"
+             data-title="samsung sdi posts the biggest earnings in 2q 2022">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-supply">Supply Chain</span>
+        <a class="article-title" href="https://www.samsungsdi.com/sdi-now/sdi-news/news_view.html#samsung-sdi-posts-the-biggest-earnings-in-2q-2022" target="_blank" rel="noopener">SAMSUNG SDI posts the biggest earnings in 2Q 2022</a>
+      </div>
+      <div class="article-meta">
+        <span>Samsung SDI</span>
+        <span>· 2022-07-29</span>
+        <span>· Samsung SDI</span>
+        <span>· Financial results</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Samsung SDI is a major battery cell supplier; quarterly earnings provide signal on cell supply and pricing relevant to BESS, but no specific BESS deal disclosed.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Trina Storage"
+             data-event="product_launch"
+             data-category="Direct BESS"
+             data-title="march 20, 2026 trina storage completes 5mwh lsft at maximum severity — surpassing the industry’s highest safety standards">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://www.trinasolar.com/eu/Trina-Storage-Completes-5MWh-LSFT-at-Maximum-Severity-Surpassing-the-Industrys-Highest-Safety-Standards/" target="_blank" rel="noopener">March 20, 2026 Trina Storage Completes 5MWh LSFT at Maximum Severity — Surpassing the Industry’s Highest Safety Standards</a>
+      </div>
+      <div class="article-meta">
+        <span>Trina</span>
+        
+        <span>· Trina Storage</span>
+        <span>· Product launch</span>
+        <span>· No specific market</span>
+        <span>· 5 MWh</span>
+      </div>
+      <p class="article-reason">Passing a large-scale fire test at maximum severity is a meaningful safety credential for Trina&#x27;s BESS product but is a competitive signal rather than a market-moving event.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Trina Storage"
+             data-event="product_launch"
+             data-category="Direct BESS"
+             data-title="march 20, 2026 trina storage large-scale fire test: full-process results and system-level safety performance">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://www.trinasolar.com/eu/Trina-Storage-Large-Scale-Fire-Test-Full-Process-Results-and-System-Level-Safety-Performance/" target="_blank" rel="noopener">March 20, 2026 Trina Storage Large-Scale Fire Test: Full-Process Results and System-Level Safety Performance</a>
+      </div>
+      <div class="article-meta">
+        <span>Trina</span>
+        
+        <span>· Trina Storage</span>
+        <span>· Product launch</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Large-scale fire testing by a major Chinese BESS OEM is relevant for safety/qualification benchmarks but not market-moving without disclosed product or contract details.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Sungrow"
+             data-event="product_launch"
+             data-category="Direct BESS"
+             data-title="apr.27 2026 global news beyond simulation: sungrow completes world’s first large-scale full-condition grid-forming extreme test">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://en.sungrowpower.com/en/beyond-simulation-sungrow-completes-world-s-first-large-scale-full-condition-grid-forming-extreme-test" target="_blank" rel="noopener">Apr.27 2026 Global News Beyond Simulation: Sungrow Completes World’s First Large-Scale Full-Condition Grid-Forming Extreme Test</a>
+      </div>
+      <div class="article-meta">
+        <span>Sungrow</span>
+        
+        <span>· Sungrow</span>
+        <span>· Product launch</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Sungrow&#x27;s grid-forming BESS validation testing is technically notable for competitive positioning but lacks deal or deployment specifics.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Sungrow"
+             data-event="product_launch"
+             data-category="Direct BESS"
+             data-title="apr.27 2026 global news sungrow launches powermatrix, redefining system-level pv-storage integration">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://en.sungrowpower.com/en/sungrow-launches-powermatrix-redefining-system-level-pv-storage-integration" target="_blank" rel="noopener">Apr.27 2026 Global News Sungrow Launches PowerMatrix, Redefining System-Level PV-Storage Integration</a>
+      </div>
+      <div class="article-meta">
+        <span>Sungrow</span>
+        
+        <span>· Sungrow</span>
+        <span>· Product launch</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Sungrow product launch for integrated PV-storage system signals competitive move in solar+storage integration, but limited details on scale or market impact.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Sungrow"
+             data-event="regulatory_change"
+             data-category="Policy &amp; Regulation"
+             data-title="apr.27 2026 global news among the first: sungrow&#x27;s full portfolio ess products complete nb assessment under eu battery regulation">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-policy">Policy &amp; Regulation</span>
+        <a class="article-title" href="https://en.sungrowpower.com/en/among-the-first-sungrows-full-portfolio-ess-product-completed-nb-assessment-under-eu-battery-regulation" target="_blank" rel="noopener">Apr.27 2026 Global News Among the First: Sungrow&#x27;s Full Portfolio ESS Products Complete NB Assessment Under EU Battery Regulation</a>
+      </div>
+      <div class="article-meta">
+        <span>Sungrow</span>
+        
+        <span>· Sungrow</span>
+        <span>· Regulatory change</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Sungrow being among the first to complete EU Battery Regulation NB assessment gives it a compliance edge in European BESS markets, though limited direct ERCOT/CAISO impact.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Sungrow"
+             data-event="product_launch"
+             data-category="Direct BESS"
+             data-title="apr.3 2026 global news ace safety: sungrow powerkeeper achieves industry-first triple ul 9540a certification">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://en.sungrowpower.com/en/ace-safety-sungrow-powerkeeper-achieves-industry-first-triple-ul9540a-certification" target="_blank" rel="noopener">Apr.3 2026 Global News ACE Safety: Sungrow PowerKeeper Achieves Industry-First Triple UL 9540A Certification</a>
+      </div>
+      <div class="article-meta">
+        <span>Sungrow</span>
+        
+        <span>· Sungrow</span>
+        <span>· Product launch</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Sungrow earning a triple UL 9540A certification on PowerKeeper is a meaningful safety credentialing milestone that strengthens its competitive positioning in BESS sales but is not a market-moving event on its own.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Sungrow"
+             data-event="partnership"
+             data-category="Direct BESS"
+             data-title="mar.26 2026 global news sungrow announces 1,155 mwh c&amp;i bess partnership in south africa">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://en.sungrowpower.com/en/sungrow-announces-1155-mwh-c-i-bess-partnership-in-south-africa" target="_blank" rel="noopener">Mar.26 2026 Global News Sungrow Announces 1,155 MWh C&amp;I BESS Partnership in South Africa</a>
+      </div>
+      <div class="article-meta">
+        <span>Sungrow</span>
+        
+        <span>· Sungrow</span>
+        <span>· Partnership</span>
+        <span>· No specific market</span>
+        <span>· 1155 MWh</span>
+      </div>
+      <p class="article-reason">Large 1.155 GWh C&amp;I BESS partnership signals Sungrow&#x27;s continued global scale, but South Africa deployment has limited direct read-through to ERCOT/CAISO competitive dynamics.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="HiTHIUM"
+             data-event="product_launch"
+             data-category="Direct BESS"
+             data-title="hithium completes world&#x27;s first open-door large-scale fire test of a 6.25mwh system with kah battery cells">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://www.hithium.com/newsroom/latest/details/163.html" target="_blank" rel="noopener">HiTHIUM Completes World&#x27;s First Open-Door Large-Scale Fire Test of a 6.25MWh System with kAh Battery Cells</a>
+      </div>
+      <div class="article-meta">
+        <span>Hithium</span>
+        
+        <span>· HiTHIUM</span>
+        <span>· Product launch</span>
+        <span>· No specific market</span>
+        <span>· 6.25 MWh</span>
+      </div>
+      <p class="article-reason">First open-door large-scale fire test of a 6.25MWh system with kAh cells signals safety validation progress for large-format battery cells, relevant to BESS competitive positioning.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Hithium"
+             data-event="analysis_commentary"
+             data-category="Direct BESS"
+             data-title="double top 2! hithium leads the global energy storage market with long-duration lithium battery storage">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://www.hithium.com/newsroom/latest/details/162.html" target="_blank" rel="noopener">Double Top 2! HiTHIUM Leads the Global Energy Storage Market with Long-Duration Lithium Battery Storage</a>
+      </div>
+      <div class="article-meta">
+        <span>Hithium</span>
+        
+        <span>· Hithium</span>
+        <span>· Analysis commentary</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Hithium claiming top global market share in long-duration lithium BESS signals a competitive shift among cell/system suppliers, though the headline is largely promotional without specific deal data.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="HiTHIUM"
+             data-event="other"
+             data-category="Supply Chain"
+             data-title="hithium’s chongqing manufacturing base recognized as the world’s first lighthouse factory for energy storage battery">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-supply">Supply Chain</span>
+        <a class="article-title" href="https://www.hithium.com/newsroom/latest/details/159.html" target="_blank" rel="noopener">HiTHIUM’s Chongqing Manufacturing Base Recognized as the World’s First Lighthouse Factory for Energy Storage Battery</a>
+      </div>
+      <div class="article-meta">
+        <span>Hithium</span>
+        
+        <span>· HiTHIUM</span>
+        <span>· Other</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Recognition of HiTHIUM&#x27;s Chongqing facility as a WEF Lighthouse Factory signals manufacturing scale and quality leadership in BESS cell supply, relevant to competitive supply chain dynamics.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="HiTHIUM"
+             data-event="product_launch"
+             data-category="Direct BESS"
+             data-title="hithium launches the world’s first lithium–sodium full-duration aidc energy storage solution at its third eco-day">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://www.hithium.com/newsroom/latest/details/103.html" target="_blank" rel="noopener">HiTHIUM Launches the World’s First Lithium–Sodium Full-Duration AIDC Energy Storage Solution at its Third Eco-Day</a>
+      </div>
+      <div class="article-meta">
+        <span>Hithium</span>
+        
+        <span>· HiTHIUM</span>
+        <span>· Product launch</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Novel lithium-sodium hybrid storage product launch from a major Chinese cell maker signals technology diversification, but US/ERCOT/CAISO relevance and commercial traction are unclear.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="HiTHIUM"
+             data-event="partnership"
+             data-category="Direct BESS"
+             data-title="hithium and el-mor renewable energy announce a strategic cooperation to develop 1.5gwh long-duration energy storage projects in israel">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://www.hithium.com/newsroom/latest/details/99.html" target="_blank" rel="noopener">HiTHIUM and El-Mor Renewable Energy Announce a Strategic Cooperation to Develop 1.5GWh Long-Duration Energy Storage Projects in Israel</a>
+      </div>
+      <div class="article-meta">
+        <span>Hithium</span>
+        
+        <span>· HiTHIUM</span>
+        <span>· Partnership</span>
+        <span>· No specific market</span>
+        <span>· 1500 MWh</span>
+      </div>
+      <p class="article-reason">Sizeable 1.5GWh international BESS partnership signals HiTHIUM&#x27;s continued global expansion, though Israel market has limited direct ERCOT/CAISO read-through.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="HiTHIUM"
+             data-event="deployment"
+             data-category="Supply Chain"
+             data-title="navarre and hithium sign the investment commitment for their battery plant in a ceremony together with president sánchez">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-supply">Supply Chain</span>
+        <a class="article-title" href="https://www.hithium.com/newsroom/latest/details/239.html" target="_blank" rel="noopener">Navarre and HiTHIUM sign the investment commitment for their battery plant in a ceremony together with President Sánchez</a>
+      </div>
+      <div class="article-meta">
+        <span>Hithium</span>
+        
+        <span>· HiTHIUM</span>
+        <span>· Deployment</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Chinese cell maker HiTHIUM committing to a European battery plant signals supply chain expansion that could indirectly affect US BESS sourcing, but the project is in Spain with limited direct ERCOT/CAISO impact.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="HiTHIUM"
+             data-event="partnership"
+             data-category="M&amp;A"
+             data-title="3gwh | hithium partners with brawn capital to expand asia-pacific energy storage market">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-mna">M&amp;A</span>
+        <a class="article-title" href="https://www.hithium.com/newsroom/latest/details/214.html" target="_blank" rel="noopener">3GWh | HiTHIUM Partners with Brawn Capital to Expand Asia-Pacific Energy Storage Market</a>
+      </div>
+      <div class="article-meta">
+        <span>Hithium</span>
+        
+        <span>· HiTHIUM</span>
+        <span>· Partnership</span>
+        <span>· No specific market</span>
+        <span>· 3000 MWh</span>
+      </div>
+      <p class="article-reason">3 GWh partnership expands a Chinese cell maker&#x27;s footprint in Asia-Pacific, relevant for global BESS supply competition but not directly impacting ERCOT/CAISO.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="HiTHIUM"
+             data-event="product_launch"
+             data-category="Direct BESS"
+             data-title="at its italian trade fair debut, hithium introduced ∞power flexsso designed to enable bess deployment in transport-constrained markets">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://www.hithium.com/newsroom/latest/details/165.html" target="_blank" rel="noopener">At its Italian trade fair debut, HiTHIUM introduced ∞Power Flexsso designed to enable BESS deployment in transport-constrained markets</a>
+      </div>
+      <div class="article-meta">
+        <span>Hithium</span>
+        
+        <span>· HiTHIUM</span>
+        <span>· Product launch</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Chinese cell maker HiTHIUM launching a new BESS product aimed at transport-constrained markets signals continued competitive pressure but with limited immediate US/ERCOT/CAISO impact.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Sungrow"
+             data-event="product_launch"
+             data-category="Direct BESS"
+             data-title="apr.28 2026 global news seven extreme tests, full scenario ecosystem: sungrow redefines c&amp;i ess reliability at gres">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://en.sungrowpower.com/en/seven-extreme-tests-full-scenario-ecosystem-sungrow-redefines-c-i-ess-reliability-at-gres" target="_blank" rel="noopener">Apr.28 2026 Global News Seven Extreme Tests, Full Scenario Ecosystem: Sungrow Redefines C&amp;I ESS Reliability at GRES</a>
+      </div>
+      <div class="article-meta">
+        <span>Sungrow</span>
+        
+        <span>· Sungrow</span>
+        <span>· Product launch</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Sungrow showcasing C&amp;I ESS reliability testing at a global event signals continued product positioning in commercial/industrial storage, but lacks specific contract or deployment details.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="(none)"
+             data-company="Sungrow"
+             data-event="product_launch"
+             data-category="Direct BESS"
+             data-title="apr.26 2026 global news sungrow unveils full-scenario solution to address emerging global energy challenges">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://en.sungrowpower.com/en/sungrow-unveils-full-scenario-solution-to-address-emerging-global-energy-challenges" target="_blank" rel="noopener">Apr.26 2026 Global News Sungrow Unveils Full-Scenario Solution to Address Emerging Global Energy Challenges</a>
+      </div>
+      <div class="article-meta">
+        <span>Sungrow</span>
+        
+        <span>· Sungrow</span>
+        <span>· Product launch</span>
+        <span>· No specific market</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">Sungrow product/solution announcement is relevant competitive signal but lacks specific BESS deployment or contract details.</p>
+    </article>
+    
+    <article class="article-card score-3"
+             data-score="3"
+             data-iso="CAISO"
+             data-company="BYD Energy Storage"
+             data-event="deployment"
+             data-category="Direct BESS"
+             data-title="ranked no. 1 in california, byd energy storage offers high reliability to  central california energy storage project">
+      <div class="article-head">
+        <span class="badge badge-3">3/5</span><span class="cat-badge cat-direct">Direct BESS</span>
+        <a class="article-title" href="https://en.byd.com/news/ranked-no-1-in-california-byd-energy-storage-offers-high-reliability-to-central-california-energy-storage-project/" target="_blank" rel="noopener">Ranked No. 1 in California, BYD Energy Storage Offers High Reliability to  Central California Energy Storage Project</a>
+      </div>
+      <div class="article-meta">
+        <span>BYD</span>
+        
+        <span>· BYD Energy Storage</span>
+        <span>· Deployment</span>
+        <span>· CAISO</span>
+        <span>· —</span>
+      </div>
+      <p class="article-reason">BYD touting top market share in California BESS deployments signals competitive positioning in CAISO, though lacking specific project size details.</p>
     </article>
     </section>
   <div id="empty-state" class="empty-state" style="display:none;">
@@ -1535,12 +2534,13 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
 </div>
 <script>
 (function () {
-  const sigEl     = document.getElementById('filter-sig');
-  const isoEl     = document.getElementById('filter-iso');
-  const companyEl = document.getElementById('filter-company');
-  const eventEl   = document.getElementById('filter-event');
-  const qEl       = document.getElementById('filter-q');
-  const resetBtn  = document.getElementById('reset-filters');
+  const sigEl      = document.getElementById('filter-sig');
+  const isoEl      = document.getElementById('filter-iso');
+  const companyEl  = document.getElementById('filter-company');
+  const eventEl    = document.getElementById('filter-event');
+  const categoryEl = document.getElementById('filter-category');
+  const qEl        = document.getElementById('filter-q');
+  const resetBtn   = document.getElementById('reset-filters');
   const cards     = Array.from(document.querySelectorAll('.article-card'));
   const visEl     = document.getElementById('count-visible');
   const totalEl   = document.getElementById('count-total');
@@ -1556,19 +2556,21 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
   }
 
   function apply() {
-    const sig     = sigEl.value;
-    const iso     = isoEl.value;
-    const company = companyEl.value;
-    const event   = eventEl.value;
-    const q       = qEl.value.trim().toLowerCase();
+    const sig      = sigEl.value;
+    const iso      = isoEl.value;
+    const company  = companyEl.value;
+    const event    = eventEl.value;
+    const category = categoryEl.value;
+    const q        = qEl.value.trim().toLowerCase();
 
     let visible = 0;
     for (const card of cards) {
       let pass = passSig(card, sig);
-      if (pass && iso     !== 'ALL' && card.dataset.iso     !== iso)     pass = false;
-      if (pass && company !== 'ALL' && card.dataset.company !== company) pass = false;
-      if (pass && event   !== 'ALL' && card.dataset.event   !== event)   pass = false;
-      if (pass && q       !== ''    && !card.dataset.title.includes(q))  pass = false;
+      if (pass && iso      !== 'ALL' && card.dataset.iso      !== iso)      pass = false;
+      if (pass && company  !== 'ALL' && card.dataset.company  !== company)  pass = false;
+      if (pass && event    !== 'ALL' && card.dataset.event    !== event)    pass = false;
+      if (pass && category !== 'ALL' && card.dataset.category !== category) pass = false;
+      if (pass && q        !== ''    && !card.dataset.title.includes(q))    pass = false;
       card.classList.toggle('hidden', !pass);
       if (pass) visible++;
     }
@@ -1576,7 +2578,7 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
     if (emptyEl) emptyEl.style.display = visible === 0 ? 'block' : 'none';
   }
 
-  for (const el of [sigEl, isoEl, companyEl, eventEl]) {
+  for (const el of [sigEl, isoEl, companyEl, eventEl, categoryEl]) {
     el.addEventListener('change', apply);
   }
   qEl.addEventListener('input', apply);
@@ -1586,6 +2588,7 @@ footer code { font-family: ui-monospace, Menlo, monospace; }
     isoEl.value = 'ALL';
     companyEl.value = 'ALL';
     eventEl.value = 'ALL';
+    categoryEl.value = 'ALL';
     qEl.value = '';
     apply();
   });
