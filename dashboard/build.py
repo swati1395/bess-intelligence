@@ -77,7 +77,7 @@ def fetch_articles(cur: sqlite3.Cursor) -> list:
                ei.significance_score, ei.significance_reason, ei.category
         FROM extracted_intel ei
         JOIN articles a ON a.id = ei.article_id
-        WHERE ei.significance_score >= 3
+        WHERE ei.significance_score >= 1
         ORDER BY ei.significance_score DESC,
                  COALESCE(NULLIF(a.published_at, ''), a.published_date) DESC
         """
@@ -320,7 +320,8 @@ h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
                font-size: 13px; line-height: 1.5; color: var(--text-tertiary); }
 .legend .row strong { color: var(--text-primary); font-weight: 600; }
 .legend .row .b { display: inline-block; min-width: 28px; text-align: center;
-                  padding: 2px 0; border-radius: 5px; font-size: 11px; font-weight: 700; }
+                  padding: 2px 0; border-radius: 5px; font-size: 11px; font-weight: 700;
+                  margin-right: 12px; }
 
 /* Filters */
 .filters { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
@@ -463,7 +464,7 @@ JS = """
     const s = parseInt(card.dataset.score, 10);
     if (val === 'high') return s >= 4;
     if (val === 'top')  return s >= 5;
-    return s >= 3; // 'all'
+    return s >= 1; // 'all'
   }
 
   function apply() {
@@ -495,7 +496,7 @@ JS = """
   qEl.addEventListener('input', apply);
 
   resetBtn.addEventListener('click', function () {
-    sigEl.value = 'high';
+    sigEl.value = 'all';
     isoEl.value = 'ALL';
     companyEl.value = 'ALL';
     eventEl.value = 'ALL';
@@ -504,7 +505,7 @@ JS = """
     apply();
   });
 
-  apply(); // initial pass — default 'high' (sig >= 4)
+  apply(); // initial pass — default 'all' (sig >= 1)
 })();
 """
 
@@ -577,8 +578,8 @@ def build_html(summary: dict, articles: list, pipeline: list, developers: list) 
     <div class="filter-group">
       <label for="filter-sig">Significance</label>
       <select id="filter-sig">
+        <option value="all">All (1-5)</option>
         <option value="high">High (4+)</option>
-        <option value="all">All (3+)</option>
         <option value="top">Top (5 only)</option>
       </select>
     </div>
@@ -610,7 +611,7 @@ def build_html(summary: dict, articles: list, pipeline: list, developers: list) 
   <div class="count-bar">
     Showing <strong id="count-visible">0</strong> of
     <strong id="count-total">0</strong> articles
-    <span style="color:var(--muted);"> (dataset: significance &ge; 3 only)</span>
+    <span style="color:var(--text-secondary);"> (all extracted articles, significance 1-5)</span>
   </div>
 
   <section id="articles-list">{articles_html}</section>
@@ -655,7 +656,7 @@ def build() -> None:
 
     print(f"Wrote {OUTPUT_PATH}  ({len(html_doc):,} bytes)")
     print(f"  Articles in dataset: {len(articles)}  "
-          f"(score 3+, default view filters to score 4+)")
+          f"(all scores 1-5, default view shows all)")
     print(f"  Total tracked: {summary['articles']:,}  •  Extracted: {summary['extracted']:,}  •  "
           f"High-sig (4+): {summary['high_sig']}  •  Active pipeline: {summary['pipeline_gw']} GW")
 
