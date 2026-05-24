@@ -464,10 +464,8 @@ JS = """
   totalEl.textContent = TOTAL;
 
   function passSig(card, val) {
-    const s = parseInt(card.dataset.score, 10);
-    if (val === 'high') return s >= 4;
-    if (val === 'top')  return s >= 5;
-    return s >= 1; // 'all'
+    if (val === 'all') return true;
+    return card.dataset.score === val; // exact-match: '1'..'5'
   }
 
   function apply() {
@@ -582,8 +580,11 @@ def build_html(summary: dict, articles: list, pipeline: list, developers: list) 
       <label for="filter-sig">Significance</label>
       <select id="filter-sig">
         <option value="all">All (1-5)</option>
-        <option value="high">High (4+)</option>
-        <option value="top">Top (5 only)</option>
+        <option value="5">5 — Critical</option>
+        <option value="4">4 — High</option>
+        <option value="3">3 — Medium</option>
+        <option value="2">2 — Low</option>
+        <option value="1">1 — Monitoring</option>
       </select>
     </div>
     <div class="filter-group">
