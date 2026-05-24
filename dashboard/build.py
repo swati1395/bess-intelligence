@@ -538,7 +538,7 @@ def build_html(summary: dict, articles: list, pipeline: list, developers: list) 
   </header>
 
   <div class="coverage-note">
-    <strong>Scope:</strong> This dashboard covers <em>global</em> BESS news from 7 industry RSS feeds.
+    <strong>Scope:</strong> This dashboard covers <em>global</em> BESS news from 22 sources including RSS feeds and company newsrooms.
     The <strong>ERCOT</strong> and <strong>CAISO</strong> tags are applied only when an article specifically
     mentions those markets — most projects worldwide carry no ISO tag. Pipeline data (LBNL Queued Up) is
     US-only and scoped to ERCOT &amp; CAISO storage projects.
@@ -551,7 +551,7 @@ def build_html(summary: dict, articles: list, pipeline: list, developers: list) 
       <div class="sub">7 RSS sources, all topics</div></div>
     <div class="stat"><div class="label">Structured extractions</div>
       <div class="value">{fmt_num(summary['extracted'])}</div>
-      <div class="sub">via Claude Opus 4.7</div></div>
+      <div class="sub">via Claude Sonnet</div></div>
     <div class="stat"><div class="label">High-significance (4+)</div>
       <div class="value">{fmt_num(summary['high_sig'])}</div>
       <div class="sub">market-relevant signals</div></div>
