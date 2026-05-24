@@ -57,6 +57,27 @@ def fetch_html(url: str) -> str:
     return r.text
 
 
+_NAV_TITLE_PATTERNS = {
+    "warranty", "service & support", "service and support",
+    "find a distributor", "cases & stories", "about sungrow foundation",
+    "smart energy products", "sungrow renewables", "energy storage system",
+    "news", "global news", "read more", "products", "about", "contact",
+    "home", "support", "sales", "distributor", "solutions",
+}
+
+
+def is_nav_title(title: str) -> bool:
+    """Heuristic: filter out boilerplate navigation/category links that some
+    corporate sites surface alongside real article links (e.g. 'Warranty',
+    'Smart Energy Products'). Combined length + exact-match check."""
+    if not title:
+        return True
+    t = title.strip()
+    if len(t) < 25:
+        return True
+    return t.lower() in _NAV_TITLE_PATTERNS
+
+
 def article_dict(title: str, url: str, summary: str = "", date_raw: str = "",
                  date_iso: str = "") -> dict:
     title = clean_html(title)
@@ -220,6 +241,8 @@ def scrape_sungrow() -> list:
         if not title or title.lower() in ("global news", "news", "read more") or len(title) < 8:
             # Fall back to slug-derived title — title-case the kebab-case slug
             title = slug.replace("-", " ").title()
+        if is_nav_title(title):
+            continue
         items.append(article_dict(title, full))
     return items[:50]
 
@@ -295,7 +318,7 @@ def scrape_trina() -> list:
         if full in seen:
             continue
         title = a.get_text(" ", strip=True)
-        if not title or len(title) < 15:
+        if is_nav_title(title):
             continue
         seen.add(full)
         items.append(article_dict(title, full))

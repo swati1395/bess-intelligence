@@ -491,7 +491,8 @@ JS = """
   totalEl.textContent = TOTAL;
 
   function passSig(card, val) {
-    if (val === 'all') return true;
+    if (val === 'all')    return true;
+    if (val === 'medium') return parseInt(card.dataset.score, 10) >= 3;
     return card.dataset.score === val; // exact-match: '1'..'5'
   }
 
@@ -524,7 +525,7 @@ JS = """
   qEl.addEventListener('input', apply);
 
   resetBtn.addEventListener('click', function () {
-    sigEl.value = 'all';
+    sigEl.value = 'medium';
     isoEl.value = 'ALL';
     companyEl.value = 'ALL';
     eventEl.value = 'ALL';
@@ -533,7 +534,7 @@ JS = """
     apply();
   });
 
-  apply(); // initial pass — default 'all' (sig >= 1)
+  apply(); // initial pass — default 'medium' (sig >= 3)
 })();
 """
 
@@ -606,6 +607,7 @@ def build_html(summary: dict, articles: list, pipeline: list, developers: list) 
     <div class="filter-group">
       <label for="filter-sig">Significance</label>
       <select id="filter-sig">
+        <option value="medium">Medium+ (3-5)</option>
         <option value="all">All (1-5)</option>
         <option value="5">5 — Critical</option>
         <option value="4">4 — High</option>
