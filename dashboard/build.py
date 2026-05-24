@@ -13,7 +13,9 @@ import re
 import sqlite3
 import sys
 from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from html import escape
+from zoneinfo import ZoneInfo
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJECT_ROOT)
@@ -46,10 +48,35 @@ def label_from_snake(s: str) -> str:
 
 
 def short_date(value) -> str:
+    """Render any reasonably-shaped date string as 'D MMM YYYY' (e.g. '13 Jun 2025').
+    Tries ISO 8601 first, then 'Month D, YYYY', then 'YYYY.MM.DD', then RFC 2822.
+    Returns the original (truncated) string if nothing parses."""
     if not value:
         return ""
-    m = re.match(r"^(\d{4}-\d{2}-\d{2})", str(value))
-    return m.group(1) if m else str(value)[:10]
+    s = str(value).strip()
+    # ISO 8601 (most common — published_at column stores this)
+    m = re.match(r"^(\d{4})-(\d{2})-(\d{2})", s)
+    if m:
+        try:
+            d = datetime(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+            return d.strftime("%-d %b %Y")
+        except ValueError:
+            pass
+    # Common human-readable formats
+    for fmt in ("%B %d, %Y", "%b %d, %Y", "%Y.%m.%d", "%d %b %Y", "%m/%d/%Y"):
+        try:
+            d = datetime.strptime(s, fmt)
+            return d.strftime("%-d %b %Y")
+        except ValueError:
+            continue
+    # RFC 2822 (raw RSS pubDate)
+    try:
+        d = parsedate_to_datetime(s)
+        if d is not None:
+            return d.strftime("%-d %b %Y")
+    except (TypeError, ValueError):
+        pass
+    return s[:20]
 
 
 def fetch_summary(cur: sqlite3.Cursor) -> dict:
@@ -512,7 +539,7 @@ JS = """
 
 
 def build_html(summary: dict, articles: list, pipeline: list, developers: list) -> str:
-    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    now = datetime.now(ZoneInfo("America/Los_Angeles")).strftime("%-d %b %Y, %H:%M %Z")
     filter_opts = render_filter_options(articles)
 
     iso_select      = render_dropdown("iso",      filter_opts["iso"],      "All markets")
