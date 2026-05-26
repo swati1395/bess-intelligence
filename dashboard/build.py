@@ -334,7 +334,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-.container { max-width: 1100px; margin: 0 auto; padding: 56px 24px 96px; }
+.container { max-width: 1400px; margin: 0 auto; padding: 56px 24px 96px; }
 
 /* Header — dark teal banner with amber accent line at bottom */
 header { background: var(--teal-dark); color: white;
