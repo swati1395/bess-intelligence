@@ -528,34 +528,83 @@ JS = """
     return card.dataset.score === val; // exact-match: '1'..'5'
   }
 
+  // Single source of truth for "does this card pass the filters?". Accepts an
+  // optional overrides object: any key (sig/iso/company/event/category/dateSel/q)
+  // present in overrides bypasses the live dropdown value. Used by both the
+  // visibility pass and the cascading-option computation (leave-one-out).
+  function articleMatches(card, overrides) {
+    overrides = overrides || {};
+    const sig      = 'sig'      in overrides ? overrides.sig      : sigEl.value;
+    const iso      = 'iso'      in overrides ? overrides.iso      : isoEl.value;
+    const company  = 'company'  in overrides ? overrides.company  : companyEl.value;
+    const event    = 'event'    in overrides ? overrides.event    : eventEl.value;
+    const category = 'category' in overrides ? overrides.category : categoryEl.value;
+    const dateSel  = 'dateSel'  in overrides ? overrides.dateSel  : dateEl.value;
+    const q        = 'q'        in overrides ? overrides.q        : qEl.value.trim().toLowerCase();
+
+    if (!passSig(card, sig)) return false;
+    if (iso      !== 'ALL' && card.dataset.iso      !== iso)      return false;
+    if (company  !== 'ALL' && card.dataset.company  !== company)  return false;
+    if (event    !== 'ALL' && card.dataset.event    !== event)    return false;
+    if (category !== 'ALL' && card.dataset.category !== category) return false;
+    if (dateSel !== 'all') {
+      const cutoff = daysAgoIso(parseInt(dateSel, 10));
+      if (!card.dataset.date || card.dataset.date < cutoff) return false;
+    }
+    if (q !== '' && !card.dataset.title.includes(q)) return false;
+    return true;
+  }
+
+  // Hide options in a dropdown that have zero matching articles when all OTHER
+  // filters are applied. 'All' / 'all' / 'medium' (preset) options and the
+  // currently-selected option always stay visible so the user can still reset.
+  function updateOptions(selectEl, filterKey, datasetKey) {
+    const overrides = {};
+    overrides[filterKey] = (filterKey === 'sig') ? 'all' : 'ALL';
+
+    const available = new Set();
+    let anyMedium = false; // sig dropdown: is there any matching score >= 3?
+    for (const card of cards) {
+      if (articleMatches(card, overrides)) {
+        available.add(card.dataset[datasetKey]);
+        if (filterKey === 'sig' && parseInt(card.dataset.score, 10) >= 3) {
+          anyMedium = true;
+        }
+      }
+    }
+
+    const selectedValue = selectEl.value;
+    for (const opt of selectEl.options) {
+      let show;
+      if (opt.value === 'ALL' || opt.value === 'all') {
+        show = true; // always-visible reset
+      } else if (opt.value === 'medium') {
+        show = anyMedium;
+      } else if (opt.value === selectedValue) {
+        show = true; // keep selected option visible even if it now has 0 matches
+      } else {
+        show = available.has(opt.value);
+      }
+      opt.style.display = show ? '' : 'none';
+    }
+  }
+
   function apply() {
-    const sig      = sigEl.value;
-    const iso      = isoEl.value;
-    const company  = companyEl.value;
-    const event    = eventEl.value;
-    const category = categoryEl.value;
-    const dateSel  = dateEl.value;
-    const q        = qEl.value.trim().toLowerCase();
-
-    const cutoff = (dateSel !== 'all') ? daysAgoIso(parseInt(dateSel, 10)) : null;
-
     let visible = 0;
     for (const card of cards) {
-      let pass = passSig(card, sig);
-      if (pass && iso      !== 'ALL' && card.dataset.iso      !== iso)      pass = false;
-      if (pass && company  !== 'ALL' && card.dataset.company  !== company)  pass = false;
-      if (pass && event    !== 'ALL' && card.dataset.event    !== event)    pass = false;
-      if (pass && category !== 'ALL' && card.dataset.category !== category) pass = false;
-      if (pass && cutoff !== null) {
-        // Articles with no parseable date are excluded from time-bounded views
-        if (!card.dataset.date || card.dataset.date < cutoff) pass = false;
-      }
-      if (pass && q        !== ''    && !card.dataset.title.includes(q))    pass = false;
+      const pass = articleMatches(card, {});
       card.classList.toggle('hidden', !pass);
       if (pass) visible++;
     }
     visEl.textContent = visible;
     if (emptyEl) emptyEl.style.display = visible === 0 ? 'block' : 'none';
+
+    // Cascade: refresh each dropdown's options based on a leave-one-out match
+    updateOptions(sigEl,      'sig',      'score');
+    updateOptions(isoEl,      'iso',      'iso');
+    updateOptions(companyEl,  'company',  'company');
+    updateOptions(eventEl,    'event',    'event');
+    updateOptions(categoryEl, 'category', 'category');
   }
 
   for (const el of [sigEl, isoEl, companyEl, eventEl, categoryEl, dateEl]) {
