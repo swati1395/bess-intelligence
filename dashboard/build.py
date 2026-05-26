@@ -115,6 +115,10 @@ def fetch_summary(cur: sqlite3.Cursor) -> dict:
            WHERE q_status IN ('active', 'operational')"""
     )
     summary["pipeline_gw"] = cur.fetchone()[0] or 0
+    cur.execute("SELECT COUNT(*) FROM articles WHERE created_at >= datetime('now', '-24 hours')")
+    summary["new_24h"] = cur.fetchone()[0]
+    cur.execute("SELECT COUNT(*) FROM articles WHERE created_at >= datetime('now', '-48 hours')")
+    summary["new_48h"] = cur.fetchone()[0]
     return summary
 
 
@@ -349,7 +353,7 @@ h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
         padding: 24px; margin-bottom: 12px; }
 
 /* Stat cards */
-.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .stat { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
         padding: 24px; }
 .stat .label { font-size: 11px; text-transform: uppercase; color: var(--text-secondary);
@@ -694,6 +698,12 @@ def build_html(summary: dict, articles: list, pipeline: list, developers: list) 
     <div class="stat"><div class="label">Active pipeline</div>
       <div class="value">{fmt_num(summary['pipeline_gw'])}</div>
       <div class="sub">GW — ERCOT + CAISO storage, active &amp; operational</div></div>
+    <div class="stat"><div class="label">New today</div>
+      <div class="value">{fmt_num(summary['new_24h'])}</div>
+      <div class="sub">added in last 24 hrs</div></div>
+    <div class="stat"><div class="label">Last 48 hrs</div>
+      <div class="value">{fmt_num(summary['new_48h'])}</div>
+      <div class="sub">added in last 48 hrs</div></div>
   </section>
 
   <h2>Article intelligence</h2>
