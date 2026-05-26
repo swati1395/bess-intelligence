@@ -364,11 +364,10 @@ h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
 /* Stat cards */
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .stat { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-        padding: 24px; border-top: 3px solid var(--border); }
-.stat.teal      { border-top-color: var(--teal-mid); }
-.stat.teal-dark { border-top-color: var(--teal-dark); }
-.stat.amber     { border-top-color: var(--amber); }
-.stat.amber-dark{ border-top-color: var(--amber-dark); }
+        padding: 24px; border-top: 3px solid var(--teal-mid);
+        transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.stat:hover { transform: translateY(-3px);
+              box-shadow: 0 8px 24px rgba(27, 107, 107, 0.12); }
 .stat .label { font-size: 11px; text-transform: uppercase; color: var(--text-secondary);
                letter-spacing: 0.08em; font-weight: 600; margin-bottom: 8px; }
 .stat .value { font-size: 38px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.05;
@@ -435,7 +434,10 @@ button.reset-btn:hover { background: var(--amber-light); }
 /* Article cards — left border colored by significance score */
 .article-card { background: var(--card); border: 1px solid var(--border);
                 border-radius: 12px; padding: 24px; margin-bottom: 12px;
-                border-left: 3px solid var(--border); }
+                border-left: 3px solid var(--border); cursor: pointer;
+                transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.article-card:hover { transform: translateY(-3px);
+                      box-shadow: 0 8px 24px rgba(27, 107, 107, 0.12); }
 .article-card.score-1 { border-left-color: #E5E7EB; }
 .article-card.score-2 { border-left-color: #D1D5DB; }
 .article-card.score-3 { border-left-color: #6BB8B8; }
@@ -737,22 +739,22 @@ def build_html(summary: dict, articles: list, pipeline: list, developers: list) 
 
   <h2>At a glance</h2>
   <section class="stats">
-    <div class="stat teal"><div class="label">Articles tracked</div>
+    <div class="stat"><div class="label">Articles tracked</div>
       <div class="value">{fmt_num(summary['articles'])}</div>
       <div class="sub">7 RSS sources, all topics</div></div>
-    <div class="stat teal-dark"><div class="label">Structured extractions</div>
+    <div class="stat"><div class="label">Structured extractions</div>
       <div class="value">{fmt_num(summary['extracted'])}</div>
       <div class="sub">via Claude Sonnet</div></div>
-    <div class="stat amber"><div class="label">High-significance (4+)</div>
+    <div class="stat"><div class="label">High-significance (4+)</div>
       <div class="value">{fmt_num(summary['high_sig'])}</div>
       <div class="sub">market-relevant signals</div></div>
-    <div class="stat teal"><div class="label">Active pipeline</div>
+    <div class="stat"><div class="label">Active pipeline</div>
       <div class="value">{fmt_num(summary['pipeline_gw'])}</div>
       <div class="sub">GW — ERCOT + CAISO storage, active &amp; operational</div></div>
-    <div class="stat amber"><div class="label">New today</div>
+    <div class="stat"><div class="label">New today</div>
       <div class="value">{fmt_num(summary['new_24h'])}</div>
       <div class="sub">added in last 24 hrs</div></div>
-    <div class="stat amber-dark"><div class="label">Last 48 hrs</div>
+    <div class="stat"><div class="label">Last 48 hrs</div>
       <div class="value">{fmt_num(summary['new_48h'])}</div>
       <div class="sub">added in last 48 hrs</div></div>
   </section>
