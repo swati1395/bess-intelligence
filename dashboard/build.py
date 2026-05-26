@@ -523,8 +523,32 @@ JS = """
   const visEl     = document.getElementById('count-visible');
   const totalEl   = document.getElementById('count-total');
   const emptyEl   = document.getElementById('empty-state');
+  const listEl    = document.getElementById('articles-list');
   const TOTAL     = cards.length;
   totalEl.textContent = TOTAL;
+
+  // Original DOM order is significance-descending (set by the server's SQL
+  // ORDER BY). Captured here so we can restore it when all filters are reset.
+  const originalOrder = cards.slice();
+
+  function compareDateDesc(a, b) {
+    const da = a.dataset.date || '';
+    const db = b.dataset.date || '';
+    if (da === db) return 0;
+    if (da === '') return 1;   // dateless cards go to the end
+    if (db === '') return -1;
+    return da < db ? 1 : -1;   // newest first
+  }
+
+  function isAnyFilterActive() {
+    return sigEl.value      !== 'medium'
+        || isoEl.value      !== 'ALL'
+        || companyEl.value  !== 'ALL'
+        || eventEl.value    !== 'ALL'
+        || categoryEl.value !== 'ALL'
+        || dateEl.value     !== 'all'
+        || qEl.value.trim() !== '';
+  }
 
   function passSig(card, val) {
     if (val === 'all')    return true;
@@ -602,6 +626,14 @@ JS = """
     }
     visEl.textContent = visible;
     if (emptyEl) emptyEl.style.display = visible === 0 ? 'block' : 'none';
+
+    // Reorder DOM: newest-first when any filter is active; otherwise restore
+    // the original significance-descending order. appendChild on existing
+    // nodes moves them (it does not clone), so this is one pass per card.
+    const ordered = isAnyFilterActive()
+      ? cards.slice().sort(compareDateDesc)
+      : originalOrder;
+    for (const card of ordered) listEl.appendChild(card);
 
     // Cascade: refresh each dropdown's options based on a leave-one-out match
     updateOptions(sigEl,      'sig',      'score');
@@ -752,11 +784,11 @@ def build_html(summary: dict, articles: list, pipeline: list, developers: list) 
       <label for="filter-date">Date range</label>
       <select id="filter-date">
         <option value="all">All time</option>
+        <option value="1">Today (last 24 hours)</option>
         <option value="7">Last 7 days</option>
         <option value="30">Last 30 days</option>
         <option value="90">Last 3 months</option>
         <option value="180">Last 6 months</option>
-        <option value="365">Last year</option>
       </select>
     </div>
     <div class="filter-group">
