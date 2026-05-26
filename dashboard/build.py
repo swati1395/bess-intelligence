@@ -344,8 +344,24 @@ header h1 { margin: 0; font-size: 34px; font-weight: 700; color: white;
             letter-spacing: -0.022em; line-height: 1.15; }
 header .tagline { color: #A8D5D5; font-size: 16px; margin-top: 8px;
                   letter-spacing: -0.005em; }
-header .updated { color: #A8D5D5; font-size: 12px; margin-top: 14px;
-                  font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+header .status-bar { color: #A8D5D5; font-size: 12px; margin-top: 10px;
+                     line-height: 1.55; letter-spacing: -0.005em; }
+header .status-bar .dot { margin: 0 6px; opacity: 0.7; }
+header .updated { color: #A8D5D5; font-size: 12px; margin-top: 18px;
+                  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+                  display: flex; align-items: center; }
+header .live-dot { width: 8px; height: 8px; background: #34C759; border-radius: 50%;
+                   display: inline-block; flex-shrink: 0;
+                   animation: live-pulse 2s ease-in-out infinite; }
+@keyframes live-pulse {
+  0%, 100% { transform: scale(1);   opacity: 1; }
+  50%      { transform: scale(1.4); opacity: 0.6; }
+}
+header .live-label { color: #A8D5D5; font-size: 11px; font-weight: 700;
+                     text-transform: uppercase; letter-spacing: 0.08em;
+                     font-family: -apple-system, BlinkMacSystemFont,
+                                  "SF Pro Text", system-ui, sans-serif;
+                     margin: 0 10px 0 8px; }
 
 /* Coverage note */
 .coverage-note { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
@@ -727,7 +743,14 @@ def build_html(summary: dict, articles: list, pipeline: list, developers: list) 
   <header>
     <h1>BESS Market Intelligence</h1>
     <div class="tagline">Battery energy storage — competitive intelligence with ERCOT &amp; CAISO focus</div>
-    <div class="updated">Last refreshed: <span id="updated-time">—</span></div>
+    <div class="status-bar">
+      22 sources monitored
+      <span class="dot">·</span> Automated daily at 5am PDT
+      <span class="dot">·</span> ERCOT + CAISO focus
+    </div>
+    <div class="updated">
+      <span class="live-dot" aria-hidden="true"></span><span class="live-label">Live</span>Last refreshed: <span id="updated-time">—</span>
+    </div>
   </header>
 
   <div class="coverage-note">
