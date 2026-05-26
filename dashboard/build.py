@@ -310,13 +310,19 @@ def render_dropdown(name: str, options: list, all_label: str) -> str:
 
 CSS = """
 :root {
-  --bg:             #F2F2F7;
+  --teal-dark:      #1B6B6B;
+  --teal-mid:       #2E8B8B;
+  --teal-light:     #E8F5F5;
+  --amber:          #F59E0B;
+  --amber-dark:     #D97706;
+  --amber-light:    #FEF3C7;
+  --bg:             #F8FAFA;
   --card:           #FFFFFF;
-  --border:         #E5E5EA;
-  --text-primary:   #1D1D1F;
-  --text-secondary: #8E8E93;
-  --text-tertiary:  #636366;
-  --accent:         #007AFF;
+  --border:         #D1E8E8;
+  --text-primary:   #1A3333;
+  --text-secondary: #4A7070;
+  --text-tertiary:  #6B9090;
+  --accent:         #2E8B8B;
 }
 * { box-sizing: border-box; }
 body {
@@ -330,12 +336,15 @@ body {
 }
 .container { max-width: 1100px; margin: 0 auto; padding: 56px 24px 96px; }
 
-/* Header */
-header { margin-bottom: 40px; padding-bottom: 28px; border-bottom: 1px solid var(--border); }
-header h1 { margin: 0; font-size: 34px; font-weight: 700; letter-spacing: -0.022em; line-height: 1.15; }
-header .tagline { color: var(--text-secondary); font-size: 16px; margin-top: 8px;
+/* Header — dark teal banner with amber accent line at bottom */
+header { background: var(--teal-dark); color: white;
+         padding: 32px; border-radius: 12px;
+         margin-bottom: 32px; border-bottom: 3px solid var(--amber); }
+header h1 { margin: 0; font-size: 34px; font-weight: 700; color: white;
+            letter-spacing: -0.022em; line-height: 1.15; }
+header .tagline { color: #A8D5D5; font-size: 16px; margin-top: 8px;
                   letter-spacing: -0.005em; }
-header .updated { color: var(--text-secondary); font-size: 12px; margin-top: 14px;
+header .updated { color: #A8D5D5; font-size: 12px; margin-top: 14px;
                   font-family: ui-monospace, "SF Mono", Menlo, monospace; }
 
 /* Coverage note */
@@ -344,9 +353,9 @@ header .updated { color: var(--text-secondary); font-size: 12px; margin-top: 14p
                  margin-bottom: 40px; line-height: 1.55; }
 .coverage-note strong { color: var(--text-primary); font-weight: 600; }
 
-/* Section headers */
+/* Section headers — teal */
 h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
-     color: var(--text-secondary); margin: 48px 0 16px; font-weight: 600; }
+     color: var(--teal-mid); margin: 48px 0 16px; font-weight: 600; }
 
 /* Generic card surface */
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
@@ -355,7 +364,11 @@ h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
 /* Stat cards */
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .stat { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-        padding: 24px; }
+        padding: 24px; border-top: 3px solid var(--border); }
+.stat.teal      { border-top-color: var(--teal-mid); }
+.stat.teal-dark { border-top-color: var(--teal-dark); }
+.stat.amber     { border-top-color: var(--amber); }
+.stat.amber-dark{ border-top-color: var(--amber-dark); }
 .stat .label { font-size: 11px; text-transform: uppercase; color: var(--text-secondary);
                letter-spacing: 0.08em; font-weight: 600; margin-bottom: 8px; }
 .stat .value { font-size: 38px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.05;
@@ -383,7 +396,7 @@ h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
                   margin-right: 12px; }
 
 /* Filters */
-.filters { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+.filters { background: var(--teal-light); border: 1px solid var(--border); border-radius: 12px;
            padding: 22px; margin-bottom: 16px;
            display: grid; gap: 18px;
            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
@@ -409,19 +422,25 @@ h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
 
 .filter-actions { display: flex; align-items: end; gap: 8px; }
 button.reset-btn { font: inherit; font-size: 14px; padding: 9px 18px;
-                   border: 1px solid var(--border); border-radius: 8px;
-                   background: var(--card); color: var(--accent); cursor: pointer;
-                   font-weight: 500; transition: background-color 0.15s ease; }
-button.reset-btn:hover { background: var(--bg); }
+                   border: 1px solid var(--amber); border-radius: 8px;
+                   background: var(--card); color: var(--amber); cursor: pointer;
+                   font-weight: 600; transition: background-color 0.15s ease; }
+button.reset-btn:hover { background: var(--amber-light); }
 
 /* Count bar */
 .count-bar { font-size: 13px; color: var(--text-secondary);
              margin: 8px 0 24px; font-variant-numeric: tabular-nums; }
 .count-bar strong { color: var(--text-primary); font-weight: 600; }
 
-/* Article cards */
+/* Article cards — left border colored by significance score */
 .article-card { background: var(--card); border: 1px solid var(--border);
-                border-radius: 12px; padding: 24px; margin-bottom: 12px; }
+                border-radius: 12px; padding: 24px; margin-bottom: 12px;
+                border-left: 3px solid var(--border); }
+.article-card.score-1 { border-left-color: #E5E7EB; }
+.article-card.score-2 { border-left-color: #D1D5DB; }
+.article-card.score-3 { border-left-color: #6BB8B8; }
+.article-card.score-4 { border-left-color: var(--teal-mid); }
+.article-card.score-5 { border-left-color: var(--amber); }
 .article-card.hidden { display: none; }
 .article-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
                 flex-wrap: wrap; }
@@ -441,23 +460,22 @@ button.reset-btn:hover { background: var(--bg); }
 .badge { display: inline-block; padding: 2px 8px; border-radius: 5px;
          font-size: 11px; font-weight: 700; vertical-align: middle;
          line-height: 1.4; letter-spacing: 0; }
-.badge-1 { background: #C7C7CC; color: #1D1D1F; }
-.badge-2 { background: #8E8E93; color: #FFFFFF; }
-.badge-3 { background: #FFCC00; color: #1D1D1F; }
-.badge-4 { background: #FF9500; color: #FFFFFF; }
-.badge-5 { background: #FF3B30; color: #FFFFFF; }
+.badge-1 { background: #D1D5DB; color: var(--text-primary); }
+.badge-2 { background: #9CA3AF; color: #FFFFFF; }
+.badge-3 { background: #6BB8B8; color: var(--text-primary); }
+.badge-4 { background: var(--teal-mid); color: #FFFFFF; }
+.badge-5 { background: var(--amber); color: var(--text-primary); }
 
 /* Category badges — outlined pill, colored text on transparent */
 .cat-badge { display: inline-block; padding: 2px 10px; border-radius: 999px;
              font-size: 11px; font-weight: 600; background: transparent;
-             border: 1px solid currentColor; vertical-align: middle;
-             white-space: nowrap; margin-left: 6px; line-height: 1.5; }
-.cat-direct   { color: #007AFF; }
-.cat-supply   { color: #5856D6; }
-.cat-adjacent { color: #34C759; }
-.cat-policy   { color: #FF9500; }
-.cat-market   { color: #5AC8FA; }
-.cat-mna      { color: #FF2D55; }
+             border: 1px solid var(--teal-mid); color: var(--teal-mid);
+             vertical-align: middle; white-space: nowrap;
+             margin-left: 6px; line-height: 1.5; }
+/* All categories share the same teal styling — semantic differentiation lives
+   in the badge text itself rather than in color. */
+.cat-direct, .cat-supply, .cat-adjacent,
+.cat-policy, .cat-market, .cat-mna { color: var(--teal-mid); border-color: var(--teal-mid); }
 
 /* Pipeline */
 .pipeline-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -468,9 +486,10 @@ button.reset-btn:hover { background: var(--bg); }
 /* Tables */
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
 th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
-th { color: var(--text-secondary); font-weight: 600; font-size: 11px;
+th { color: var(--teal-mid); font-weight: 600; font-size: 11px;
      text-transform: uppercase; letter-spacing: 0.06em; }
 td { color: var(--text-primary); }
+tbody tr:nth-child(even) td { background: var(--teal-light); }
 .num { text-align: right; font-variant-numeric: tabular-nums; }
 tbody tr:last-child td { border-bottom: none; }
 tfoot th { border-bottom: none; border-top: 1px solid var(--border); color: var(--text-primary); }
@@ -718,22 +737,22 @@ def build_html(summary: dict, articles: list, pipeline: list, developers: list) 
 
   <h2>At a glance</h2>
   <section class="stats">
-    <div class="stat"><div class="label">Articles tracked</div>
+    <div class="stat teal"><div class="label">Articles tracked</div>
       <div class="value">{fmt_num(summary['articles'])}</div>
       <div class="sub">7 RSS sources, all topics</div></div>
-    <div class="stat"><div class="label">Structured extractions</div>
+    <div class="stat teal-dark"><div class="label">Structured extractions</div>
       <div class="value">{fmt_num(summary['extracted'])}</div>
       <div class="sub">via Claude Sonnet</div></div>
-    <div class="stat"><div class="label">High-significance (4+)</div>
+    <div class="stat amber"><div class="label">High-significance (4+)</div>
       <div class="value">{fmt_num(summary['high_sig'])}</div>
       <div class="sub">market-relevant signals</div></div>
-    <div class="stat"><div class="label">Active pipeline</div>
+    <div class="stat teal"><div class="label">Active pipeline</div>
       <div class="value">{fmt_num(summary['pipeline_gw'])}</div>
       <div class="sub">GW — ERCOT + CAISO storage, active &amp; operational</div></div>
-    <div class="stat"><div class="label">New today</div>
+    <div class="stat amber"><div class="label">New today</div>
       <div class="value">{fmt_num(summary['new_24h'])}</div>
       <div class="sub">added in last 24 hrs</div></div>
-    <div class="stat"><div class="label">Last 48 hrs</div>
+    <div class="stat amber-dark"><div class="label">Last 48 hrs</div>
       <div class="value">{fmt_num(summary['new_48h'])}</div>
       <div class="sub">added in last 48 hrs</div></div>
   </section>

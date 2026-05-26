@@ -6,13 +6,19 @@
 <title>BESS Market Intelligence Dashboard</title>
 <style>
 :root {
-  --bg:             #F2F2F7;
+  --teal-dark:      #1B6B6B;
+  --teal-mid:       #2E8B8B;
+  --teal-light:     #E8F5F5;
+  --amber:          #F59E0B;
+  --amber-dark:     #D97706;
+  --amber-light:    #FEF3C7;
+  --bg:             #F8FAFA;
   --card:           #FFFFFF;
-  --border:         #E5E5EA;
-  --text-primary:   #1D1D1F;
-  --text-secondary: #8E8E93;
-  --text-tertiary:  #636366;
-  --accent:         #007AFF;
+  --border:         #D1E8E8;
+  --text-primary:   #1A3333;
+  --text-secondary: #4A7070;
+  --text-tertiary:  #6B9090;
+  --accent:         #2E8B8B;
 }
 * { box-sizing: border-box; }
 body {
@@ -26,12 +32,15 @@ body {
 }
 .container { max-width: 1100px; margin: 0 auto; padding: 56px 24px 96px; }
 
-/* Header */
-header { margin-bottom: 40px; padding-bottom: 28px; border-bottom: 1px solid var(--border); }
-header h1 { margin: 0; font-size: 34px; font-weight: 700; letter-spacing: -0.022em; line-height: 1.15; }
-header .tagline { color: var(--text-secondary); font-size: 16px; margin-top: 8px;
+/* Header — dark teal banner with amber accent line at bottom */
+header { background: var(--teal-dark); color: white;
+         padding: 32px; border-radius: 12px;
+         margin-bottom: 32px; border-bottom: 3px solid var(--amber); }
+header h1 { margin: 0; font-size: 34px; font-weight: 700; color: white;
+            letter-spacing: -0.022em; line-height: 1.15; }
+header .tagline { color: #A8D5D5; font-size: 16px; margin-top: 8px;
                   letter-spacing: -0.005em; }
-header .updated { color: var(--text-secondary); font-size: 12px; margin-top: 14px;
+header .updated { color: #A8D5D5; font-size: 12px; margin-top: 14px;
                   font-family: ui-monospace, "SF Mono", Menlo, monospace; }
 
 /* Coverage note */
@@ -40,9 +49,9 @@ header .updated { color: var(--text-secondary); font-size: 12px; margin-top: 14p
                  margin-bottom: 40px; line-height: 1.55; }
 .coverage-note strong { color: var(--text-primary); font-weight: 600; }
 
-/* Section headers */
+/* Section headers — teal */
 h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
-     color: var(--text-secondary); margin: 48px 0 16px; font-weight: 600; }
+     color: var(--teal-mid); margin: 48px 0 16px; font-weight: 600; }
 
 /* Generic card surface */
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
@@ -51,7 +60,11 @@ h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
 /* Stat cards */
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .stat { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-        padding: 24px; }
+        padding: 24px; border-top: 3px solid var(--border); }
+.stat.teal      { border-top-color: var(--teal-mid); }
+.stat.teal-dark { border-top-color: var(--teal-dark); }
+.stat.amber     { border-top-color: var(--amber); }
+.stat.amber-dark{ border-top-color: var(--amber-dark); }
 .stat .label { font-size: 11px; text-transform: uppercase; color: var(--text-secondary);
                letter-spacing: 0.08em; font-weight: 600; margin-bottom: 8px; }
 .stat .value { font-size: 38px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.05;
@@ -79,7 +92,7 @@ h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
                   margin-right: 12px; }
 
 /* Filters */
-.filters { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+.filters { background: var(--teal-light); border: 1px solid var(--border); border-radius: 12px;
            padding: 22px; margin-bottom: 16px;
            display: grid; gap: 18px;
            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
@@ -105,19 +118,25 @@ h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
 
 .filter-actions { display: flex; align-items: end; gap: 8px; }
 button.reset-btn { font: inherit; font-size: 14px; padding: 9px 18px;
-                   border: 1px solid var(--border); border-radius: 8px;
-                   background: var(--card); color: var(--accent); cursor: pointer;
-                   font-weight: 500; transition: background-color 0.15s ease; }
-button.reset-btn:hover { background: var(--bg); }
+                   border: 1px solid var(--amber); border-radius: 8px;
+                   background: var(--card); color: var(--amber); cursor: pointer;
+                   font-weight: 600; transition: background-color 0.15s ease; }
+button.reset-btn:hover { background: var(--amber-light); }
 
 /* Count bar */
 .count-bar { font-size: 13px; color: var(--text-secondary);
              margin: 8px 0 24px; font-variant-numeric: tabular-nums; }
 .count-bar strong { color: var(--text-primary); font-weight: 600; }
 
-/* Article cards */
+/* Article cards — left border colored by significance score */
 .article-card { background: var(--card); border: 1px solid var(--border);
-                border-radius: 12px; padding: 24px; margin-bottom: 12px; }
+                border-radius: 12px; padding: 24px; margin-bottom: 12px;
+                border-left: 3px solid var(--border); }
+.article-card.score-1 { border-left-color: #E5E7EB; }
+.article-card.score-2 { border-left-color: #D1D5DB; }
+.article-card.score-3 { border-left-color: #6BB8B8; }
+.article-card.score-4 { border-left-color: var(--teal-mid); }
+.article-card.score-5 { border-left-color: var(--amber); }
 .article-card.hidden { display: none; }
 .article-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
                 flex-wrap: wrap; }
@@ -137,23 +156,22 @@ button.reset-btn:hover { background: var(--bg); }
 .badge { display: inline-block; padding: 2px 8px; border-radius: 5px;
          font-size: 11px; font-weight: 700; vertical-align: middle;
          line-height: 1.4; letter-spacing: 0; }
-.badge-1 { background: #C7C7CC; color: #1D1D1F; }
-.badge-2 { background: #8E8E93; color: #FFFFFF; }
-.badge-3 { background: #FFCC00; color: #1D1D1F; }
-.badge-4 { background: #FF9500; color: #FFFFFF; }
-.badge-5 { background: #FF3B30; color: #FFFFFF; }
+.badge-1 { background: #D1D5DB; color: var(--text-primary); }
+.badge-2 { background: #9CA3AF; color: #FFFFFF; }
+.badge-3 { background: #6BB8B8; color: var(--text-primary); }
+.badge-4 { background: var(--teal-mid); color: #FFFFFF; }
+.badge-5 { background: var(--amber); color: var(--text-primary); }
 
 /* Category badges — outlined pill, colored text on transparent */
 .cat-badge { display: inline-block; padding: 2px 10px; border-radius: 999px;
              font-size: 11px; font-weight: 600; background: transparent;
-             border: 1px solid currentColor; vertical-align: middle;
-             white-space: nowrap; margin-left: 6px; line-height: 1.5; }
-.cat-direct   { color: #007AFF; }
-.cat-supply   { color: #5856D6; }
-.cat-adjacent { color: #34C759; }
-.cat-policy   { color: #FF9500; }
-.cat-market   { color: #5AC8FA; }
-.cat-mna      { color: #FF2D55; }
+             border: 1px solid var(--teal-mid); color: var(--teal-mid);
+             vertical-align: middle; white-space: nowrap;
+             margin-left: 6px; line-height: 1.5; }
+/* All categories share the same teal styling — semantic differentiation lives
+   in the badge text itself rather than in color. */
+.cat-direct, .cat-supply, .cat-adjacent,
+.cat-policy, .cat-market, .cat-mna { color: var(--teal-mid); border-color: var(--teal-mid); }
 
 /* Pipeline */
 .pipeline-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -164,9 +182,10 @@ button.reset-btn:hover { background: var(--bg); }
 /* Tables */
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
 th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
-th { color: var(--text-secondary); font-weight: 600; font-size: 11px;
+th { color: var(--teal-mid); font-weight: 600; font-size: 11px;
      text-transform: uppercase; letter-spacing: 0.06em; }
 td { color: var(--text-primary); }
+tbody tr:nth-child(even) td { background: var(--teal-light); }
 .num { text-align: right; font-variant-numeric: tabular-nums; }
 tbody tr:last-child td { border-bottom: none; }
 tfoot th { border-bottom: none; border-top: 1px solid var(--border); color: var(--text-primary); }
@@ -214,22 +233,22 @@ footer a:hover { text-decoration: underline; }
 
   <h2>At a glance</h2>
   <section class="stats">
-    <div class="stat"><div class="label">Articles tracked</div>
+    <div class="stat teal"><div class="label">Articles tracked</div>
       <div class="value">675</div>
       <div class="sub">7 RSS sources, all topics</div></div>
-    <div class="stat"><div class="label">Structured extractions</div>
+    <div class="stat teal-dark"><div class="label">Structured extractions</div>
       <div class="value">675</div>
       <div class="sub">via Claude Sonnet</div></div>
-    <div class="stat"><div class="label">High-significance (4+)</div>
+    <div class="stat amber"><div class="label">High-significance (4+)</div>
       <div class="value">34</div>
       <div class="sub">market-relevant signals</div></div>
-    <div class="stat"><div class="label">Active pipeline</div>
+    <div class="stat teal"><div class="label">Active pipeline</div>
       <div class="value">290.03</div>
       <div class="sub">GW — ERCOT + CAISO storage, active &amp; operational</div></div>
-    <div class="stat"><div class="label">New today</div>
+    <div class="stat amber"><div class="label">New today</div>
       <div class="value">34</div>
       <div class="sub">added in last 24 hrs</div></div>
-    <div class="stat"><div class="label">Last 48 hrs</div>
+    <div class="stat amber-dark"><div class="label">Last 48 hrs</div>
       <div class="value">139</div>
       <div class="sub">added in last 48 hrs</div></div>
   </section>
@@ -266,7 +285,7 @@ footer a:hover { text-decoration: underline; }
     </div>
     <div class="filter-group">
       <label for="filter-company">Company</label>
-      <select id="filter-company"><option value="ALL">All companies</option><option value="ACEN Australia">ACEN Australia</option><option value="ADB">ADB</option><option value="AEP">AEP</option><option value="AES">AES</option><option value="Akaysha Energy">Akaysha Energy</option><option value="Alabama Power">Alabama Power</option><option value="Alef Aeronautics">Alef Aeronautics</option><option value="Amazon">Amazon</option><option value="Ameresco">Ameresco</option><option value="Anker">Anker</option><option value="Antora">Antora</option><option value="Antora Energy">Antora Energy</option><option value="Aquila Clean Energy EMEA">Aquila Clean Energy EMEA</option><option value="Arava Power">Arava Power</option><option value="Ascend Elements">Ascend Elements</option><option value="Audi">Audi</option><option value="Axi">Axi</option><option value="BC.GAME">BC.GAME</option><option value="BloombergNEF">BloombergNEF</option><option value="Bluetti">Bluetti</option><option value="BMW">BMW</option><option value="Bojangles">Bojangles</option><option value="Bridgewest Ventures">Bridgewest Ventures</option><option value="BYD">BYD</option><option value="BYD Energy Storage">BYD Energy Storage</option><option value="Cadillac">Cadillac</option><option value="CAISO">CAISO</option><option value="Canadian Solar">Canadian Solar</option><option value="Carbon">Carbon</option><option value="Centrus Energy">Centrus Energy</option><option value="Changan Automobile">Changan Automobile</option><option value="ChargePoint">ChargePoint</option><option value="Chevrolet">Chevrolet</option><option value="CIM Group">CIM Group</option><option value="Clean Air Task Force">Clean Air Task Force</option><option value="ComEd">ComEd</option><option value="Commvault Systems">Commvault Systems</option><option value="Contact Energy">Contact Energy</option><option value="Copenhagen Infrastructure Partners">Copenhagen Infrastructure Partners</option><option value="Cornell University">Cornell University</option><option value="Crusoe">Crusoe</option><option value="dcbel">dcbel</option><option value="Deye">Deye</option><option value="DJI">DJI</option><option value="DNV">DNV</option><option value="DTE Energy">DTE Energy</option><option value="Duke Energy">Duke Energy</option><option value="EDF">EDF</option><option value="EDF Power Solutions">EDF Power Solutions</option><option value="Edify Energy">Edify Energy</option><option value="EDP Renewables">EDP Renewables</option><option value="Einride">Einride</option><option value="Electric Era">Electric Era</option><option value="Enbridge">Enbridge</option><option value="Enel Green Power North America">Enel Green Power North America</option><option value="EnerVenue">EnerVenue</option><option value="Enervest">Enervest</option><option value="Engie">Engie</option><option value="Equis">Equis</option><option value="eSmart Systems">eSmart Systems</option><option value="European Energy">European Energy</option><option value="EVNGENCO1">EVNGENCO1</option><option value="Fervo">Fervo</option><option value="Fervo Energy">Fervo Energy</option><option value="FirstEnergy">FirstEnergy</option><option value="Fisker">Fisker</option><option value="Fluence">Fluence</option><option value="Fluence Energy">Fluence Energy</option><option value="Ford">Ford</option><option value="Ford Energy">Ford Energy</option><option value="Form Energy">Form Energy</option><option value="Fortescue">Fortescue</option><option value="Freedom Forever">Freedom Forever</option><option value="Frontier Power">Frontier Power</option><option value="Fujiyama Power">Fujiyama Power</option><option value="Galileo">Galileo</option><option value="GameChange Solar">GameChange Solar</option><option value="Ganfeng Lithium">Ganfeng Lithium</option><option value="Genesis">Genesis</option><option value="Georgia Power">Georgia Power</option><option value="GM">GM</option><option value="GoodWe">GoodWe</option><option value="Google">Google</option><option value="Gossamer Bio">Gossamer Bio</option><option value="Gotion">Gotion</option><option value="Grenergy">Grenergy</option><option value="Gridscape">Gridscape</option><option value="Gridstor">Gridstor</option><option value="GridStor">GridStor</option><option value="HD Renewable Energy">HD Renewable Energy</option><option value="Heliene">Heliene</option><option value="Heybike">Heybike</option><option value="Hitachi Energy">Hitachi Energy</option><option value="HiTHIUM">HiTHIUM</option><option value="Hithium">Hithium</option><option value="Honda">Honda</option><option value="Housing Unlimited">Housing Unlimited</option><option value="Huawei">Huawei</option><option value="Hull Street Energy">Hull Street Energy</option><option value="Hunter Valley Hydrogen Hub">Hunter Valley Hydrogen Hub</option><option value="Hydrostor">Hydrostor</option><option value="HyperStrong">HyperStrong</option><option value="Hyundai">Hyundai</option><option value="Iberdrola Australia">Iberdrola Australia</option><option value="IDOM Consulting">IDOM Consulting</option><option value="Inlyte Energy">Inlyte Energy</option><option value="Inovance Technology">Inovance Technology</option><option value="Inox Clean">Inox Clean</option><option value="Inox Clean Energy">Inox Clean Energy</option><option value="Intertek CEA">Intertek CEA</option><option value="Invinity">Invinity</option><option value="Invinity Energy Systems">Invinity Energy Systems</option><option value="IONNA">IONNA</option><option value="IRENA">IRENA</option><option value="ISC Konstanz">ISC Konstanz</option><option value="JA Solar">JA Solar</option><option value="JinkoSolar">JinkoSolar</option><option value="Juiced Bikes">Juiced Bikes</option><option value="Kia">Kia</option><option value="Kiwa PVEL">Kiwa PVEL</option><option value="Kwench Juice Cafe">Kwench Juice Cafe</option><option value="Kwench Juice Café">Kwench Juice Café</option><option value="kWh Analytics">kWh Analytics</option><option value="Lectric eBikes">Lectric eBikes</option><option value="LG Energy Solution">LG Energy Solution</option><option value="LG Energy Solution Vertech">LG Energy Solution Vertech</option><option value="LiveWire">LiveWire</option><option value="Lucid">Lucid</option><option value="Lyten">Lyten</option><option value="Mercedes-Benz">Mercedes-Benz</option><option value="Meridian Energy">Meridian Energy</option><option value="MG">MG</option><option value="Microsoft">Microsoft</option><option value="Milwaukee">Milwaukee</option><option value="MISO">MISO</option><option value="MN8 Energy">MN8 Energy</option><option value="Moment Energy">Moment Energy</option><option value="Naqaa Sustainable Energy">Naqaa Sustainable Energy</option><option value="NextEra">NextEra</option><option value="NextEra Energy">NextEra Energy</option><option value="NextStar Energy">NextStar Energy</option><option value="Ocean Power Technologies">Ocean Power Technologies</option><option value="Ocean Sun">Ocean Sun</option><option value="Ocean Winds">Ocean Winds</option><option value="Ocergy">Ocergy</option><option value="Orsted">Orsted</option><option value="OX2">OX2</option><option value="Pacific Fusion">Pacific Fusion</option><option value="Paris Baguette">Paris Baguette</option><option value="Pew Charitable Trusts">Pew Charitable Trusts</option><option value="Phoenix Investors">Phoenix Investors</option><option value="Pinterest">Pinterest</option><option value="Polar Racking">Polar Racking</option><option value="PowerLines">PowerLines</option><option value="PROCOMER">PROCOMER</option><option value="Quilt">Quilt</option><option value="Realty ONE Group">Realty ONE Group</option><option value="Recheck">Recheck</option><option value="Rept Battero">Rept Battero</option><option value="RES Services">RES Services</option><option value="Rivian">Rivian</option><option value="RUMSL">RUMSL</option><option value="RWE">RWE</option><option value="SAEL">SAEL</option><option value="Samsung SDI">Samsung SDI</option><option value="SANY">SANY</option><option value="Seatrium">Seatrium</option><option value="Segway">Segway</option><option value="SEIA">SEIA</option><option value="Sennebogen">Sennebogen</option><option value="Shanghai Electric">Shanghai Electric</option><option value="Shatterdome Energy">Shatterdome Energy</option><option value="Skydweller Aero">Skydweller Aero</option><option value="SMA">SMA</option><option value="SoCalGas">SoCalGas</option><option value="SolarPower Europe">SolarPower Europe</option><option value="Southern Company">Southern Company</option><option value="Spearmint Energy">Spearmint Energy</option><option value="Stegra">Stegra</option><option value="Stellantis">Stellantis</option><option value="Stewart Glass">Stewart Glass</option><option value="Subaru">Subaru</option><option value="Sungrow">Sungrow</option><option value="Sunraycer Renewables">Sunraycer Renewables</option><option value="Super Micro Computer">Super Micro Computer</option><option value="Supercool Earth">Supercool Earth</option><option value="Suzlon">Suzlon</option><option value="T1 Energy">T1 Energy</option><option value="Tenaga Nasional Berhad">Tenaga Nasional Berhad</option><option value="Tesla">Tesla</option><option value="Texture">Texture</option><option value="Tigo Energy">Tigo Energy</option><option value="TotalEnergies">TotalEnergies</option><option value="Toyo">Toyo</option><option value="Toyo Solar">Toyo Solar</option><option value="Transaera">Transaera</option><option value="Trina Storage">Trina Storage</option><option value="Trinasolar">Trinasolar</option><option value="TrinaTracker">TrinaTracker</option><option value="TXNM Energy">TXNM Energy</option><option value="Uber">Uber</option><option value="US Steel">US Steel</option><option value="Vital Farms">Vital Farms</option><option value="Volkswagen">Volkswagen</option><option value="Volvo">Volvo</option><option value="Wirtgen Invest">Wirtgen Invest</option><option value="X-energy">X-energy</option><option value="xAI">xAI</option><option value="Xcel Energy">Xcel Energy</option><option value="Xiaomi">Xiaomi</option><option value="XPeng">XPeng</option><option value="Yarra Energy Foundation">Yarra Energy Foundation</option><option value="York Space Systems">York Space Systems</option><option value="Yozma">Yozma</option><option value="Zelestra">Zelestra</option><option value="Ørsted">Ørsted</option><option value="(none)">(No company identified)</option></select>
+      <select id="filter-company"><option value="ALL">All companies</option><option value="ACEN Australia">ACEN Australia</option><option value="ADB">ADB</option><option value="AEP">AEP</option><option value="AES">AES</option><option value="Akaysha Energy">Akaysha Energy</option><option value="Alabama Power">Alabama Power</option><option value="Alef Aeronautics">Alef Aeronautics</option><option value="Amazon">Amazon</option><option value="Ameresco">Ameresco</option><option value="Anker">Anker</option><option value="Antora">Antora</option><option value="Antora Energy">Antora Energy</option><option value="Aquila Clean Energy EMEA">Aquila Clean Energy EMEA</option><option value="Arava Power">Arava Power</option><option value="Ascend Elements">Ascend Elements</option><option value="Audi">Audi</option><option value="Axi">Axi</option><option value="BC.GAME">BC.GAME</option><option value="BloombergNEF">BloombergNEF</option><option value="Bluetti">Bluetti</option><option value="BMW">BMW</option><option value="Bojangles">Bojangles</option><option value="Bridgewest Ventures">Bridgewest Ventures</option><option value="BYD">BYD</option><option value="BYD Energy Storage">BYD Energy Storage</option><option value="Cadillac">Cadillac</option><option value="CAISO">CAISO</option><option value="Canadian Solar">Canadian Solar</option><option value="Carbon">Carbon</option><option value="Centrus Energy">Centrus Energy</option><option value="Changan Automobile">Changan Automobile</option><option value="ChargePoint">ChargePoint</option><option value="Chevrolet">Chevrolet</option><option value="CIM Group">CIM Group</option><option value="Clean Air Task Force">Clean Air Task Force</option><option value="ComEd">ComEd</option><option value="Commvault Systems">Commvault Systems</option><option value="Contact Energy">Contact Energy</option><option value="Copenhagen Infrastructure Partners">Copenhagen Infrastructure Partners</option><option value="Cornell University">Cornell University</option><option value="Crusoe">Crusoe</option><option value="dcbel">dcbel</option><option value="Deye">Deye</option><option value="DJI">DJI</option><option value="DNV">DNV</option><option value="DTE Energy">DTE Energy</option><option value="Duke Energy">Duke Energy</option><option value="EDF">EDF</option><option value="EDF Power Solutions">EDF Power Solutions</option><option value="Edify Energy">Edify Energy</option><option value="EDP Renewables">EDP Renewables</option><option value="Einride">Einride</option><option value="Electric Era">Electric Era</option><option value="Enbridge">Enbridge</option><option value="Enel Green Power North America">Enel Green Power North America</option><option value="EnerVenue">EnerVenue</option><option value="Enervest">Enervest</option><option value="Engie">Engie</option><option value="Equis">Equis</option><option value="eSmart Systems">eSmart Systems</option><option value="European Energy">European Energy</option><option value="EVNGENCO1">EVNGENCO1</option><option value="Fervo">Fervo</option><option value="Fervo Energy">Fervo Energy</option><option value="FirstEnergy">FirstEnergy</option><option value="Fisker">Fisker</option><option value="Fluence">Fluence</option><option value="Fluence Energy">Fluence Energy</option><option value="Ford">Ford</option><option value="Ford Energy">Ford Energy</option><option value="Form Energy">Form Energy</option><option value="Fortescue">Fortescue</option><option value="Freedom Forever">Freedom Forever</option><option value="Frontier Power">Frontier Power</option><option value="Fujiyama Power">Fujiyama Power</option><option value="Galileo">Galileo</option><option value="GameChange Solar">GameChange Solar</option><option value="Ganfeng Lithium">Ganfeng Lithium</option><option value="Genesis">Genesis</option><option value="Georgia Power">Georgia Power</option><option value="GM">GM</option><option value="GoodWe">GoodWe</option><option value="Google">Google</option><option value="Gossamer Bio">Gossamer Bio</option><option value="Gotion">Gotion</option><option value="Grenergy">Grenergy</option><option value="Gridscape">Gridscape</option><option value="GridStor">GridStor</option><option value="Gridstor">Gridstor</option><option value="HD Renewable Energy">HD Renewable Energy</option><option value="Heliene">Heliene</option><option value="Heybike">Heybike</option><option value="Hitachi Energy">Hitachi Energy</option><option value="HiTHIUM">HiTHIUM</option><option value="Hithium">Hithium</option><option value="Honda">Honda</option><option value="Housing Unlimited">Housing Unlimited</option><option value="Huawei">Huawei</option><option value="Hull Street Energy">Hull Street Energy</option><option value="Hunter Valley Hydrogen Hub">Hunter Valley Hydrogen Hub</option><option value="Hydrostor">Hydrostor</option><option value="HyperStrong">HyperStrong</option><option value="Hyundai">Hyundai</option><option value="Iberdrola Australia">Iberdrola Australia</option><option value="IDOM Consulting">IDOM Consulting</option><option value="Inlyte Energy">Inlyte Energy</option><option value="Inovance Technology">Inovance Technology</option><option value="Inox Clean">Inox Clean</option><option value="Inox Clean Energy">Inox Clean Energy</option><option value="Intertek CEA">Intertek CEA</option><option value="Invinity">Invinity</option><option value="Invinity Energy Systems">Invinity Energy Systems</option><option value="IONNA">IONNA</option><option value="IRENA">IRENA</option><option value="ISC Konstanz">ISC Konstanz</option><option value="JA Solar">JA Solar</option><option value="JinkoSolar">JinkoSolar</option><option value="Juiced Bikes">Juiced Bikes</option><option value="Kia">Kia</option><option value="Kiwa PVEL">Kiwa PVEL</option><option value="Kwench Juice Cafe">Kwench Juice Cafe</option><option value="Kwench Juice Café">Kwench Juice Café</option><option value="kWh Analytics">kWh Analytics</option><option value="Lectric eBikes">Lectric eBikes</option><option value="LG Energy Solution">LG Energy Solution</option><option value="LG Energy Solution Vertech">LG Energy Solution Vertech</option><option value="LiveWire">LiveWire</option><option value="Lucid">Lucid</option><option value="Lyten">Lyten</option><option value="Mercedes-Benz">Mercedes-Benz</option><option value="Meridian Energy">Meridian Energy</option><option value="MG">MG</option><option value="Microsoft">Microsoft</option><option value="Milwaukee">Milwaukee</option><option value="MISO">MISO</option><option value="MN8 Energy">MN8 Energy</option><option value="Moment Energy">Moment Energy</option><option value="Naqaa Sustainable Energy">Naqaa Sustainable Energy</option><option value="NextEra">NextEra</option><option value="NextEra Energy">NextEra Energy</option><option value="NextStar Energy">NextStar Energy</option><option value="Ocean Power Technologies">Ocean Power Technologies</option><option value="Ocean Sun">Ocean Sun</option><option value="Ocean Winds">Ocean Winds</option><option value="Ocergy">Ocergy</option><option value="Orsted">Orsted</option><option value="OX2">OX2</option><option value="Pacific Fusion">Pacific Fusion</option><option value="Paris Baguette">Paris Baguette</option><option value="Pew Charitable Trusts">Pew Charitable Trusts</option><option value="Phoenix Investors">Phoenix Investors</option><option value="Pinterest">Pinterest</option><option value="Polar Racking">Polar Racking</option><option value="PowerLines">PowerLines</option><option value="PROCOMER">PROCOMER</option><option value="Quilt">Quilt</option><option value="Realty ONE Group">Realty ONE Group</option><option value="Recheck">Recheck</option><option value="Rept Battero">Rept Battero</option><option value="RES Services">RES Services</option><option value="Rivian">Rivian</option><option value="RUMSL">RUMSL</option><option value="RWE">RWE</option><option value="SAEL">SAEL</option><option value="Samsung SDI">Samsung SDI</option><option value="SANY">SANY</option><option value="Seatrium">Seatrium</option><option value="Segway">Segway</option><option value="SEIA">SEIA</option><option value="Sennebogen">Sennebogen</option><option value="Shanghai Electric">Shanghai Electric</option><option value="Shatterdome Energy">Shatterdome Energy</option><option value="Skydweller Aero">Skydweller Aero</option><option value="SMA">SMA</option><option value="SoCalGas">SoCalGas</option><option value="SolarPower Europe">SolarPower Europe</option><option value="Southern Company">Southern Company</option><option value="Spearmint Energy">Spearmint Energy</option><option value="Stegra">Stegra</option><option value="Stellantis">Stellantis</option><option value="Stewart Glass">Stewart Glass</option><option value="Subaru">Subaru</option><option value="Sungrow">Sungrow</option><option value="Sunraycer Renewables">Sunraycer Renewables</option><option value="Super Micro Computer">Super Micro Computer</option><option value="Supercool Earth">Supercool Earth</option><option value="Suzlon">Suzlon</option><option value="T1 Energy">T1 Energy</option><option value="Tenaga Nasional Berhad">Tenaga Nasional Berhad</option><option value="Tesla">Tesla</option><option value="Texture">Texture</option><option value="Tigo Energy">Tigo Energy</option><option value="TotalEnergies">TotalEnergies</option><option value="Toyo">Toyo</option><option value="Toyo Solar">Toyo Solar</option><option value="Transaera">Transaera</option><option value="Trina Storage">Trina Storage</option><option value="Trinasolar">Trinasolar</option><option value="TrinaTracker">TrinaTracker</option><option value="TXNM Energy">TXNM Energy</option><option value="Uber">Uber</option><option value="US Steel">US Steel</option><option value="Vital Farms">Vital Farms</option><option value="Volkswagen">Volkswagen</option><option value="Volvo">Volvo</option><option value="Wirtgen Invest">Wirtgen Invest</option><option value="X-energy">X-energy</option><option value="xAI">xAI</option><option value="Xcel Energy">Xcel Energy</option><option value="Xiaomi">Xiaomi</option><option value="XPeng">XPeng</option><option value="Yarra Energy Foundation">Yarra Energy Foundation</option><option value="York Space Systems">York Space Systems</option><option value="Yozma">Yozma</option><option value="Zelestra">Zelestra</option><option value="Ørsted">Ørsted</option><option value="(none)">(No company identified)</option></select>
     </div>
     <div class="filter-group">
       <label for="filter-event">Event type</label>
