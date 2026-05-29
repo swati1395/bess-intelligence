@@ -22,6 +22,7 @@ Run:
 import argparse
 import os
 import re
+import signal
 import sys
 from datetime import datetime, timezone
 from urllib.parse import urljoin
@@ -45,9 +46,31 @@ HEADERS = {
     "Accept-Language": "en-US,en;q=0.9",
     "Referer": "https://www.google.com/",
 }
-TIMEOUT = 20
+TIMEOUT = 15
+SCRAPER_BUDGET_SECONDS = 60
 
 TESLA_KEYWORDS = ["megapack", "powerwall", "energy storage", "autobidder", "lathrop"]
+
+
+class ScraperTimeout(Exception):
+    """Raised when a single scraper exceeds its wall-clock budget."""
+
+
+def _scraper_timeout_handler(signum, frame):
+    raise ScraperTimeout(f"exceeded {SCRAPER_BUDGET_SECONDS}s budget")
+
+
+def run_with_timeout(func, seconds: int = SCRAPER_BUDGET_SECONDS):
+    """Run ``func`` under a SIGALRM-based wall-clock limit. Without this, a
+    stuck HTTPS handshake or slow-loris server can hang the whole pipeline
+    (we previously hit GitHub Actions' 6-hour job ceiling)."""
+    old_handler = signal.signal(signal.SIGALRM, _scraper_timeout_handler)
+    signal.alarm(seconds)
+    try:
+        return func()
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, old_handler)
 
 
 def fetch_html(url: str) -> str:
@@ -517,7 +540,7 @@ def run_one(slug: str, conn) -> dict:
     name, scraper = SOURCES[slug]
     print(f"  → {name:<14}", end=" ", flush=True)
     try:
-        items = scraper()
+        items = run_with_timeout(scraper, seconds=SCRAPER_BUDGET_SECONDS)
         if slug == "tesla":
             items = apply_tesla_filter(items)
         added = skipped = 0
@@ -534,6 +557,11 @@ def run_one(slug: str, conn) -> dict:
         print(f"OK   — {len(items):>3} found, +{added} new, {skipped} dup/skip")
         return {"slug": slug, "name": name, "status": "ok",
                 "found": len(items), "added": added, "error": None}
+    except ScraperTimeout as e:
+        msg = str(e)
+        print(f"SKIP — WARNING: {msg}, moving on")
+        return {"slug": slug, "name": name, "status": "fail",
+                "found": 0, "added": 0, "error": f"timeout: {msg}"}
     except Exception as e:
         msg = str(e).split(":")[0] if isinstance(e, requests.RequestException) else str(e)
         print(f"FAIL — {msg[:90]}")
