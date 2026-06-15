@@ -2,12 +2,19 @@ import calendar
 import json
 import os
 import re
+import socket
 import sqlite3
 import ssl
 import sys
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from html import unescape
+
+# feedparser fetches feeds via urllib, which ignores per-request timeouts.
+# urllib honors the global socket default timeout, so set it here to ensure a
+# hanging/unresponsive feed aborts after 15s instead of blocking indefinitely
+# (the cause of the 6h job timeouts — see scraper/rss_scraper.py history).
+socket.setdefaulttimeout(15)
 
 try:
     import certifi

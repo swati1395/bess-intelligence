@@ -30,6 +30,10 @@ concurrency:
 jobs:
   pipeline:
     runs-on: ubuntu-latest
+    # Safety net: the full pipeline normally finishes in 7-15 min. If any step
+    # hangs (e.g. an unresponsive feed), kill the job at 20 min rather than
+    # letting it run to GitHub's 6h ceiling.
+    timeout-minutes: 20
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5

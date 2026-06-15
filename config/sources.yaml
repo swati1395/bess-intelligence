@@ -25,7 +25,5 @@ sources:
     url: https://www.reuters.com/business/energy/rss
   - name: GlobeNewswire Renewable Energy Equipment
     url: https://www.globenewswire.com/RssFeed/industry/56
-  - name: BusinessWire Energy
-    url: https://www.businesswire.com/rss/home/rss_by_subject/energy
   - name: PRNewswire
     url: https://www.prnewswire.com/rss/news-releases-list.rss
