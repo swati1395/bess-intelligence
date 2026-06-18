@@ -21,6 +21,11 @@ BESS Intel — Email Alert System
 #       GMAIL_APP_PASSWORD=xxxxxxxxxxxxxxxx
 #       ALERT_RECIPIENT=where.to.send@example.com
 #
+#    ALERT_RECIPIENT may be a single address or a comma-separated list, e.g.
+#       ALERT_RECIPIENT=alice@example.com, bob@example.com
+#    All addresses are Bcc'd (the message is addressed To the sender), so
+#    subscribers cannot see one another's email addresses.
+#
 #    The app password may be displayed by Google with spaces every four
 #    characters — either form works; smtplib strips them. Do not quote the
 #    value in .env.
@@ -351,11 +356,15 @@ def render_plain(title: str, subtitle: str, sections: list) -> str:
     return "\n".join(lines)
 
 
-def send_email(sender: str, password: str, recipient: str,
+def send_email(sender: str, password: str, recipients: list,
                subject: str, html_body: str, plain_body: str) -> None:
     msg = EmailMessage()
     msg["From"] = sender
-    msg["To"] = recipient
+    # Address the message to ourselves and Bcc every subscriber, so recipients
+    # cannot see each other's addresses. smtplib.send_message() strips the Bcc
+    # header before transmission but still delivers to those addresses.
+    msg["To"] = sender
+    msg["Bcc"] = ", ".join(recipients)
     msg["Subject"] = subject
     msg.set_content(plain_body)
     msg.add_alternative(html_body, subtype="html")
@@ -380,14 +389,18 @@ def mark_alerted(conn: sqlite3.Connection, article_ids: list) -> None:
 def require_env() -> tuple:
     sender = os.environ.get("GMAIL_SENDER")
     password = os.environ.get("GMAIL_APP_PASSWORD")
-    recipient = os.environ.get("ALERT_RECIPIENT")
+    recipient_raw = os.environ.get("ALERT_RECIPIENT")
     missing = [k for k, v in
                (("GMAIL_SENDER", sender), ("GMAIL_APP_PASSWORD", password),
-                ("ALERT_RECIPIENT", recipient)) if not v]
+                ("ALERT_RECIPIENT", recipient_raw)) if not v]
     if missing:
         sys.exit(f"Missing required env vars in .env: {', '.join(missing)}\n"
                  f"See the comment block at the top of alerts/email_digest.py for setup.")
-    return sender, password, recipient
+    # ALERT_RECIPIENT may be a single address or a comma-separated list.
+    recipients = [addr.strip() for addr in recipient_raw.split(",") if addr.strip()]
+    if not recipients:
+        sys.exit("ALERT_RECIPIENT is set but contains no valid email addresses.")
+    return sender, password, recipients
 
 
 def build_alert(mode: str, conn: sqlite3.Connection):
@@ -478,10 +491,11 @@ def main() -> None:
         conn.close()
         return
 
-    sender, password, recipient = require_env()
-    print(f"[{mode}] Sending to {recipient} via {sender} — subject: {subject!r}")
+    sender, password, recipients = require_env()
+    print(f"[{mode}] Sending to {len(recipients)} recipient(s) "
+          f"({', '.join(recipients)}) via {sender} — subject: {subject!r}")
     try:
-        send_email(sender, password, recipient, subject, html_body, plain_body)
+        send_email(sender, password, recipients, subject, html_body, plain_body)
     except smtplib.SMTPAuthenticationError as e:
         sys.exit(f"SMTP authentication failed: {e}\n"
                  f"Double-check GMAIL_APP_PASSWORD (must be a 16-char App Password, "
