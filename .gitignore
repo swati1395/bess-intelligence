@@ -22,6 +22,9 @@ venv/
 data/*.xlsx
 data/*.log
 
+# Migration backups (e.g. data/intel.db.bak-20260624-155653) — local safety net only
+*.db.bak-*
+
 # IDE / editor
 .vscode/
 .idea/
