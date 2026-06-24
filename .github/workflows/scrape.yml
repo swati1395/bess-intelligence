@@ -80,4 +80,8 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/intel.db docs/index.html
           git commit -m "chore: refresh intel.db + dashboard ($(date -u +%Y-%m-%d))"
+          # Race-proof: if main advanced during the run (manual push, overlapping
+          # job), replay this commit on top before pushing rather than failing on
+          # a rejected non-fast-forward. Working tree is clean here, so no stash.
+          git pull --rebase origin "${GITHUB_REF_NAME}"
           git push
