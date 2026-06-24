@@ -33,12 +33,12 @@ EventType = Literal[
 ]
 IsoMarket = Literal["ERCOT", "CAISO", "PJM", "NYISO", "MISO", "SPP", "ISO-NE"]
 Category = Literal[
-    "Direct BESS",
-    "Supply Chain",
-    "Adjacent Market",
+    "Deployment & Projects",
+    "Supply Chain & Manufacturing",
+    "Technology",
     "Policy & Regulation",
-    "Market Structure",
-    "M&A",
+    "Market & Commercial",
+    "Applications & Adjacent",
 ]
 
 
@@ -98,13 +98,19 @@ class ExtractedIntel(BaseModel):
     category: Category = Field(
         ...,
         description=(
-            "Single best-fit intelligence category. Pick exactly one:\n"
-            "- Direct BESS: product launches, contract wins, deployments, commissioning of battery storage.\n"
-            "- Supply Chain: cell manufacturers, materials pricing, factory capacity, FEOC, cell/component industry.\n"
-            "- Adjacent Market: co-located solar+storage, long-duration alternatives (iron-air, thermal, flow, hydrogen), EV battery signals that read across to stationary storage.\n"
-            "- Policy & Regulation: IRA, FEOC, NFPA, interconnection rules, capacity-market design, tariffs.\n"
-            "- Market Structure: ISO dynamics, pricing trends, grid economics, demand forecasts, transmission planning.\n"
-            "- M&A: acquisitions, mergers, investment/funding rounds, partnerships with financial significance."
+            "Single best-fit TOPIC category (one axis; event_type is the separate "
+            "kind-of-news axis). Pick exactly one:\n"
+            "- Deployment & Projects: grid-scale BESS projects — announcements, approvals, financing, construction, commissioning.\n"
+            "- Supply Chain & Manufacturing: cells, factories, raw materials, sourcing, FEOC, tariffs, trade restrictions.\n"
+            "- Technology: grid-forming, chemistries (LFP, sodium-ion, solid-state), long-duration, software, safety.\n"
+            "- Policy & Regulation: government rules, ITC, mandates, interconnection rules, grid-fee structures, ISO market-design rulings.\n"
+            "- Market & Commercial: pricing, revenue, financing trends, M&A, financial results, capital raises, market sizing, strategy analysis.\n"
+            "- Applications & Adjacent: data centers, co-location, residential/balcony batteries, C&I, EV-adjacent, battery-adjacent PR/HR news.\n"
+            "If an article fits two topics, apply the tie-breaker priority (highest wins): "
+            "1 Policy & Regulation, 2 Supply Chain & Manufacturing, 3 Deployment & Projects, "
+            "4 Market & Commercial, 5 Technology, 6 Applications & Adjacent.\n"
+            "Note: M&A is NOT a category — classify M&A stories under Market & Commercial "
+            "and set event_type=merger_acquisition."
         ),
     )
 
@@ -135,16 +141,30 @@ Be honest about low scores — many feed items will be 1s or 2s and that is fine
 
 ## Category classification
 
-Every article gets exactly one category. Pick the single best fit:
+Category is the TOPIC axis — what the story is *about*. It is independent of `event_type`,
+which captures the *kind* of news (deployment, contract, merger_acquisition, etc.). Choosing a
+category does not constrain event_type, and vice versa.
 
-- **Direct BESS**: the article centers on a battery storage product, project, or company action (launches, contract wins, deployments, commissionings).
-- **Supply Chain**: cell manufacturers, materials pricing, factory capacity decisions, FEOC restrictions — anything upstream of the deployed BESS.
-- **Adjacent Market**: co-located solar+storage projects, non-Li-ion long-duration alternatives (iron-air, thermal, flow, hydrogen), EV battery developments that read across to stationary storage.
-- **Policy & Regulation**: IRA, FEOC, NFPA, interconnection rules, capacity-market design changes, tariffs, FERC/CPUC/PUCT orders.
-- **Market Structure**: ISO dynamics, pricing trends, grid economics, demand forecasts, transmission planning — non-project-level market context.
-- **M&A**: acquisitions, mergers, equity investments, funding rounds, partnerships with financial significance.
+Every article gets exactly one category. The six categories are mutually exclusive:
 
-When in doubt, ask which lens best frames the story: a project (Direct BESS), an upstream component (Supply Chain), a tangential market (Adjacent), a rule change (Policy), a market trend (Market Structure), or a deal/transaction (M&A).
+- **Deployment & Projects**: grid-scale BESS projects — announcements, approvals, financing, construction, commissioning of specific storage projects.
+- **Supply Chain & Manufacturing**: cells, factories, raw materials, sourcing, FEOC, tariffs, trade restrictions — anything upstream of the deployed system.
+- **Technology**: grid-forming inverters, chemistries (LFP, sodium-ion, solid-state), long-duration storage, software, safety/fire research.
+- **Policy & Regulation**: government rules, ITC, mandates, interconnection rules, grid-fee structures, ISO/FERC/PUC market-design rulings.
+- **Market & Commercial**: pricing, revenue, financing trends, M&A, financial results, capital raises, market sizing, strategy/analyst commentary.
+- **Applications & Adjacent**: data centers, co-location, residential/balcony batteries, C&I, EV-adjacent, and battery-adjacent PR/HR news.
+
+**Tie-breaker priority** — when an article genuinely fits two topics, pick the highest on this list:
+
+1. Policy & Regulation
+2. Supply Chain & Manufacturing
+3. Deployment & Projects
+4. Market & Commercial
+5. Technology
+6. Applications & Adjacent
+
+**M&A is not a category.** Mergers, acquisitions, and funding rounds belong to **Market & Commercial**,
+with `event_type` set to `merger_acquisition`. Keep the topic (category) and the deal-shape (event_type) separate.
 
 ## Output
 

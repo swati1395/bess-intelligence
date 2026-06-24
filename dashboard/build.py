@@ -25,12 +25,12 @@ OUTPUT_PATH = os.path.join(PROJECT_ROOT, "docs", "index.html")
 NO_MARKET_SENTINEL = "(none)"
 
 CATEGORY_SLUGS = {
-    "Direct BESS":         "direct",
-    "Supply Chain":        "supply",
-    "Adjacent Market":     "adjacent",
-    "Policy & Regulation": "policy",
-    "Market Structure":    "market",
-    "M&A":                 "mna",
+    "Deployment & Projects":        "deployment",
+    "Supply Chain & Manufacturing": "supply",
+    "Technology":                   "tech",
+    "Policy & Regulation":          "policy",
+    "Market & Commercial":          "market",
+    "Applications & Adjacent":      "adjacent",
 }
 
 
@@ -492,8 +492,8 @@ button.reset-btn:hover { background: var(--amber-light); }
              margin-left: 6px; line-height: 1.5; }
 /* All categories share the same teal styling — semantic differentiation lives
    in the badge text itself rather than in color. */
-.cat-direct, .cat-supply, .cat-adjacent,
-.cat-policy, .cat-market, .cat-mna { color: var(--teal-mid); border-color: var(--teal-mid); }
+.cat-deployment, .cat-supply, .cat-tech,
+.cat-policy, .cat-market, .cat-adjacent { color: var(--teal-mid); border-color: var(--teal-mid); }
 
 /* Pipeline */
 .pipeline-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }

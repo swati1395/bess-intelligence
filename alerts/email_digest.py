@@ -89,12 +89,12 @@ ARTICLE_KEYS = [
 
 # Mapping from category name to a short CSS slug for color-coded badges
 CATEGORY_SLUGS = {
-    "Direct BESS":         "direct",
-    "Supply Chain":        "supply",
-    "Adjacent Market":     "adjacent",
-    "Policy & Regulation": "policy",
-    "Market Structure":    "market",
-    "M&A":                 "mna",
+    "Deployment & Projects":        "deployment",
+    "Supply Chain & Manufacturing": "supply",
+    "Technology":                   "tech",
+    "Policy & Regulation":          "policy",
+    "Market & Commercial":          "market",
+    "Applications & Adjacent":      "adjacent",
 }
 
 CSS = """
