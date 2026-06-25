@@ -45,7 +45,7 @@ jobs:
           cache: 'pip'
 
       - name: Install dependencies
-        run: pip install feedparser PyYAML certifi requests beautifulsoup4 anthropic pydantic python-dotenv
+        run: pip install feedparser PyYAML certifi requests beautifulsoup4 anthropic litellm pydantic python-dotenv
 
       - name: Run RSS scraper
         run: python scraper/rss_scraper.py
@@ -55,8 +55,9 @@ jobs:
         # JS-only pages) — the script catches per-source exceptions and exits 0.
         run: python scraper/company_scraper.py
 
-      - name: Extract structured intelligence (Claude API)
+      - name: Extract structured intelligence (Gemini primary, Sonnet fallback)
         env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python extractor/intel_extractor.py --prioritize-tags
 

@@ -2,11 +2,13 @@ import argparse
 import os
 import sqlite3
 import sys
+import time
 from typing import Literal, Optional
 
-import anthropic
+import anthropic              # used for the Sonnet fallback (native SDK keeps prompt caching)
+import litellm                # primary path: Gemini via the unified LiteLLM interface
 from dotenv import load_dotenv
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJECT_ROOT)
@@ -15,9 +17,56 @@ load_dotenv(os.path.join(PROJECT_ROOT, ".env"))
 
 from database.setup_db import DB_PATH, init_db  # noqa: E402
 
-MODEL = "claude-sonnet-4-6"
+# Quiet, resilient LiteLLM (same settings the eval validated).
+litellm.drop_params = True            # drop reasoning_effort silently if a provider rejects it
+litellm.suppress_debug_info = True
+os.environ.setdefault("LITELLM_LOG", "ERROR")
+
+PRIMARY_MODEL = "gemini/gemini-3.1-flash-lite"   # cheap, accurate primary extractor
+FALLBACK_MODEL = "claude-sonnet-4-6"             # per-article fallback when Gemini fails
 BATCH_SIZE = 10
 MAX_SUMMARY_CHARS = 4000
+MAX_TOKENS = 2048                  # raised from 1024 so Gemini reasoning can't truncate the JSON
+GEMINI_RETRIES = 2                 # short retries before falling back for an article
+GEMINI_RETRY_DELAY = 4             # seconds, fixed (fail fast to Sonnet, not exponential)
+GEMINI_TIMEOUT = 30                # hard per-call timeout so a stuck request can't hang the cron
+
+# Gemini failures that warrant retry-then-fallback (the 503 family we observed, plus timeouts).
+GEMINI_TRANSIENT = (
+    litellm.ServiceUnavailableError,
+    litellm.RateLimitError,
+    litellm.Timeout,
+    litellm.InternalServerError,
+    litellm.APIConnectionError,
+)
+
+
+class GeminiBreaker:
+    """Per-run circuit breaker. After THRESHOLD consecutive Gemini failures,
+    trips and routes ALL remaining articles straight to Sonnet — so a full
+    Gemini outage means 'today runs on Sonnet, slightly pricier', not 'the run
+    hangs ~100s/article and blows the 20-min cron cap'.
+
+    One instance per run (created in main, passed into extract_one). Lives only
+    for the process — every run starts fresh and re-probes Gemini.
+    """
+    THRESHOLD = 3
+
+    def __init__(self):
+        self.consecutive = 0      # consecutive Gemini-failed articles (reset on any success)
+        self.tripped = False      # once True, stays True for the rest of the run
+
+    def record_success(self):
+        self.consecutive = 0
+
+    def record_failure(self) -> bool:
+        """Increment the consecutive-failure count. Returns True iff this call
+        is the one that trips the breaker (so the caller logs it once)."""
+        self.consecutive += 1
+        if not self.tripped and self.consecutive >= self.THRESHOLD:
+            self.tripped = True
+            return True
+        return False
 
 EventType = Literal[
     "deployment",
@@ -205,12 +254,30 @@ def fetch_unprocessed(
     return cur.fetchall()
 
 
-def extract_one(client: anthropic.Anthropic, title: str, summary: str):
-    summary = (summary or "")[:MAX_SUMMARY_CHARS]
+def _extract_gemini(title: str, summary: str) -> ExtractedIntel:
+    """Primary path: gemini-3.1-flash-lite via LiteLLM. Raises on transient error
+    or invalid JSON so the caller can retry / fall back."""
+    user_content = f"TITLE: {title}\n\nSUMMARY: {summary}".strip()
+    resp = litellm.completion(
+        model=PRIMARY_MODEL,
+        max_tokens=MAX_TOKENS,
+        timeout=GEMINI_TIMEOUT,
+        reasoning_effort="low",                 # keep thinking minimal so it doesn't starve the JSON
+        response_format=ExtractedIntel,         # unified structured output across providers
+        messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": user_content},
+        ],
+    )
+    return ExtractedIntel.model_validate_json(resp.choices[0].message.content)
+
+
+def _extract_sonnet(client: anthropic.Anthropic, title: str, summary: str) -> ExtractedIntel:
+    """Fallback path: native Anthropic SDK — keeps prompt caching on the system prefix."""
     user_content = f"TITLE: {title}\n\nSUMMARY: {summary}".strip()
     response = client.messages.parse(
-        model=MODEL,
-        max_tokens=1024,
+        model=FALLBACK_MODEL,
+        max_tokens=MAX_TOKENS,
         system=[
             {
                 "type": "text",
@@ -221,10 +288,54 @@ def extract_one(client: anthropic.Anthropic, title: str, summary: str):
         messages=[{"role": "user", "content": user_content}],
         output_format=ExtractedIntel,
     )
-    return response.parsed_output, response.usage
+    return response.parsed_output
 
 
-def insert_extraction(conn: sqlite3.Connection, article_id: int, intel: ExtractedIntel) -> None:
+def extract_one(client: anthropic.Anthropic, title: str, summary: str, breaker: "GeminiBreaker"):
+    """Try Gemini first (2 short retries on transient error OR invalid JSON);
+    on exhaustion, fall back to Sonnet for this one article AND record the
+    failure against the run-level circuit breaker.
+
+    If the breaker is already tripped, skip Gemini entirely and go straight to
+    Sonnet — no retries, no timeouts, no wasted ~100s.
+
+    Returns (ExtractedIntel, model_used). Raises only if the Sonnet fallback
+    also fails — the caller counts that as a failed article.
+    """
+    summary = (summary or "")[:MAX_SUMMARY_CHARS]
+
+    # Breaker open → Gemini is presumed down for the rest of this run.
+    if breaker.tripped:
+        return _extract_sonnet(client, title, summary), FALLBACK_MODEL
+
+    last_err = None
+    for attempt in range(GEMINI_RETRIES + 1):
+        try:
+            intel = _extract_gemini(title, summary)
+            breaker.record_success()             # healthy Gemini call resets the streak
+            return intel, PRIMARY_MODEL
+        except (GEMINI_TRANSIENT, ValidationError) as e:
+            last_err = e
+            if attempt < GEMINI_RETRIES:
+                print(f"      ~ {PRIMARY_MODEL} {type(e).__name__}; retry "
+                      f"{attempt + 1}/{GEMINI_RETRIES} in {GEMINI_RETRY_DELAY}s")
+                time.sleep(GEMINI_RETRY_DELAY)
+                continue
+        except Exception as e:
+            last_err = e                         # unexpected — don't burn retries, fall back now
+            break
+
+    # Gemini exhausted for this article → record against the breaker, then fall back.
+    just_tripped = breaker.record_failure()
+    print(f"      ↪ Gemini failed ({type(last_err).__name__}); falling back to {FALLBACK_MODEL}")
+    if just_tripped:
+        print(f"      ⚡ CIRCUIT BREAKER TRIPPED — {GeminiBreaker.THRESHOLD} consecutive Gemini "
+              f"failures; all remaining articles this run go straight to {FALLBACK_MODEL}.")
+    return _extract_sonnet(client, title, summary), FALLBACK_MODEL
+
+
+def insert_extraction(conn: sqlite3.Connection, article_id: int, intel: ExtractedIntel,
+                      model_used: str) -> None:
     conn.execute(
         """
         INSERT INTO extracted_intel
@@ -245,7 +356,7 @@ def insert_extraction(conn: sqlite3.Connection, article_id: int, intel: Extracte
             intel.significance_score,
             intel.significance_reason,
             intel.category,
-            MODEL,
+            model_used,
         ),
     )
 
@@ -297,14 +408,17 @@ def main() -> None:
                              "articles, then re-run extraction on them (useful after schema changes).")
     args = parser.parse_args()
 
-    api_key = (os.environ.get("ANTHROPIC_API_KEY") or "").strip()
-    if not api_key:
-        sys.exit("Error: ANTHROPIC_API_KEY environment variable is not set.")
+    # GEMINI drives the primary path; ANTHROPIC is required for the Sonnet fallback.
+    if not (os.environ.get("GEMINI_API_KEY") or "").strip():
+        sys.exit("Error: GEMINI_API_KEY is not set (primary extraction model).")
+    anthropic_key = (os.environ.get("ANTHROPIC_API_KEY") or "").strip()
+    if not anthropic_key:
+        sys.exit("Error: ANTHROPIC_API_KEY is not set (required for the Sonnet fallback).")
 
     # Pass key explicitly (stripped). Avoids 'Illegal header value' errors when
     # the env var carries a trailing newline — common when secrets get pasted
     # into GitHub Actions from a file or chat.
-    client = anthropic.Anthropic(api_key=api_key)
+    client = anthropic.Anthropic(api_key=anthropic_key)
     conn = init_db()
 
     if args.reextract:
@@ -312,7 +426,7 @@ def main() -> None:
         print(f"Cleared {cleared} existing extraction(s) for re-processing.\n")
 
     articles = fetch_unprocessed(conn, limit=args.limit, prioritize_tags=args.prioritize_tags)
-    print(f"BESS Intel Extractor — model: {MODEL}")
+    print(f"BESS Intel Extractor — primary: {PRIMARY_MODEL}, fallback: {FALLBACK_MODEL}")
     print(f"DB: {DB_PATH}")
     print(f"Tag prioritization: {'ON' if args.prioritize_tags else 'off'}")
     print(f"Unprocessed articles to extract: {len(articles)}\n")
@@ -324,27 +438,25 @@ def main() -> None:
 
     results = []
     failed = 0
-    total_input = total_output = cache_read = cache_write = 0
+    model_counts = {}
+    breaker = GeminiBreaker()                          # one circuit breaker per run
 
     for i, (article_id, title, source, summary) in enumerate(articles, 1):
         try:
-            intel, usage = extract_one(client, title, summary or "")
-            insert_extraction(conn, article_id, intel)
+            intel, model_used = extract_one(client, title, summary or "", breaker)
+            insert_extraction(conn, article_id, intel, model_used)
             results.append((article_id, title, source, intel))
+            model_counts[model_used] = model_counts.get(model_used, 0) + 1
 
-            total_input += usage.input_tokens
-            total_output += usage.output_tokens
-            cache_read += getattr(usage, "cache_read_input_tokens", 0) or 0
-            cache_write += getattr(usage, "cache_creation_input_tokens", 0) or 0
-
+            flag = "" if model_used == PRIMARY_MODEL else "  (sonnet)"
             tag = f"[{intel.significance_score}] {format_field(intel.company)[:24]:<24}"
-            print(f"  {i:>3}/{len(articles)}  {tag}  {title[:70]}")
+            print(f"  {i:>3}/{len(articles)}  {tag}  {title[:60]}{flag}")
         except anthropic.APIError as e:
             failed += 1
-            print(f"  {i:>3}/{len(articles)}  API ERROR: {title[:60]} — {e}")
+            print(f"  {i:>3}/{len(articles)}  BOTH FAILED (Sonnet API error): {title[:50]} — {e}")
         except Exception as e:
             failed += 1
-            print(f"  {i:>3}/{len(articles)}  ERROR: {title[:60]} — {type(e).__name__}: {e}")
+            print(f"  {i:>3}/{len(articles)}  BOTH FAILED: {title[:50]} — {type(e).__name__}: {e}")
 
         if i % BATCH_SIZE == 0:
             conn.commit()
@@ -355,8 +467,11 @@ def main() -> None:
     bar = "=" * 90
     print(f"\n{bar}")
     print(f"DONE — {len(results)} extracted, {failed} failed")
-    print(f"Token usage — input: {total_input}, output: {total_output}, "
-          f"cache_read: {cache_read}, cache_write: {cache_write}")
+    split = ", ".join(f"{m}: {n}" for m, n in sorted(model_counts.items()))
+    print(f"Model split — {split or '(none)'}")
+    if breaker.tripped:
+        print(f"⚠ Gemini circuit breaker tripped this run — remaining articles ran on {FALLBACK_MODEL}. "
+              f"Check Gemini status before tomorrow's run.")
     print(bar)
 
     print(f"\n{bar}\nEXTRACTION RESULTS (first 10)\n{bar}")
