@@ -1,21 +1,25 @@
 name: Daily BESS Intelligence Pipeline
 
 # When this workflow runs:
-#  - On a daily schedule (cron in UTC — edit below to change)
+#  - On a daily schedule at 5 am, 9 am, and 1 pm PDT (cron is always UTC)
 #  - On-demand via "Run workflow" button in the Actions tab (workflow_dispatch)
 #
 # Pipeline order: scrape → extract → email digest → rebuild dashboard → commit.
-# Each Claude API + Gmail step reads secrets from the repo's Actions secrets;
+# Each Gmail step reads secrets from the repo's Actions secrets;
 # names must match GitHub Secret names exactly (case-sensitive).
 #
-# Cron is always UTC on GitHub Actions. 12:00 UTC corresponds to:
-#   - 8:00 am EDT / 7:00 am EST  (US Eastern)
-#   - 7:00 am CDT / 6:00 am CST  (US Central)
-#   - 5:00 am PDT / 4:00 am PST  (US Pacific)
-# Pick your time and adjust the cron string. Reference: https://crontab.guru/
+# Three runs per day: the extractor only processes unextracted articles, so the
+# 9 am and 1 pm runs do almost nothing on healthy days — but catch up if Gemini
+# was down at 5 am.
+#
+# UTC offsets (PDT / PST differ by 1h; adjust the cron if needed for winter):
+#   5 am PDT = 12:00 UTC   9 am PDT = 16:00 UTC   1 pm PDT = 20:00 UTC
+# Reference: https://crontab.guru/
 on:
   schedule:
-    - cron: '0 12 * * *'
+    - cron: '0 12 * * *'   # 5 am PDT
+    - cron: '0 16 * * *'   # 9 am PDT
+    - cron: '0 20 * * *'   # 1 pm PDT
   workflow_dispatch:
 
 # Needs write access to commit the updated DB and dashboard back.
@@ -45,7 +49,7 @@ jobs:
           cache: 'pip'
 
       - name: Install dependencies
-        run: pip install feedparser PyYAML certifi requests beautifulsoup4 anthropic litellm pydantic python-dotenv
+        run: pip install feedparser PyYAML certifi requests beautifulsoup4 litellm pydantic python-dotenv
 
       - name: Run RSS scraper
         run: python scraper/rss_scraper.py
@@ -55,10 +59,9 @@ jobs:
         # JS-only pages) — the script catches per-source exceptions and exits 0.
         run: python scraper/company_scraper.py
 
-      - name: Extract structured intelligence (Gemini primary, Sonnet fallback)
+      - name: Extract structured intelligence (Gemini-only)
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python extractor/intel_extractor.py --prioritize-tags
 
       - name: Send daily digest email
