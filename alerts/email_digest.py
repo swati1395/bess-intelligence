@@ -55,8 +55,10 @@ BESS Intel — Email Alert System
 import argparse
 import html
 import os
+import re
 import smtplib
 import sqlite3
+import string
 import sys
 from datetime import datetime, timezone
 from email.message import EmailMessage
@@ -77,14 +79,14 @@ ARTICLE_FIELDS = """
     ei.article_id, a.title, a.url, a.source_name, ei.extracted_at,
     ei.company, ei.event_type, ei.product_name, ei.capacity_mwh,
     ei.location_state, ei.iso_market, ei.customer,
-    ei.significance_score, ei.significance_reason, ei.category
+    ei.significance_score, ei.significance_reason, ei.brief, ei.category
 """
 
 ARTICLE_KEYS = [
     "article_id", "title", "url", "source_name", "extracted_at",
     "company", "event_type", "product_name", "capacity_mwh",
     "location_state", "iso_market", "customer",
-    "significance_score", "significance_reason", "category",
+    "significance_score", "significance_reason", "brief", "category",
 ]
 
 # Mapping from category name to a short CSS slug for color-coded badges
@@ -97,18 +99,42 @@ CATEGORY_SLUGS = {
     "Applications & Adjacent":      "adjacent",
 }
 
+DASHBOARD_URL = "https://swati1395.github.io/bess-intelligence/"
+
+CATEGORY_SHORT = {
+    "Deployment & Projects":        "Deployment",
+    "Supply Chain & Manufacturing": "Supply Chain",
+    "Technology":                   "Tech",
+    "Policy & Regulation":          "Policy",
+    "Market & Commercial":          "Market",
+    "Applications & Adjacent":      "Adjacent",
+}
+
+EVENT_SHORT = {
+    "deployment":            "Deployment",
+    "contract_announcement": "Contract",
+    "merger_acquisition":    "M&A",
+    "financing":             "Financing",
+    "product_launch":        "Launch",
+    "financial_results":     "Earnings",
+    "partnership":           "Partnership",
+    "regulatory_change":     "Regulatory",
+    "analysis_commentary":   "Analysis",
+    "other":                 "Other",
+}
+
 CSS = """
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
          color: #1a1a1a; margin: 0; padding: 0; background: #f3f4f6; }
   .cat-badge { display: inline-block; padding: 1px 7px; border-radius: 4px;
                font-size: 10px; font-weight: 600; margin-left: 6px;
                border: 1px solid currentColor; vertical-align: middle; }
-  .cat-direct   { color: #1e40af; background: #dbeafe; border-color: #93c5fd; }
+  .cat-deployment { color: #1e40af; background: #dbeafe; border-color: #93c5fd; }
   .cat-supply   { color: #5b21b6; background: #ede9fe; border-color: #c4b5fd; }
   .cat-adjacent { color: #4d7c0f; background: #ecfccb; border-color: #bef264; }
   .cat-policy   { color: #9a3412; background: #ffedd5; border-color: #fdba74; }
   .cat-market   { color: #075985; background: #e0f2fe; border-color: #7dd3fc; }
-  .cat-mna      { color: #831843; background: #fce7f3; border-color: #f9a8d4; }
+  .cat-tech     { color: #831843; background: #fce7f3; border-color: #f9a8d4; }
   .legend-block { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;
                   padding: 12px 16px; margin-bottom: 20px; font-size: 12px; }
   .legend-block .lt { font-weight: 600; color: #475569; margin-bottom: 6px;
@@ -191,6 +217,19 @@ def fetch_daily(conn: sqlite3.Connection) -> list:
         """
     )
     return [row_to_dict(r) for r in cur.fetchall()]
+
+
+def fetch_daily_low_count(conn: sqlite3.Connection) -> int:
+    cur = conn.cursor()
+    cur.execute(
+        """
+        SELECT COUNT(*)
+        FROM extracted_intel ei
+        WHERE ei.significance_score <= 2
+          AND ei.extracted_at >= datetime('now', '-24 hours')
+        """
+    )
+    return cur.fetchone()[0]
 
 
 def fetch_weekly(conn: sqlite3.Connection, limit: int = 10) -> list:
@@ -356,6 +395,356 @@ def render_plain(title: str, subtitle: str, sections: list) -> str:
     return "\n".join(lines)
 
 
+# =============================================================================
+# Daily digest — tiered layout with dedup
+# =============================================================================
+
+def _title_tokens(title: str) -> set:
+    t = (title or "").lower().translate(str.maketrans("", "", string.punctuation))
+    return set(t.split())
+
+
+def _jaccard(a: set, b: set) -> float:
+    if not a or not b:
+        return 0.0
+    return len(a & b) / len(a | b)
+
+
+def cluster_articles(articles: list) -> list:
+    """
+    Collapse same-event articles into clusters.
+
+    Two articles match if they share the same non-empty company (case-insensitive)
+    AND either the same non-null capacity_mwh OR title Jaccard >= 0.6.
+    When in doubt, don't merge.
+
+    Returns list of {"primary": article_dict, "sources": [(name, url), ...]}
+    """
+    THRESHOLD = 0.6
+    clusters = []
+    used = [False] * len(articles)
+
+    for i, a in enumerate(articles):
+        if used[i]:
+            continue
+        used[i] = True
+        members = [a]
+        company_a = (a["company"] or "").strip().lower()
+        cap_a = a["capacity_mwh"]
+        tokens_a = _title_tokens(a["title"])
+
+        for j, b in enumerate(articles):
+            if i == j or used[j]:
+                continue
+            company_b = (b["company"] or "").strip().lower()
+            if not company_a or not company_b or company_a != company_b:
+                continue
+            cap_b = b["capacity_mwh"]
+            if cap_a is not None and cap_b is not None:
+                matches = (cap_a == cap_b)
+            else:
+                matches = _jaccard(tokens_a, _title_tokens(b["title"])) >= THRESHOLD
+            if matches:
+                used[j] = True
+                members.append(b)
+
+        primary = max(
+            members,
+            key=lambda x: (
+                x["significance_score"],
+                len(x["significance_reason"] or ""),
+                x["extracted_at"] or "",
+            ),
+        )
+        seen_urls: set = set()
+        sources = []
+        for m in members:
+            if m["url"] not in seen_urls:
+                seen_urls.add(m["url"])
+                sources.append((m["source_name"], m["url"]))
+
+        clusters.append({"primary": primary, "sources": sources})
+
+    return clusters
+
+
+def _make_tag_html(category: str | None, event_type: str | None) -> str:
+    parts = []
+    if category:
+        parts.append(CATEGORY_SHORT.get(category, category))
+    if event_type:
+        parts.append(EVENT_SHORT.get(event_type, event_type))
+    if not parts:
+        return ""
+    label = html.escape(" · ".join(parts))
+    return (
+        f'<span style="display:inline-block;padding:1px 7px;border-radius:4px;'
+        f'font-size:11px;font-weight:500;color:#64748b;background:#f1f5f9;'
+        f'border:1px solid #e2e8f0;vertical-align:middle;margin-left:6px;">'
+        f'{label}</span>'
+    )
+
+
+def _sources_html(sources: list) -> str:
+    parts = []
+    for name, url in sources:
+        safe_url = html.escape(url or "#", quote=True)
+        safe_name = html.escape(name or "Source")
+        parts.append(
+            f'<a href="{safe_url}" style="color:#2563eb;text-decoration:none;">'
+            f'{safe_name}</a>'
+        )
+    return " · ".join(parts)
+
+
+def _first_sentence(text: str) -> str:
+    if not text:
+        return ""
+    m = re.search(r"\.(\s|$)", text)
+    return text[: m.start() + 1].strip() if m else text.strip()
+
+
+_CARD_BASE = "border-radius:4px;margin-bottom:12px;"
+_SEC_HDR = (
+    'style="font-weight:700;font-size:12px;color:#475569;margin:28px 0 10px;'
+    'padding-bottom:5px;border-bottom:2px solid #e2e8f0;'
+    'text-transform:uppercase;letter-spacing:0.06em;"'
+)
+
+
+def _render_top_story(cluster: dict) -> str:
+    p = cluster["primary"]
+    title = html.escape(p["title"] or "(untitled)")
+    tag = _make_tag_html(p.get("category"), p.get("event_type"))
+    body = html.escape(p.get("brief") or p.get("significance_reason") or "")
+    srcs = _sources_html(cluster["sources"])
+    return (
+        f'<div style="border-left:4px solid #dc2626;padding:14px 16px;'
+        f'background:#fef2f2;{_CARD_BASE}">'
+        f'<div style="font-weight:700;font-size:16px;line-height:1.35;margin-bottom:7px;">'
+        f'{title}{tag}</div>'
+        f'<div style="font-size:13px;color:#374151;line-height:1.55;margin-bottom:9px;">'
+        f'{body}</div>'
+        f'<div style="font-size:13px;">Read more → {srcs}</div>'
+        f'</div>'
+    )
+
+
+def _render_high_story(cluster: dict) -> str:
+    p = cluster["primary"]
+    title = html.escape(p["title"] or "(untitled)")
+    tag = _make_tag_html(p.get("category"), p.get("event_type"))
+    body = html.escape(
+        p.get("brief") or _first_sentence(p.get("significance_reason") or "")
+    )
+    srcs = _sources_html(cluster["sources"])
+    return (
+        f'<div style="border-left:3px solid #ea580c;padding:12px 16px;'
+        f'background:#fff7ed;{_CARD_BASE}">'
+        f'<div style="font-weight:600;font-size:15px;line-height:1.35;margin-bottom:5px;">'
+        f'{title}{tag}</div>'
+        f'<div style="font-size:13px;color:#374151;margin-bottom:7px;">{body}</div>'
+        f'<div style="font-size:13px;">Read more → {srcs}</div>'
+        f'</div>'
+    )
+
+
+def _render_glance_story(cluster: dict) -> str:
+    p = cluster["primary"]
+    title = html.escape(p["title"] or "(untitled)")
+    url = html.escape(p["url"] or "#", quote=True)
+    srcs = _sources_html(cluster["sources"])
+    # Two-cell table: bullet locked in a fixed-width cell so wrapped lines
+    # stay in the text cell and align under the first line of text, not the bullet.
+    # table-layout:fixed + explicit widths prevent Gmail from collapsing the bullet cell.
+    return (
+        '<div style="border-bottom:1px solid #f1f5f9;">'
+        '<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"'
+        ' style="table-layout:fixed;width:100%;">'
+        '<tr>'
+        '<td width="22" valign="top"'
+        ' style="width:22px;min-width:22px;padding:6px 6px 6px 0;'
+        'font-size:16px;line-height:1.5;color:#378ADD;vertical-align:top;'
+        'white-space:nowrap;">&#x25CF;</td>'
+        f'<td style="padding:6px 0;font-size:13px;line-height:1.5;word-break:break-word;">'
+        f'<a href="{url}" style="color:#1a1a1a;text-decoration:none;">{title}</a>'
+        f'&ensp;&rarr;&ensp;{srcs}'
+        f'</td>'
+        '</tr>'
+        '</table>'
+        '</div>'
+    )
+
+
+def _render_tiered_html(
+    title: str, subtitle: str,
+    clusters_by_sig: dict, low_count: int,
+    date_long: str = "",
+) -> str:
+    parts = []
+    top = clusters_by_sig.get(5, [])
+    high = clusters_by_sig.get(4, [])
+    glance = clusters_by_sig.get(3, [])
+
+    if top:
+        parts.append(f'<div {_SEC_HDR}>Top Stories</div>')
+        parts.extend(_render_top_story(c) for c in top)
+    if high:
+        parts.append(f'<div {_SEC_HDR}>What Else Moved</div>')
+        parts.extend(_render_high_story(c) for c in high)
+    if glance:
+        parts.append(f'<div {_SEC_HDR}>Worth a Glance</div>')
+        parts.extend(_render_glance_story(c) for c in glance)
+    if low_count:
+        dash = html.escape(DASHBOARD_URL, quote=True)
+        parts.append(
+            f'<div style="margin-top:24px;padding:14px 16px;background:#f8fafc;'
+            f'border-radius:4px;border:1px solid #e2e8f0;">'
+            f'<div style="font-weight:700;font-size:12px;color:#475569;'
+            f'text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">'
+            f'More in the Dashboard</div>'
+            f'<div style="font-size:13px;color:#374151;line-height:1.55;margin-bottom:8px;">'
+            f'<b>{low_count}</b> more signals today — adjacent markets, EV supply chain, '
+            f'solar, grid infrastructure, and general energy news.</div>'
+            f'<div style="font-size:13px;">'
+            f'Browse everything, search the full archive, and revisit past days → '
+            f'<a href="{dash}" style="color:#2563eb;">dashboard</a>'
+            f'</div>'
+            f'</div>'
+        )
+
+    body = "\n".join(parts)
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BESS Intel</title>
+</head>
+<body style="margin:0;padding:0;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:#1a1a1a;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation"
+       style="background:#f3f4f6;">
+  <tr>
+    <td align="center" style="padding:24px 16px;">
+
+      <!--[if mso]><table width="640" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
+      <table width="640" cellpadding="0" cellspacing="0" border="0" role="presentation"
+             style="max-width:640px;width:100%;border-radius:8px;background:#ffffff;">
+
+        <!-- MASTHEAD -->
+        <tr>
+          <td bgcolor="#042C53"
+              style="background-color:#042C53;padding:20px 24px;
+                     border-bottom:3px solid #378ADD;border-radius:8px 8px 0 0;">
+            <p style="margin:0 0 6px;font-size:22px;font-weight:500;color:#ffffff;
+                      letter-spacing:0.03em;line-height:1.2;">
+              <span style="color:#85B7EB;">&#x26A1;</span>&nbsp;Battery Energy Storage Brief
+            </p>
+            <p style="margin:0;font-size:13px;color:#B5D4F4;line-height:1.4;">
+              Daily battery storage market brief &middot; {html.escape(date_long)}
+            </p>
+          </td>
+        </tr>
+
+        <!-- SUBTITLE STRIP -->
+        <tr>
+          <td style="background-color:#ffffff;padding:11px 24px;
+                     border-bottom:1px solid #e2e8f0;">
+            <span style="font-size:12px;color:#6b7280;">{html.escape(subtitle)}</span>
+          </td>
+        </tr>
+
+        <!-- CONTENT -->
+        <tr>
+          <td style="background-color:#ffffff;padding:22px 24px 28px;
+                     border-radius:0 0 8px 8px;">
+            {body}
+            <div style="margin-top:28px;padding-top:14px;border-top:1px solid #e2e8f0;
+                        font-size:11px;color:#94a3b8;text-align:center;">
+              Battery Energy Storage Brief &middot; automated digest
+            </div>
+          </td>
+        </tr>
+
+      </table>
+      <!--[if mso]></td></tr></table><![endif]-->
+
+    </td>
+  </tr>
+</table>
+</body>
+</html>"""
+
+
+def _render_tiered_plain(
+    title: str, subtitle: str,
+    clusters_by_sig: dict, low_count: int,
+) -> str:
+    lines = [title, subtitle, "=" * max(len(title), len(subtitle)), ""]
+
+    def _tag(p):
+        parts = []
+        if p.get("category"):
+            parts.append(CATEGORY_SHORT.get(p["category"], p["category"]))
+        if p.get("event_type"):
+            parts.append(EVENT_SHORT.get(p["event_type"], p["event_type"]))
+        return f"[{' · '.join(parts)}]" if parts else ""
+
+    def _srcs(sources):
+        return " · ".join(name for name, _ in sources)
+
+    top = clusters_by_sig.get(5, [])
+    high = clusters_by_sig.get(4, [])
+    glance = clusters_by_sig.get(3, [])
+
+    if top:
+        lines += ["TOP STORIES", "─" * 40]
+        for i, c in enumerate(top, 1):
+            p = c["primary"]
+            merged = f" [{len(c['sources'])} sources]" if len(c["sources"]) > 1 else ""
+            lines += [
+                f"  {i}. {p['title']}  {_tag(p)}{merged}",
+                f'     "{p["significance_reason"] or ""}"',
+                f"     → {_srcs(c['sources'])}",
+                "",
+            ]
+    if high:
+        lines += ["WHAT ELSE MOVED", "─" * 40]
+        for i, c in enumerate(high, 1):
+            p = c["primary"]
+            lines += [
+                f"  {i}. {p['title']}  {_tag(p)}",
+                f'     "{_first_sentence(p["significance_reason"] or "")}"',
+                f"     → {_srcs(c['sources'])}",
+                "",
+            ]
+    if glance:
+        lines += ["WORTH A GLANCE", "─" * 40]
+        for i, c in enumerate(glance, 1):
+            p = c["primary"]
+            lines.append(
+                f"  {i:>2}. {p['title']}  {_tag(p)}  → {_srcs(c['sources'])}"
+            )
+        lines.append("")
+    if low_count:
+        lines += [
+            "MORE IN THE DASHBOARD",
+            f"{low_count} more signals today — adjacent markets, EV supply chain, solar, "
+            f"grid infrastructure, and general energy news.",
+            f"Browse everything, search the full archive, and revisit past days → {DASHBOARD_URL}",
+        ]
+    lines += ["", "— BESS Market Intelligence System (automated digest)"]
+    return "\n".join(lines)
+
+
+def _build_daily_subject(clusters_by_sig: dict, date_str: str) -> str:
+    return f"Battery Energy Storage Brief — {date_str}"
+
+
+# =============================================================================
+# Email composition
+# =============================================================================
+
 def send_email(sender: str, password: str, recipients: list,
                subject: str, html_body: str, plain_body: str) -> None:
     msg = EmailMessage()
@@ -421,13 +810,31 @@ def build_alert(mode: str, conn: sqlite3.Connection):
 
     if mode == "daily":
         articles = fetch_daily(conn)
-        date_str = now_local.strftime("%Y-%m-%d")
-        subject = f"BESS Intel Daily: {date_str}"
-        title = subject
-        subtitle = (f"{len(articles)} article{'s' if len(articles) != 1 else ''} "
-                    f"with significance ≥ 3 in the last 24 hours")
-        sections = group_by_company(articles)
-        return subject, render_html(title, subtitle, sections), render_plain(title, subtitle, sections), []
+        low_count = fetch_daily_low_count(conn)
+        clusters = cluster_articles(articles)
+
+        clusters_by_sig: dict = {5: [], 4: [], 3: []}
+        for c in clusters:
+            sig = c["primary"]["significance_score"]
+            if sig in clusters_by_sig:
+                clusters_by_sig[sig].append(c)
+
+        sig3_cap = 5
+        sig3_overflow = max(0, len(clusters_by_sig[3]) - sig3_cap)
+        clusters_by_sig[3] = clusters_by_sig[3][:sig3_cap]
+        low_count += sig3_overflow
+        date_str = now_local.strftime("%b %-d")
+        date_long = now_local.strftime("%B %-d, %Y")
+        subject = _build_daily_subject(clusters_by_sig, date_str)
+        title = f"BESS Intel — {now_local.strftime('%Y-%m-%d')}"
+        n_notable = sum(len(v) for v in clusters_by_sig.values())
+        subtitle = (
+            f"{n_notable} notable stor{'ies' if n_notable != 1 else 'y'} · "
+            f"{low_count} lower-signal items in dashboard"
+        )
+        html_body = _render_tiered_html(title, subtitle, clusters_by_sig, low_count, date_long)
+        plain_body = _render_tiered_plain(title, subtitle, clusters_by_sig, low_count)
+        return subject, html_body, plain_body, []
 
     if mode == "weekly":
         articles = fetch_weekly(conn, limit=10)
@@ -461,7 +868,7 @@ def main() -> None:
     group.add_argument("--tier1", action="store_true",
                        help="Send immediate alerts for unalerted articles with score 4-5.")
     group.add_argument("--daily", action="store_true",
-                       help="Send daily digest of last 24h, significance ≥ 3, grouped by company.")
+                       help="Send daily digest of last 24h, significance ≥ 3, tiered by score.")
     group.add_argument("--weekly", action="store_true",
                        help="Send weekly roundup of top 10 by significance from last 7 days.")
     group.add_argument("--test", action="store_true",

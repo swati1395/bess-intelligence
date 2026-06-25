@@ -144,6 +144,17 @@ class ExtractedIntel(BaseModel):
         ...,
         description="One sentence justifying the score in BESS-competitive terms.",
     )
+    brief: Optional[str] = Field(
+        None,
+        description=(
+            "One sentence in Bloomberg terminal style: named actor + active verb + key number "
+            "($, MWh, GWh, MW, %) if present + one-clause so-what. "
+            "Vary sentence openings — no fixed template. "
+            "Banned: landmark, market-moving, significant, notable, major. "
+            "If pure analysis with no named actor, open with the finding. "
+            "Target 20–35 words; never exceed 40."
+        ),
+    )
     category: Category = Field(
         ...,
         description=(
@@ -215,9 +226,26 @@ Every article gets exactly one category. The six categories are mutually exclusi
 **M&A is not a category.** Mergers, acquisitions, and funding rounds belong to **Market & Commercial**,
 with `event_type` set to `merger_acquisition`. Keep the topic (category) and the deal-shape (event_type) separate.
 
+## News brief
+
+The `brief` field is ONE sentence in Bloomberg terminal style:
+- Open with the named actor (company, agency, country) as subject + active verb.
+- Embed the key number ($, MWh, GWh, MW, %) if the article contains one.
+- Close with one clause on the commercial or strategic consequence.
+- Vary sentence openings — do NOT follow a fixed template across articles.
+- Banned words: landmark, market-moving, significant, notable, major.
+- Pure analysis with no named actor: open with the finding instead.
+- Target 20–35 words; never exceed 40.
+
+Good examples:
+  "Tesla signed a $5B deal with NatPower to supply 25 GWh of Megapack systems across Italy and the UK, its largest storage contract to date."
+  "Fluence added a 10 MWh high-density Smartstack tier to its platform, tightening its positioning against Tesla's Megapack in the utility-scale segment."
+  "Australia awarded 4.2 GW / 16.1 GWh of contracts under its Capacity Investment Scheme, the country's largest coordinated grid-storage procurement."
+  "U.S. battery storage additions hit 3.3 GW in Q1 2026, a 54% year-over-year jump driven by developers racing to complete projects ahead of tariff uncertainty."
+
 ## Output
 
-Return a single JSON object matching the schema. Required: `significance_score`, `significance_reason`, `category`. All other fields may be null."""
+Return a single JSON object matching the schema. Required: `significance_score`, `significance_reason`, `brief`, `category`. All other fields may be null."""
 
 
 TAG_PRIORITY_SQL = """
@@ -341,8 +369,8 @@ def insert_extraction(conn: sqlite3.Connection, article_id: int, intel: Extracte
         INSERT INTO extracted_intel
             (article_id, company, event_type, product_name, capacity_mwh,
              location_state, iso_market, customer, significance_score,
-             significance_reason, category, model_used)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             significance_reason, brief, category, model_used)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             article_id,
@@ -355,6 +383,7 @@ def insert_extraction(conn: sqlite3.Connection, article_id: int, intel: Extracte
             intel.customer,
             intel.significance_score,
             intel.significance_reason,
+            intel.brief,
             intel.category,
             model_used,
         ),
