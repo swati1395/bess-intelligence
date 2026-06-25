@@ -410,17 +410,94 @@ def _jaccard(a: set, b: set) -> float:
     return len(a & b) / len(a | b)
 
 
-def cluster_articles(articles: list) -> list:
-    """
-    Collapse same-event articles into clusters.
+# Words that appear capitalised in titles but carry no identity signal.
+_COMMON_CAPS = {
+    "The", "This", "That", "These", "Those", "Their", "There",
+    "New", "First", "Second", "Third", "Last", "Next", "With",
+    "From", "About", "After", "Before", "Into", "Over", "Under",
+    "Most", "More", "Long", "High", "Large", "Major", "Global",
+    "Solar", "Energy", "Power", "Battery", "Storage", "Grid",
+    "News", "Deal", "Fund", "Plan", "Year", "Data", "Tech",
+    "Market", "Report", "Study", "Group", "Home", "North",
+    "South", "East", "West", "Record", "Historic", "Target",
+    "Industry", "Project", "Billion", "Million",
+}
+# ALL-CAPS unit abbreviations — exclude from the proper-noun signal set.
+_UNIT_ABBREVS = {"GW", "MW", "KW", "GWH", "MWH", "KWH", "TWH"}
 
-    Two articles match if they share the same non-empty company (case-insensitive)
-    AND either the same non-null capacity_mwh OR title Jaccard >= 0.6.
-    When in doubt, don't merge.
+
+def _extract_signals(title: str) -> tuple:
+    """Return (numbers, proper_nouns) extracted from a title.
+
+    numbers     — normalised energy values ('16gw', '25gwh') and dollar amounts
+                  ('$5B', '$900M') that anchor same-event identification.
+    proper_nouns — company/brand/place tokens that distinguish *who* is
+                  involved (capitalised words and acronyms, stoplist filtered).
+    """
+    nums: set = set()
+    for m in re.finditer(
+        r'\b(\d[\d,]*(?:\.\d+)?)\s*(GWh?|MWh?|kWh?|TWh)\b', title, re.IGNORECASE
+    ):
+        nums.add(f"{m.group(1).replace(',', '')}{m.group(2).lower()}")
+    for m in re.finditer(r'US?\$(\d+(?:\.\d+)?)\s*([BMK])\b', title):
+        nums.add(f"${m.group(1)}{m.group(2).upper()}")
+    for m in re.finditer(r'\$(\d+(?:\.\d+)?)\s*(?:billion|million)\b', title, re.IGNORECASE):
+        nums.add(f"${m.group(1)}{'B' if 'b' in m.group(0).lower() else 'M'}")
+
+    proper: set = set()
+    for w in re.findall(r'\b[A-Z][a-z]{2,}\b', title):
+        if w not in _COMMON_CAPS:
+            proper.add(w.lower())
+    for w in re.findall(r'\b[A-Z]{2,}\b', title):
+        if w not in _UNIT_ABBREVS:
+            proper.add(w.lower())
+
+    return nums, proper
+
+
+def _should_merge(a: dict, b: dict) -> bool:
+    """Three-condition merge test (any one triggers):
+
+    1. Same non-null company + (same capacity OR Jaccard >= 0.60)
+       — existing same-outlet / same-company dedup.
+    2. Jaccard >= 0.72 regardless of company (including null)
+       — catches near-identical titles published by different outlets when
+       the extracted company field differs or is absent.
+    3. >= 1 shared energy/dollar number + >= 2 shared proper-noun tokens
+       — catches multi-outlet coverage of the same deal where each outlet
+       leads with a different co-signatory (e.g. VPP stories with Tesla /
+       Sunrun / Renew Home as respective lead companies).
+
+    Conservative by design: a shared number alone (two different 16 GWh
+    deals) never triggers a merge without corroborating proper-noun overlap.
+    """
+    company_a = (a["company"] or "").strip().lower()
+    company_b = (b["company"] or "").strip().lower()
+    cap_a, cap_b = a["capacity_mwh"], b["capacity_mwh"]
+    tok_a = _title_tokens(a["title"])
+    tok_b = _title_tokens(b["title"])
+
+    # Condition 1 — same company
+    if company_a and company_b and company_a == company_b:
+        if cap_a is not None and cap_b is not None:
+            return cap_a == cap_b
+        return _jaccard(tok_a, tok_b) >= 0.60
+
+    # Condition 2 — near-identical title (any company, including null)
+    if _jaccard(tok_a, tok_b) >= 0.72:
+        return True
+
+    # Condition 3 — strong cross-company signal
+    nums_a, proper_a = _extract_signals(a["title"])
+    nums_b, proper_b = _extract_signals(b["title"])
+    return bool(nums_a & nums_b) and len(proper_a & proper_b) >= 2
+
+
+def cluster_articles(articles: list) -> list:
+    """Collapse same-event articles into clusters.
 
     Returns list of {"primary": article_dict, "sources": [(name, url), ...]}
     """
-    THRESHOLD = 0.6
     clusters = []
     used = [False] * len(articles)
 
@@ -429,22 +506,11 @@ def cluster_articles(articles: list) -> list:
             continue
         used[i] = True
         members = [a]
-        company_a = (a["company"] or "").strip().lower()
-        cap_a = a["capacity_mwh"]
-        tokens_a = _title_tokens(a["title"])
 
         for j, b in enumerate(articles):
             if i == j or used[j]:
                 continue
-            company_b = (b["company"] or "").strip().lower()
-            if not company_a or not company_b or company_a != company_b:
-                continue
-            cap_b = b["capacity_mwh"]
-            if cap_a is not None and cap_b is not None:
-                matches = (cap_a == cap_b)
-            else:
-                matches = _jaccard(tokens_a, _title_tokens(b["title"])) >= THRESHOLD
-            if matches:
+            if _should_merge(a, b):
                 used[j] = True
                 members.append(b)
 
