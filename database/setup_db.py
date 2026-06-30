@@ -111,6 +111,15 @@ def init_db(db_path: str = DB_PATH) -> sqlite3.Connection:
     cur.execute("CREATE INDEX IF NOT EXISTS idx_pipeline_status ON pipeline_projects(q_status)")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_pipeline_developer ON pipeline_projects(developer)")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_pipeline_qdate ON pipeline_projects(q_date)")
+
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS daily_digest_log (
+            sent_date TEXT PRIMARY KEY
+        )
+        """
+    )
+
     conn.commit()
     return conn
 

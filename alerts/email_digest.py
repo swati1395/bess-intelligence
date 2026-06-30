@@ -830,6 +830,19 @@ def send_email(sender: str, password: str, recipients: list,
         smtp.send_message(msg)
 
 
+def daily_already_sent(conn: sqlite3.Connection, date_str: str) -> bool:
+    cur = conn.cursor()
+    cur.execute("SELECT 1 FROM daily_digest_log WHERE sent_date = ?", (date_str,))
+    return cur.fetchone() is not None
+
+
+def record_daily_sent(conn: sqlite3.Connection, date_str: str) -> None:
+    conn.execute(
+        "INSERT OR IGNORE INTO daily_digest_log (sent_date) VALUES (?)", (date_str,)
+    )
+    conn.commit()
+
+
 def mark_alerted(conn: sqlite3.Connection, article_ids: list) -> None:
     if not article_ids:
         return
@@ -894,6 +907,8 @@ def build_alert(mode: str, conn: sqlite3.Connection):
         subject = _build_daily_subject(clusters_by_sig, date_str)
         title = f"BESS Intel — {now_local.strftime('%Y-%m-%d')}"
         n_notable = sum(len(v) for v in clusters_by_sig.values())
+        if n_notable == 0:
+            return None
         subtitle = (
             f"{n_notable} notable stor{'ies' if n_notable != 1 else 'y'} · "
             f"{low_count} lower-signal items in dashboard"
@@ -946,15 +961,32 @@ def main() -> None:
     mode = next(m for m in ("tier1", "daily", "weekly", "test") if getattr(args, m))
     conn = init_db()
 
+    today_utc = datetime.now(timezone.utc).date().isoformat()
+
+    # Once-per-day guard for --daily: runs for both live and dry-run so the
+    # output accurately reflects what a live run would do.
+    if mode == "daily":
+        if daily_already_sent(conn, today_utc):
+            print(f"[daily] Already sent for {today_utc} — skipping"
+                  f"{' (dry-run)' if args.dry_run else ''}.")
+            conn.close()
+            return
+
     alert = build_alert(mode, conn)
     if alert is None:
-        print(f"[{mode}] Nothing to send — no qualifying articles.")
+        if mode == "daily":
+            print(f"[daily] 0 notable stories for {today_utc} — skipping"
+                  f"{' (dry-run)' if args.dry_run else ''} (day stays unrecorded).")
+        else:
+            print(f"[{mode}] Nothing to send — no qualifying articles.")
         conn.close()
         return
 
     subject, html_body, plain_body, mark_ids = alert
 
     if args.dry_run:
+        if mode == "daily":
+            print(f"[daily] Not yet sent for {today_utc} — would send (dry-run).")
         print(f"Subject: {subject}\n")
         print("--- PLAIN TEXT ---\n")
         print(plain_body)
@@ -979,6 +1011,12 @@ def main() -> None:
     if mark_ids:
         mark_alerted(conn, mark_ids)
         print(f"[{mode}] Marked {len(mark_ids)} article(s) as alerted.")
+
+    # Record the send AFTER SMTP success. No record on failure → next run retries.
+    if mode == "daily":
+        record_daily_sent(conn, today_utc)
+        print(f"[daily] Recorded sent_date={today_utc}.")
+
     print(f"[{mode}] Sent.")
     conn.close()
 
